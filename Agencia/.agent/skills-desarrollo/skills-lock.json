@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "to-prd": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/to-prd/SKILL.md",
+      "computedHash": "1f5f7a475757eb4030155130f4fd7f161a20e5731c4b39edd4abe2df9cc72901"
+    }
+  }
+}
