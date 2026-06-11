@@ -1,31 +1,50 @@
 ---
 name: backend-dominio-limpio
-description: Guía arquitectónica y estándares de código para el desarrollo del backend (Node.js/Prisma) basado en Clean Architecture y Domain-Driven Design para el sistema Tutti Bocado.
+description: Guia arquitectonica y estandares para desarrollar backend SMT con Node.js, Express, TypeScript, PostgreSQL y Prisma bajo Clean Architecture y arquitectura hexagonal.
 ---
-# Skill: Backend con Dominio Limpio
+
+# Habilidad: Backend con Dominio Limpio
 
 ## Objetivo
-Garantizar la sostenibilidad, escalabilidad y legibilidad del código backend del CEDIS Tutti Bocado mediante la separación estricta de responsabilidades y la organización por dominios de negocio.
+Garantizar que el backend del proyecto SMT se construya con separacion estricta de responsabilidades, bajo acoplamiento, alta cohesion y trazabilidad tecnica, evitando que la logica de negocio quede mezclada con Express o Prisma.
 
-## Arquitectura de Sistema (Clean Architecture)
-El diseño garantiza que la lógica de negocio central (reglas de almacén, FIFO, validación de permisos operativos) no esté acoplada al framework HTTP ni a la base de datos.
-- **Capa de Aplicación (Rutas/Controladores):** Maneja solicitudes HTTP, middlewares de autenticación (JWT/Geolocalización) y transformaciones de DTOs.
-- **Capa de Dominio (Servicios):** Orquesta los flujos de negocio como la validación de órdenes de compra, control de horarios para pedidos de sucursal y lógica FIFO.
-- **Capa de Infraestructura (Repositorios/Prisma):** Exclusiva para la persistencia y lectura en PostgreSQL (con mapeos para evitar filtrar hashes o data sensible).
-
-## Estructura de Directorios
-Todo nuevo desarrollo backend debe ser alojado como un dominio modular en `src/modules/<nombre-dominio>/`:
+## Arquitectura obligatoria
+Todo desarrollo backend debe organizarse por modulos de negocio dentro de `backend/src/modulos/`:
 
 ```text
-/modules/pedidos/
-├── pedidos.routes.ts       # Endpoints REST y asignación de middlewares/guards
-├── pedidos.controller.ts   # Manejo de Req/Res, captura de errores HTTP
-├── pedidos.service.ts      # Lógica pura de negocio (ej. validación de horario, stock)
-└── pedidos.repository.ts   # Consultas específicas con Prisma
+backend/src/modulos/administracion/almacen/
+├── dominio/
+│   ├── entidades/
+│   └── repositorios/
+├── aplicacion/
+│   ├── casos-uso/
+│   └── dto/
+├── infraestructura/
+│   └── repositorios/
+└── interfaces/
+    └── http/
+        ├── controladores/
+        └── rutas.ts
 ```
 
-## Reglas y Restricciones de Implementación
-1. **Separación Estricta:** Un controlador NUNCA debe invocar a Prisma directamente. El controlador delega al servicio, y el servicio delega al repositorio.
-2. **Trazabilidad Inmutable:** Toda acción de escritura/actualización (ej. autorizar un retorno) debe generar un log de auditoría (Soft-delete obligatorio).
-3. **Transacciones:** Operaciones compuestas (ej. descontar stock y generar ticket de salida) deben usar `$transaction` de Prisma para mantener integridad relacional.
-4. **Nomenclatura Híbrida:** Archivos en `kebab-case`. Métodos de dominio en `camelCase` español (ej. `validarHorarioPedido()`, `calcularMermaDiaria()`). Términos técnicos estructurales (middlewares, interfaces) en inglés.
+## Reglas de implementacion
+1. Los controladores HTTP nunca invocan Prisma directamente.
+2. Los casos de uso contienen la logica de negocio y dependen de interfaces de repositorio.
+3. Los repositorios de infraestructura son la unica capa autorizada para usar Prisma.
+4. Las entidades de dominio no deben importar Express, Prisma ni librerias de infraestructura.
+5. Toda entrada debe validarse antes de llegar al caso de uso.
+6. Las operaciones compuestas deben usar `$transaction` cuando la integridad de datos lo requiera.
+7. Los nombres de variables, funciones, DTOs, errores y logs deben mantenerse en espanol, salvo palabras reservadas o convenciones inevitables.
+
+## Restricciones
+- Stack obligatorio: Node.js 22 LTS, Express.js, TypeScript, PostgreSQL y Prisma.
+- Quedan prohibidos `SQL Server`, `Knex` y accesos paralelos a la persistencia fuera de Prisma.
+- No usar consultas SQL crudas salvo excepcion aprobada y documentada.
+
+## Validacion rapida
+Antes de cerrar un cambio backend, confirma:
+
+- Separacion correcta entre interfaces HTTP, aplicacion, dominio e infraestructura.
+- Uso exclusivo de Prisma en repositorios.
+- DTOs y contratos consistentes con frontend.
+- Errores y mensajes en espanol.

@@ -1,12 +1,12 @@
-# Agent Personas
+# Guia de Personas Agente
 
 Specialist personas that play a single role with a single perspective. Each persona is a Markdown file consumed as a system prompt by your harness (Claude Code, Cursor, Copilot, etc.).
 
 | Persona | Role | Best for |
 |---------|------|----------|
-| [code-reviewer](code-reviewer.md) | Senior Staff Engineer | Five-axis review before merge |
-| [security-auditor](security-auditor.md) | Security Engineer | Vulnerability detection, OWASP-style audit |
-| [test-engineer](test-engineer.md) | QA Engineer | Test strategy, coverage analysis, Prove-It pattern |
+| [revisor-de-codigo](revisor-de-codigo.md) | Senior Staff Engineer | Five-axis review before merge |
+| [auditor-de-seguridad](auditor-de-seguridad.md) | Security Engineer | Vulnerability detection, OWASP-style audit |
+| [ingeniero-de-pruebas](ingeniero-de-pruebas.md) | QA Engineer | Test strategy, coverage analysis, Prove-It pattern |
 
 ## How personas relate to skills and commands
 

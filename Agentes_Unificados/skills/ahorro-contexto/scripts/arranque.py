@@ -1,8 +1,24 @@
 import os
 import sys
+import argparse
 
-def ejecutar_arranque():
+def ejecutar_arranque(proyecto=None):
     print("=== SMT AGENCIA - MEMORIA PERSISTENTE (ARRANQUE) ===")
+    if proyecto:
+        from memoria_proyecto import imprimir_cloudmem, leer_cloudmem, leer_mem_palace, resolver_proyecto
+
+        ruta_proyecto = resolver_proyecto(proyecto)
+        print(f"[+] Usando memoria independiente del proyecto: {ruta_proyecto}")
+        contexto = leer_mem_palace(ruta_proyecto)
+        if contexto:
+            print("\n--- MEM PALACE DEL PROYECTO ---")
+            print(contexto)
+            print("--------------------------------\n")
+        else:
+            print("[i] Mem Palace del proyecto no tiene entradas.")
+        imprimir_cloudmem(leer_cloudmem(ruta_proyecto, limite=8))
+        return
+
     # Validar instalación de cryptography
     try:
         import cryptography
@@ -33,7 +49,17 @@ def ejecutar_arranque():
     else:
         print("[i] No se encontró historial cifrado de Mem Palace. Iniciando nueva sesión limpia.")
 
+    try:
+        from cloudmem import imprimir_entradas, leer_entradas
+        print("\n[+] Consultando CloudMem local para historial operativo reciente...")
+        imprimir_entradas(leer_entradas(limite=8))
+    except Exception as e:
+        print(f"[!] No se pudo consultar CloudMem local: {e}")
+
 if __name__ == "__main__":
     # Asegurar que el script puede importar mem_palace local
     sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-    ejecutar_arranque()
+    parser = argparse.ArgumentParser(description="Arranque de memoria persistente.")
+    parser.add_argument("--proyecto", default="", help="Ruta del proyecto para usar memoria independiente.")
+    args = parser.parse_args()
+    ejecutar_arranque(args.proyecto or None)

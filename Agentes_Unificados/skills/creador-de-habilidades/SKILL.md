@@ -2,7 +2,7 @@
 name: creador-de-habilidades
 description: Crea nuevas habilidades para el agente Antigravity siguiendo los estándares establecidos. Utiliza esta habilidad cuando el usuario solicite una nueva capacidad estructurada.
 ---
-# Skill: Creador de Habilidades
+# Habilidad: Creador de Habilidades
 
 Esta habilidad permite al agente crear nuevas capacidades reutilizables (habilidades) en el workspace siguiendo los estándares oficiales de Antigravity.
 
@@ -37,7 +37,7 @@ Utiliza esta habilidad cuando un usuario solicite:
 name: nombre-de-la-habilidad
 description: Descripción corta y clara de qué hace esta habilidad.
 ---
-# Skill: [Nombre de la Habilidad]
+# Habilidad: [Nombre de la Habilidad]
 
 ## Objetivo
 [Breve explicación del objetivo]

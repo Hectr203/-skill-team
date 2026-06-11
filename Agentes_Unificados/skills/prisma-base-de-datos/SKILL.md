@@ -1,62 +1,45 @@
 ---
 name: prisma-base-de-datos
-description: Guía y convenciones para el uso de Prisma ORM con PostgreSQL en el backend, incluyendo diseño de modelos, transacciones, migraciones y seeds.
+description: Guia y convenciones para el uso obligatorio de Prisma con PostgreSQL en SMT, incluyendo modelos, migraciones, semillas, repositorios y transacciones.
 ---
 
-# Skill: Prisma y Base de Datos (PostgreSQL)
+# Habilidad: Prisma y Base de Datos
 
 ## Objetivo
-Definir las reglas y convenciones para la gestión de la base de datos usando Prisma ORM, garantizando un esquema limpio, consistente y preparado para escalar.
+Definir una capa de persistencia consistente para SMT usando PostgreSQL y Prisma, con modelos claros, migraciones trazables y repositorios alineados a la arquitectura hexagonal.
 
-## Reglas de Modelado en `schema.prisma`
+## Reglas de modelado en `schema.prisma`
+1. Los modelos se nombran en espanol, singular y `PascalCase`: `Usuario`, `Ruta`, `Unidad`.
+2. Los campos se nombran en espanol y `camelCase`, sin acentos por compatibilidad tecnica: `nombreComercial`, `kilometrosReales`.
+3. Todo modelo debe incluir:
 
-1.  **Nomenclatura Obligatoria:**
-    *   **Modelos (Tablas):** `PascalCase` singular en inglés o español, pero Prisma usa convención PascalCase (ej. `model Usuario`, `model Ruta`).
-    *   **Campos (Columnas):** `camelCase` en español (ej. `nombreComercial`, `kilómetrosReales`).
-    *   **Comentarios:** Usar `///` para comentarios que se reflejen en los tipos generados y `//` para anotaciones internas.
+```prisma
+id            String    @id @default(cuid())
+creadoEn      DateTime  @default(now())
+actualizadoEn DateTime  @updatedAt
+```
 
-2.  **Identificadores y Timestamps:**
-    *   Todo modelo debe tener un ID tipo CUID: `id String @id @default(cuid())`
-    *   Todo modelo debe registrar su creación y actualización:
-        ```prisma
-        creadoEn      DateTime  @default(now())
-        actualizadoEn DateTime  @updatedAt
-        ```
+4. Cuando aplique borrado logico, agrega `eliminadoEn DateTime?`.
+5. Las relaciones deben declararse de forma explicita con sus campos relacionales y referencias.
 
-3.  **Soft Deletion (Borrado Lógico Obligatorio):**
-    *   **NUNCA** eliminar registros físicamente. Todo modelo susceptible de borrado debe incluir `eliminadoEn DateTime?`.
-    *   Los repositorios deben filtrar siempre `where: { eliminadoEn: null }`.
-    *   Para eliminar, usar `update({ where: { id }, data: { eliminadoEn: new Date() } })`.
+## Acceso a datos
+1. `PrismaClient` debe inicializarse como singleton en `src/config/prisma.ts`.
+2. Los controladores HTTP jamas importan Prisma.
+3. Solo los repositorios de infraestructura pueden acceder a Prisma.
+4. Los casos de uso dependen de interfaces de repositorio, no de implementaciones Prisma.
 
-4.  **Relaciones (1:1, 1:N, N:M):**
-    *   Definir claramente los campos relacionales, ej:
-        ```prisma
-        chofer   Chofer @relation(fields: [choferId], references: [id])
-        choferId String
-        ```
-    *   Usar onDelete y onUpdate de forma explícita si se requiere comportamiento en cascada (aunque preferiblemente controlarlo a nivel de código con soft deletes).
+## Transacciones y consistencia
+- Usa `$transaction` cuando una operacion involucre varias escrituras dependientes.
+- Evita cambios parciales que rompan integridad referencial o trazabilidad.
+- Define indices y restricciones solo cuando respondan a necesidades reales del dominio.
 
-## Acceso a Datos y Repositorios
+## Migraciones y semillas
+1. Toda modificacion de `schema.prisma` debe generar una migracion con nombre claro en espanol.
+2. Nunca reescribas una migracion ya aplicada; corrige con una nueva.
+3. Las semillas viven en `prisma/seed.ts` y deben poblar catalogos y datos iniciales controlados.
 
-1.  **Aislamiento de Prisma Client:**
-    *   La instancia de `PrismaClient` debe inicializarse como singleton en `src/config/prisma.ts`.
-    *   **REGLA DE ORO:** Los Controladores HTTP **JAMÁS** deben importar `PrismaClient`. Solo los Repositorios acceden a Prisma. Los Servicios llaman a los Repositorios.
-
-2.  **Uso de Transacciones (`$transaction`):**
-    *   Utilizar `$transaction` cuando una operación involucre múltiples escrituras dependientes.
-    *   Ejemplo: Al autorizar un mantenimiento correctivo, se cambia el estado del `Mantenimiento` a ACTIVO y simultáneamente se actualiza el estado de la `Unidad` a EN_TALLER.
-
-## Migraciones y Entornos
-
-1.  **Creación de Migraciones:**
-    *   Al modificar `schema.prisma`, generar la migración con un nombre claro y descriptivo en español:
-        `npx prisma migrate dev --name agregar-tabla-telemetria`
-    *   No modificar migraciones ya aplicadas. Si hay error, crear una nueva que corrija el anterior.
-
-2.  **Seeds (Datos Iniciales):**
-    *   El archivo `prisma/seed.ts` debe contener los registros básicos para inicializar el sistema (Roles predefinidos, un Usuario Administrador).
-    *   Ejecutar con `npx prisma db seed`.
-
-## Agnosticismo de Motor (Futuras Migraciones)
-*   Prisma abstrae la capa relacional. Para preparar el sistema ante un eventual cambio de motor (ej. a MongoDB o MySQL), asegurar que toda consulta de persistencia viva encapsulada dentro de la carpeta `src/modulos/<modulo>/infraestructura/repositorios/`.
-*   El resto del código (Casos de Uso) debe depender de Interfaces de Repositorio ubicadas en `src/modulos/<modulo>/dominio/repositorios/`.
+## Restricciones
+- PostgreSQL es el motor definitivo.
+- Prisma es el ORM obligatorio.
+- Quedan prohibidos `SQL Server`, `Knex` y consultas SQL crudas como practica comun.
+- Si una consulta cruda es inevitable, debe justificarse, documentarse y aprobarse.

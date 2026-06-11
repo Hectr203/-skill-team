@@ -50,3 +50,55 @@ Default workflow:
 3. Open the smallest useful files.
 4. Make the minimal necessary change.
 5. Respond with a short summary.
+
+## Memoria persistente del proyecto
+
+Antes de cualquier modificacion importante dentro de `Agentes_Unificados`, ejecutar desde la raiz de la agencia:
+
+```bash
+python3 skills/ahorro-contexto/scripts/arranque.py
+```
+
+El arranque recupera Mem Palace y las entradas recientes de CloudMem local.
+
+Despues de modificar documentos, agentes, skills, reglas, arquitectura o configuracion, registrar el cierre:
+
+```bash
+python3 skills/ahorro-contexto/scripts/cierre.py \
+  --tareas "Resumen de tareas completadas" \
+  --pendientes "Pendientes" \
+  --decisiones "Decisiones tecnicas" \
+  --riesgos "Riesgos" \
+  --cloud-resumen "Resumen operativo no sensible" \
+  --archivos "archivo1.md,archivo2.md" \
+  --tipo "documental"
+```
+
+Usar Mem Palace para decisiones estables, arquitectura, backend, base de datos, seguridad y reglas criticas. Usar CloudMem local para historial operativo no sensible, avances recientes y archivos modificados.
+
+## Memoria independiente por proyecto
+
+Para cualquier tarea dentro de `proyectos/<nombre>/`, usar siempre memoria del proyecto:
+
+```bash
+python3 skills/ahorro-contexto/scripts/arranque.py --proyecto proyectos/<nombre>
+```
+
+Al cerrar:
+
+```bash
+python3 skills/ahorro-contexto/scripts/cierre.py \
+  --proyecto proyectos/<nombre> \
+  --tareas "Resumen de tareas completadas" \
+  --pendientes "Pendientes" \
+  --decisiones "Decisiones tecnicas" \
+  --riesgos "Riesgos" \
+  --cloud-resumen "Resumen operativo no sensible" \
+  --archivos "archivo1.md,archivo2.md"
+```
+
+Para inicializar un proyecto copiado desde plantilla:
+
+```bash
+python3 skills/ahorro-contexto/scripts/memoria_proyecto.py --proyecto proyectos/<nombre> init
+```

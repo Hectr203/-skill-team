@@ -2,7 +2,7 @@
 name: analista-requerimientos
 description: Analiza datos crudos con redundancias o errores, los interpreta y genera documentación estructurada. Crea una carpeta por requerimiento en "Agencia/INFORACION DE AGNETES/documentacion de agnetes/Requeriminetos".
 ---
-# Skill: Analista de Requerimientos
+# Habilidad: Analista de Requerimientos
 
 ## Objetivo
 Tomar información cruda, notas informales, audios transcritos o descripciones ambiguas y transformarlas en documentación de software formal y estructurada lista para ser desarrollada.
