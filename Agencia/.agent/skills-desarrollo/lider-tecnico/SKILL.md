@@ -38,3 +38,43 @@ Garantizar que el sistema sea escalable, mantenible, seguro y que el equipo de d
 - Las decisiones tecnológicas deben justificarse siempre basándose en los requerimientos del proyecto (no elegir "lo más nuevo" solo porque sí).
 - Al revisar código, sé constructivo y explica el *por qué* de las mejoras sugeridas.
 - Asegura que se planifique adecuadamente la seguridad y la gestión de errores desde el principio.
+
+---
+
+## Paso Obligatorio: Definición del Diseño Frontend
+
+**Antes de cerrar la arquitectura y pasar el trabajo al equipo de desarrollo**, el Líder Técnico SIEMPRE debe ejecutar este paso:
+
+### 1. Revisar `Agencia/diseños-frontend/`
+
+Lee la carpeta de referencias visuales del proyecto:
+
+```
+Agencia/diseños-frontend/
+├── efectos-y-animaciones/efectos.md   → Efectos hover, transiciones, animaciones Tailwind
+├── paletas-de-colores/paleta.md       → Colores aprobados del proyecto
+├── componentes-ui/componentes.md      → Estilo de botones, cards, tablas, modales
+├── capturas-inspiracion/              → Imágenes de referencia del cliente
+└── tailwind-config/tailwind.md        → Clases custom y configuración Tailwind
+```
+
+### 2. Preguntar al usuario qué diseño tendrá el proyecto
+
+Si la carpeta `diseños-frontend/` está vacía o incompleta, haz las siguientes preguntas **antes** de continuar:
+
+---
+> **¿Qué diseño tendrá la interfaz del proyecto?**
+>
+> Puedes responder con cualquiera de estas opciones (o combinarlas):
+>
+> - **Estilo visual**: (ej. minimalista, moderno, corporativo, oscuro, claro, colorido)
+> - **Referencia**: (ej. "parecido a Notion", "como un dashboard de analytics", "similar a la app X")
+> - **Colores base**: (ej. azul y blanco, verde oscuro, colores de la empresa)
+> - **Efectos deseados**: (ej. animaciones suaves, hover con sombra, glassmorphism, gradientes)
+> - **Capturas**: (puedes soltar imágenes directamente en `Agencia/diseños-frontend/capturas-inspiracion/`)
+
+---
+
+### 3. Documentar la decisión de diseño
+
+Con la respuesta del usuario, completa los archivos correspondientes en `diseños-frontend/` **antes** de que el `desarrollador-frontend` empiece a codificar. Esto garantiza que la UI sea consistente con lo que el cliente espera ver.
