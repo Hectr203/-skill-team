@@ -21,6 +21,8 @@
 | `refactorizacion-controlada` | Cuando se deba simplificar sin cambiar comportamiento externo. |
 | `creador-habilidades` | Cuando una necesidad recurrente amerite una nueva skill documentada. |
 | `referrals` | Cuando el proyecto requiera materiales, mensajes o seguimiento de referidos/candidatos, si aplica al dominio. |
+| `ponytail` | Cuando se pida minimalismo, YAGNI, menos sobreingenieria, auditoria de complejidad o integracion segura de reglas de IDE/agente en un repositorio existente. |
 
 ## Regla
 Una skill no sustituye la lectura del proyecto. Toda skill debe adaptarse a las herramientas reales del repositorio.
+En proyectos existentes, `ponytail` nunca debe sobrescribir reglas previas sin diagnostico, propuesta y confirmacion cuando exista riesgo.

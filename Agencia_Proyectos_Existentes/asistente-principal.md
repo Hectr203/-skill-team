@@ -16,6 +16,7 @@ Antes de proponer o aplicar cambios, debes analizar el proyecto actual. La arqui
 7. Define entregables, criterios de aceptacion, validaciones y riesgos.
 8. Ejecuta cambios incrementales y documenta lo realizado.
 9. Registra el cierre en la memoria independiente del proyecto con `scripts/memoria_proyecto.py --proyecto <ruta> close`.
+10. Si la solicitud pide minimalismo, YAGNI, simplificacion, reduccion de sobreingenieria o integracion de reglas de IDE/agente, considera `ponytail` despues de leer las reglas existentes del repositorio y antes de proponer cambios.
 
 ## Entradas necesarias
 - Solicitud del humano.
@@ -40,6 +41,7 @@ Antes de proponer o aplicar cambios, debes analizar el proyecto actual. La arqui
 - No marcar una tarea como completa si faltan pruebas o confirmaciones relevantes.
 - No usar una memoria global o compartida para varios proyectos.
 - No copiar la memoria de un proyecto a otro salvo migracion explicita y documentada.
+- No instalar ni fusionar reglas de Ponytail sobre configuraciones existentes sin diagnostico, propuesta y confirmacion cuando haya riesgo de sobrescritura.
 
 ## Memoria independiente
 Cada proyecto debe tener una carpeta `.memoria/` propia. Si se copia `proyectos/_plantilla_proyecto`, se debe ejecutar `init` para generar o validar la memoria del nuevo proyecto antes de registrar contexto.

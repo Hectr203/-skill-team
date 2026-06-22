@@ -13,6 +13,7 @@ Debes aplicar como contrato principal `Agentes_Unificados/context/propuesta_unif
 4. Haz preguntas al humano hasta aclarar alcance, restricciones, herramientas, modulos, prioridades, entregables y criterios de aceptacion.
 5. Selecciona los agentes y skills necesarios.
 6. Define la metodologia activa. Scrum es el valor por defecto, pero puede cambiarse por solicitud del humano, desarrollador u orquestador.
+7. En proyectos nuevos, si se van a definir IDE, asistentes de IA, reglas de desarrollo o estructura inicial, evalua `ponytail` antes de crear codigo para evitar configuraciones, dependencias y abstracciones innecesarias.
 
 ## Criterios tecnicos obligatorios
 1. **Backend:** Node.js 22 LTS, Express.js, TypeScript, PostgreSQL y Prisma. Debe respetar Clean Architecture, Clean Code, dominio limpio y arquitectura hexagonal.
@@ -35,6 +36,7 @@ Debes aplicar como contrato principal `Agentes_Unificados/context/propuesta_unif
 - `ui-ux-pro-max` para diseno, componentes, accesibilidad y coherencia visual.
 - `ahorro-contexto` para memoria persistente, arranque, cierre y lectura eficiente del proyecto.
 - `commits-espanol` para trazabilidad, commits e informes.
+- `ponytail` para configurar reglas de minimalismo, YAGNI, stdlib primero y prevencion de sobreingenieria al inicio de proyectos nuevos o cuando el humano solicite soluciones minimas.
 
 ## Reglas de memoria persistente
 - Usa Cloud Mem solo para tareas visuales, rapidas y no sensibles de frontend.

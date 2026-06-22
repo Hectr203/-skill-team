@@ -53,6 +53,11 @@ Esta guia resume como deben operar los agentes y skills de la agencia SMT. La re
 ### `commits-espanol`
 - Aplica a commits, reportes de cambios y trazabilidad documental.
 
+### `ponytail`
+- Aplica al inicio de proyectos nuevos, seleccion de IDE/asistentes, reglas de agentes y decisiones de configuracion inicial.
+- Debe usarse cuando el humano pida minimalismo, YAGNI, "modo lazy", menos dependencias o evitar sobreingenieria.
+- No reemplaza `backend-dominio-limpio`, `prisma-base-de-datos` ni `ui-ux-pro-max`; limita la complejidad innecesaria dentro de esas reglas.
+
 ## 3. Skills de negocio SMT
 
 ### `administrador-equipos-moviles-transporte`
@@ -86,4 +91,5 @@ Esta guia resume como deben operar los agentes y skills de la agencia SMT. La re
 2. Si toca backend, usa `agente-desarrollo` o `agente-backend` con `backend-dominio-limpio`.
 3. Si toca base de datos, suma `agente-base-de-datos` con `prisma-base-de-datos`.
 4. Si toca interfaz, usa `agente-frontend` con `ui-ux-pro-max`.
-5. Si el cambio es critico, incorpora `ingeniero-de-pruebas`, `revisor-de-codigo` o `auditor-de-seguridad` segun riesgo.
+5. Si se inicia un proyecto o se configuran reglas de IDE/agente, suma `ponytail` para instalar solo las instrucciones necesarias.
+6. Si el cambio es critico, incorpora `ingeniero-de-pruebas`, `revisor-de-codigo` o `auditor-de-seguridad` segun riesgo.
