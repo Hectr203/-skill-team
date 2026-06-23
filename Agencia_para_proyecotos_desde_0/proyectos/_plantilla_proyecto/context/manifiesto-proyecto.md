@@ -13,7 +13,7 @@
 
 ## 3. Arquitectura y Patrones
 - **Arquitectura Principal:** [Ej. Monolito, SPA, MVC]
-- **Convenciones:** [Convenciones de código y nombres acordadas]
+- **Convenciones:** [Convenciones de código y nombres acordadas. Se deben respetar los [Lineamientos de desarrollo](../../../reglas/lineamientos-desarrollo.md)]
 
 ## 4. Hitos y Tareas Principales
 - [ ] Fase 1: MVP y configuración base.

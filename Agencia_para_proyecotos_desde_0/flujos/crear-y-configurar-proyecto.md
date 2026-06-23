@@ -4,7 +4,7 @@
 Establecer bases sólidas para un proyecto nuevo asegurando que su arquitectura, stack tecnológico y contexto inicial estén correctamente definidos desde el primer día.
 
 ## Pasos
-1. **Entender el Requerimiento**: Comprender el dominio del negocio, el problema a resolver y los objetivos del proyecto.
+1. **Entender el Requerimiento**: Comprender el dominio del negocio, el problema a resolver y los objetivos del proyecto. Revisa obligatoriamente los [Lineamientos de desarrollo](../reglas/lineamientos-desarrollo.md) antes de comenzar.
 2. **Definir Stack y Arquitectura**: Proponer y acordar con el usuario el stack tecnológico, la estructura de carpetas y los patrones de diseño iniciales.
 3. **Inicializar Proyecto**:
    - Crear el repositorio o carpeta principal utilizando plantillas o frameworks base (`npx`, `vite`, etc.).
