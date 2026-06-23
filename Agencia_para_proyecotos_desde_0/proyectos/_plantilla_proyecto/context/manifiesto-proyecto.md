@@ -1,21 +1,20 @@
 # Manifiesto del Proyecto
 
-## Nombre
+## 1. Identidad del Proyecto
+- **Nombre:** [Nombre del proyecto]
+- **Descripción:** [Descripción breve del propósito]
+- **Objetivo Principal:** [Meta principal a alcanzar]
 
-## Dominio
+## 2. Tecnologías y Stack
+- **Frontend:** [Ej. React, Vue, HTML/CSS]
+- **Backend:** [Ej. Node.js, Python, Ninguno]
+- **Base de Datos:** [Ej. PostgreSQL, MongoDB, Ninguna]
+- **Otras herramientas:** [Ej. Docker, Tailwind]
 
-## Proposito
+## 3. Arquitectura y Patrones
+- **Arquitectura Principal:** [Ej. Monolito, SPA, MVC]
+- **Convenciones:** [Convenciones de código y nombres acordadas]
 
-## Stack tecnico
-
-## Agentes especificos
-
-## Skills especificas
-
-## Documentos de contexto obligatorios
-
-## Reglas de memoria
-- La memoria del proyecto vive en `.memoria/`.
-- El arranque se hace con `--proyecto proyectos/<nombre>`.
-- El cierre se registra con `--proyecto proyectos/<nombre>`.
-- No se comparte memoria con otros proyectos.
+## 4. Hitos y Tareas Principales
+- [ ] Fase 1: MVP y configuración base.
+- [ ] Fase 2: ...
