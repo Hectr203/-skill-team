@@ -1,211 +1,115 @@
-# Agencia Universal para Proyectos Existentes
+# 🧠 Skill Team - Sistema de Agencias de IA
 
-## Proposito
-Esta agencia esta disenada para continuar, mantener y mejorar proyectos que ya existen. Su regla principal es comprender primero el sistema actual y despues aplicar cambios pequenos, trazables y compatibles con la arquitectura, tecnologia, base de datos, reglas de negocio y convenciones ya definidas.
+Bienvenido al repositorio central de nuestras **Agencias de IA**. Este documento sirve como la guía principal para los desarrolladores, arquitectos y mantenedores del equipo.
 
-No impone un stack, framework, ORM, metodologia ni estructura de carpetas. Si el proyecto ya funciona con una arquitectura definida, los agentes deben conservarla salvo que exista una razon tecnica clara, documentada y validada para cambiarla.
+Aquí documentamos cómo está estructurado nuestro ecosistema de asistentes, para qué sirve cada "Agencia" (entornos de desarrollo de IA) y cómo colaboran las diferentes *skills* (habilidades) para crear, mantener y diseñar software.
 
-## Estructura
+---
 
-```txt
-Agencia_Proyectos_Existentes/
-├── README.md
-├── asistente-principal.md
-├── agentes/
-├── skills/
-├── context/
-├── guias/
-├── flujos/
-├── plantillas/
-├── reglas/
-├── proyectos/
-├── scripts/
-└── compatibilidad-ia/
-```
+## 🏗️ Arquitectura General
 
-## Carpetas principales
+Hemos dividido nuestras capacidades de Inteligencia Artificial en entornos aislados o **Agencias**. Cada agencia cuenta con un Asistente Principal (Orquestador), agentes especializados y una carpeta de *skills* con reglas estrictas.
 
-| Carpeta | Proposito |
-| --- | --- |
-| `agentes/` | Define roles especializados, responsabilidades, entradas, salidas, limites y criterios de uso. |
-| `skills/` | Define habilidades reutilizables que pueden combinarse con agentes segun el tipo de tarea. |
-| `context/` | Guarda guias para leer, resumir y conservar informacion del proyecto existente. |
-| `guias/` | Explica como seleccionar agentes, skills y combinaciones recomendadas. |
-| `flujos/` | Documenta flujos de trabajo para analizar, modificar, revisar, probar y cerrar cambios. |
-| `plantillas/` | Incluye formatos base para nuevos agentes, nuevas skills, requerimientos, auditorias y bitacoras. |
-| `reglas/` | Contiene reglas generales para preservar arquitectura, decidir cambios y evitar modificaciones innecesarias. |
-| `proyectos/` | Contiene proyectos independientes, cada uno con su propia memoria contextual en `.memoria/`. |
-| `scripts/` | Herramientas operativas de la agencia, incluida la memoria independiente por proyecto. |
-| `compatibilidad-ia/` | Lineamientos para usar la agencia con Codex, Claude, Gemini, GitHub Copilot u otras IA. |
+La división principal obedece a la etapa del ciclo de vida del software en la que se va a trabajar:
 
-## Principios obligatorios
-1. Leer antes de modificar.
-2. Respetar la arquitectura existente.
-3. Cambiar solo lo necesario para cumplir el objetivo.
-4. Reutilizar patrones, nombres, carpetas, librerias y convenciones locales.
-5. No instalar dependencias ni introducir frameworks sin justificacion.
-6. Documentar decisiones que alteren arquitectura, base de datos, seguridad o reglas de negocio.
-7. Validar con pruebas o verificacion manual segun el riesgo.
-8. Mantener trazabilidad de archivos afectados, decisiones, riesgos y pendientes.
+1. **`Agencia_para_proyecotos_desde_0`**: Para software nuevo (*Greenfield*).
+2. **`Agencia_Proyectos_Existentes`**: Para mantenimiento y evolución (*Brownfield*).
+3. **`Agencia`**: Para flujos de diseño e iteraciones visuales.
 
-## Uso rapido
-1. Inicia con [`asistente-principal.md`](asistente-principal.md).
-2. Aplica [`context/lectura-proyecto-existente.md`](context/lectura-proyecto-existente.md) para entender el repositorio.
-3. Selecciona agentes con [`guias/criterios-activacion-agentes.md`](guias/criterios-activacion-agentes.md).
-4. Selecciona skills con [`guias/criterios-activacion-skills.md`](guias/criterios-activacion-skills.md).
-5. Sigue el flujo apropiado en `flujos/`.
-6. Cierra con documentacion usando las plantillas de `plantillas/`.
+A continuación, detallamos exhaustivamente cada una.
 
-## Memoria por proyecto
-Cada proyecto debe vivir en `proyectos/<nombre-proyecto>/` y tener memoria propia en `proyectos/<nombre-proyecto>/.memoria/`.
+---
 
-Para crear un proyecto desde la plantilla:
+## 1. 🚀 Agencia para Proyectos Desde 0
 
-```bash
-cp -R proyectos/_plantilla_proyecto proyectos/mi-proyecto
-python3 scripts/memoria_proyecto.py --proyecto proyectos/mi-proyecto init
-```
+**Carpeta:** `/Agencia_para_proyecotos_desde_0`
 
-Antes de trabajar:
+### ¿Para qué sirve?
 
-```bash
-python3 scripts/memoria_proyecto.py --proyecto proyectos/mi-proyecto start
-```
+Es la agencia constructora. Está diseñada exclusivamente para **analizar, definir, planificar y programar proyectos totalmente nuevos**.
+Asume que no hay deuda técnica y tiene libertad para implementar nuestra arquitectura estándar desde el primer commit.
 
-Despues de cambios importantes:
+### Flujo y Arquitectura
 
-```bash
-python3 scripts/memoria_proyecto.py --proyecto proyectos/mi-proyecto close \
-  --tareas "Cambios realizados" \
-  --pendientes "Pendientes" \
-  --decisiones "Decisiones tecnicas" \
-  --riesgos "Riesgos" \
-  --cloud-resumen "Resumen operativo" \
-  --archivos "archivo.md"
-```
+- **Levantamiento inicial:** El Asistente Principal entrevista al usuario y define la arquitectura.
+- **Estándares rigurosos:** Se aplica Node.js, Express, TypeScript, PostgreSQL y Prisma en el backend (Clean Architecture); y React, Tailwind, Zustand en frontend (Atomic Design).
+- **Memoria persistente:** Utiliza sistemas de *Cloud Mem* para frontend visual y *Mem Palace* para secretos, reglas de negocio y bases de datos sensibles.
 
-## Contenido Actual del Proyecto
+### Skills Principales Inyectadas
 
-A continuación se lista un resumen de los recursos disponibles actualmente en esta agencia:
+Esta agencia posee directorios de skills profundos, enfocados en construir correctamente:
 
-### 🤖 Agentes Disponibles (`agentes/`)
-- **Análisis y Arquitectura:** `agente-analisis-proyecto-existente`, `agente-arquitectura`, `analista-requerimientos`, `agente-contexto`.
-- **Desarrollo:** `agente-backend`, `agente-frontend`, `agente-base-datos`, `agente-desarrollo`, `engineer`.
-- **Mantenimiento y Calidad:** `agente-mantenimiento`, `agente-refactorizacion`, `agente-integracion`, `code-reviewer`, `security-editor`, `tester`, `agente-documentacion`.
+- `backend-dominio-limpio`: Asegura que se respeten los casos de uso, repositorios y puertos de Clean Architecture.
+- `prisma-base-de-datos`: Manejo exclusivo de esquemas Prisma, migraciones, transacciones seguras y semilleros.
+- `ui-ux-pro-max`: Estandariza la creación de componentes visuales altamente estéticos, accesibles y modulares.
+- `ahorro-contexto`: Scripts en Python para inicializar la memoria, recuperar contexto y hacer cierres eficientes sin perder historial.
+- `commits-espanol`: Regla estricta para que el control de versiones quede trazable y documentado en español.
+- `ponytail`: *Ver sección de Ponytail.*
 
-# Agencia Universal para Proyectos Existentes
+---
 
-## Proposito
-Esta agencia esta disenada para continuar, mantener y mejorar proyectos que ya existen. Su regla principal es comprender primero el sistema actual y despues aplicar cambios pequenos, trazables y compatibles con la arquitectura, tecnologia, base de datos, reglas de negocio y convenciones ya definidas.
+## 2. 🛡️ Agencia de Proyectos Existentes
 
-No impone un stack, framework, ORM, metodologia ni estructura de carpetas. Si el proyecto ya funciona con una arquitectura definida, los agentes deben conservarla salvo que exista una razon tecnica clara, documentada y validada para cambiarla.
+**Carpeta:** `/Agencia_Proyectos_Existentes`
 
-## Estructura
+### ¿Para qué sirve?
 
-```txt
-Agencia_Proyectos_Existentes/
-├── README.md
-├── asistente-principal.md
-├── agentes/
-├── skills/
-├── context/
-├── guias/
-├── flujos/
-├── plantillas/
-├── reglas/
-├── proyectos/
-├── scripts/
-└── compatibilidad-ia/
-```
+Es la agencia auditora y mantenedora. Está orientada a **analizar, mantener, refactorizar y escalar proyectos que ya poseen un historial de código, reglas de equipo y deuda técnica**.
 
-## Carpetas principales
+### Flujo y Arquitectura
 
-| Carpeta | Proposito |
-| --- | --- |
-| `agentes/` | Define roles especializados, responsabilidades, entradas, salidas, limites y criterios de uso. |
-| `skills/` | Define habilidades reutilizables que pueden combinarse con agentes segun el tipo de tarea. |
-| `context/` | Guarda guias para leer, resumir y conservar informacion del proyecto existente. |
-| `guias/` | Explica como seleccionar agentes, skills y combinaciones recomendadas. |
-| `flujos/` | Documenta flujos de trabajo para analizar, modificar, revisar, probar y cerrar cambios. |
-| `plantillas/` | Incluye formatos base para nuevos agentes, nuevas skills, requerimientos, auditorias y bitacoras. |
-| `reglas/` | Contiene reglas generales para preservar arquitectura, decidir cambios y evitar modificaciones innecesarias. |
-| `proyectos/` | Contiene proyectos independientes, cada uno con su propia memoria contextual en `.memoria/`. |
-| `scripts/` | Herramientas operativas de la agencia, incluida la memoria independiente por proyecto. |
-| `compatibilidad-ia/` | Lineamientos para usar la agencia con Codex, Claude, Gemini, GitHub Copilot u otras IA. |
+- **Auditoría antes de acción:** Su regla maestra es "la arquitectura existente prevalece". No impone tecnologías genéricas si el proyecto ya funciona de otra forma.
+- **Incrementos seguros:** Lee la arquitectura, detecta convenciones y realiza cambios incrementales, asegurándose de no romper código en producción.
+- **Memoria aislada:** Cada proyecto gestionado bajo esta agencia requiere su propia carpeta `.memoria/` para evitar que un proyecto contamine a otro.
 
-## Principios obligatorios
-1. Leer antes de modificar.
-2. Respetar la arquitectura existente.
-3. Cambiar solo lo necesario para cumplir el objetivo.
-4. Reutilizar patrones, nombres, carpetas, librerias y convenciones locales.
-5. No instalar dependencias ni introducir frameworks sin justificacion.
-6. Documentar decisiones que alteren arquitectura, base de datos, seguridad o reglas de negocio.
-7. Validar con pruebas o verificacion manual segun el riesgo.
-8. Mantener trazabilidad de archivos afectados, decisiones, riesgos y pendientes.
+### Skills Principales Inyectadas
 
-## Uso rapido
-1. Inicia con [`asistente-principal.md`](asistente-principal.md).
-2. Aplica [`context/lectura-proyecto-existente.md`](context/lectura-proyecto-existente.md) para entender el repositorio.
-3. Selecciona agentes con [`guias/criterios-activacion-agentes.md`](guias/criterios-activacion-agentes.md).
-4. Selecciona skills con [`guias/criterios-activacion-skills.md`](guias/criterios-activacion-skills.md).
-5. Sigue el flujo apropiado en `flujos/`.
-6. Cierra con documentacion usando las plantillas de `plantillas/`.
+Esta agencia posee un abanico mucho más amplio de *skills* (muchas de ellas atómicas en archivos `.md`), pensadas para tareas específicas de mantenimiento:
 
-## Memoria por proyecto
-Cada proyecto debe vivir en `proyectos/<nombre-proyecto>/` y tener memoria propia en `proyectos/<nombre-proyecto>/.memoria/`.
+- `lectura-arquitectura-existente` y `conservacion-estructura-actual`: Fuerzan a los agentes a leer y respetar los patrones antes de proponer cambios.
+- `refactorizacion-controlada`: Guía paso a paso para mejorar código viejo sin alterar el comportamiento.
+- `revision-codigo` y `seguridad`: Skills para revisar *pull requests*, auditar vulnerabilidades y analizar requerimientos.
+- `ui-ux-pro-max`: Adaptada para modernizar interfaces sin romper la lógica del DOM existente.
+- `ponytail`: *Ver sección de Ponytail.*
 
-Para crear un proyecto desde la plantilla:
+---
 
-```bash
-cp -R proyectos/_plantilla_proyecto proyectos/mi-proyecto
-python3 scripts/memoria_proyecto.py --proyecto proyectos/mi-proyecto init
-```
+## 3. 🎨 Agencia de Diseño y Frontend
 
-Antes de trabajar:
+**Carpeta:** `/Agencia`
 
-```bash
-python3 scripts/memoria_proyecto.py --proyecto proyectos/mi-proyecto start
-```
+### ¿Para qué sirve?
 
-Despues de cambios importantes:
+Es un entorno especializado y aislado, enfocado puramente en el diseño visual y el prototipado rápido de interfaces.
 
-```bash
-python3 scripts/memoria_proyecto.py --proyecto proyectos/mi-proyecto close \
-  --tareas "Cambios realizados" \
-  --pendientes "Pendientes" \
-  --decisiones "Decisiones tecnicas" \
-  --riesgos "Riesgos" \
-  --cloud-resumen "Resumen operativo" \
-  --archivos "archivo.md"
-```
+### Flujo y Arquitectura
 
-## Contenido Actual del Proyecto
+- **Separación de responsabilidades:** Contiene flujos específicos (`diseños-frontend`) para abstraerse de la complejidad de servidores, bases de datos o lógica de negocio.
+- **Iteración Visual:** Úsala para maquetar, refinar animaciones, ajustar CSS/Tailwind y estructurar componentes de UI antes de conectarlos a un backend real.
 
-A continuación se lista un resumen de los recursos disponibles actualmente en esta agencia:
+---
 
-### 🤖 Agentes Disponibles (`agentes/`)
-- **Análisis y Arquitectura:** `agente-analisis-proyecto-existente`, `agente-arquitectura`, `analista-requerimientos`, `agente-contexto`.
-- **Desarrollo:** `agente-backend`, `agente-frontend`, `agente-base-datos`, `agente-desarrollo`, `engineer`.
-- **Mantenimiento y Calidad:** `agente-mantenimiento`, `agente-refactorizacion`, `agente-integracion`, `code-reviewer`, `security-editor`, `tester`, `agente-documentacion`.
+## 🐴 El rol de Ponytail (Skill Transversal)
 
-### 🧠 Skills Principales (`skills/`)
-- **Adaptación al Entorno:** `adaptacion-proyectos-existentes`, `conservacion-estructura-actual`, `lectura-arquitectura-existente`, `ahorro-contexto`, `contextos`.
-- **Desarrollo Técnico:** `backend-dominio-limpio`, `ui-ux-pro-max`, `refactorizacion-controlada`, `seguridad`, `testing`.
-- **Análisis y Comunicación:** `analisis-requerimientos`, `interview`, `spec-driven-development`, `comunicacion-espanol`, `respuestas-simples`.
-- **Documentación y Cierre:** `documentacion-tecnica`, `revision-codigo`, `creador-habilidades`, `referrals`.
+**Ponytail** es el "senior dev flojo". Es una de las habilidades más importantes que comparten nuestras agencias.
 
-### 🔄 Flujos de Trabajo (`flujos/`)
-- `analizar-y-continuar-proyecto.md`: Pasos para retomar un repositorio que ya tiene historia.
-- `cambio-incremental.md`: Para añadir features poco a poco sin romper el sistema.
-- `refactorizacion-controlada.md`: Mejorar código técnico de manera segura.
-- `revision-y-cierre.md`: Pasos requeridos para dar por concluida una tarea.
+### ¿Qué hace?
 
-## ¿Cómo Funciona la Estructura? (Arquitectura de Ejecución)
+Enseña a la IA a escribir el **mínimo código posible**. Fuerza el principio *YAGNI* (*You Aren't Gonna Need It*), priorizando la biblioteca estándar o APIs nativas del navegador antes de crear abstracciones complejas o instalar nuevas dependencias de NPM.
 
-El repositorio está diseñado como un ecosistema modular donde los diferentes elementos se combinan de forma dinámica para resolver cualquier requerimiento respetando la arquitectura preexistente del proyecto. El funcionamiento general sigue este ciclo:
+### ¿Cómo interactúa Ponytail con cada Agencia?
 
-1. **Recepción del Requerimiento:** El `asistente-principal` analiza la tarea solicitada y el código base actual.
-2. **Selección del Agente:** Se asigna el rol o perfil que va a liderar el trabajo (ej. `agente-frontend` si es un cambio visual, o `agente-backend` si es un endpoint de API).
-3. **Inyección de Skills (Habilidades):** El Agente es por sí solo un perfil genérico. Para especializarlo, se "activan" las *Skills* leyendo sus archivos `.md`. Por ejemplo, si se va a modificar la interfaz, se inyecta la skill `ui-ux-pro-max`; si hay riesgo de romper la lógica, se inyecta `seguridad` y `backend-dominio-limpio`.
-4. **Ejecución Guiada:** El Agente operará bajo las reglas estrictas definidas por las Skills activadas, procesando la tarea mediante un **Flujo de Trabajo** predefinido (ej. un `cambio-incremental`).
-5. **Memoria y Cierre:** Se utiliza la skill `ahorro-contexto` y el script de la memoria para persistir todos los cambios realizados, las decisiones técnicas y los pendientes en la carpeta `.memoria/` de cada proyecto específico.
+- **En `Agencia_para_proyecotos_desde_0`**: Ponytail actúa en el andamiaje (*scaffolding*). Antes de programar, pregunta qué IDE usa el desarrollador (Cursor, Windsurf, Copilot, etc.) y le inyecta las reglas de minimalismo de Ponytail a ese IDE. Desde el día 1, el proyecto nace sin código inútil.
+- **En `Agencia_Proyectos_Existentes`**: Actúa como un consultor respetuoso. Inspecciona si el repositorio *legacy* ya tiene reglas de código (como `.cursorrules`). Si las hay, las respeta y se fusiona progresivamente sin destruir las políticas de arquitectura estrictas que el equipo original estableció.
+
+---
+
+## 🚀 Evolución del Ecosistema
+
+Este sistema de Agencias no es estático. Está diseñado bajo una arquitectura modular:
+
+1. **Nuevos Agentes:** Crearemos nuevos roles que necesiten acceso seguro a infraestructura u otras responsabilidades.
+2. **Nuevos Modelos de Lenguaje:** La memoria persistente en Python (Cloud Mem / Mem Palace) nos permite desacoplarnos y escalar el contexto si cambiamos los LLMs subyacentes.
+3. **Creador de Habilidades:** Nuestras agencias tienen una skill llamada `creador-de-habilidades` / `creador-habilidades.md`, la cual le permite a la propia IA ayudar a redactar y estructurar nuevas *skills* en el formato correcto para el ecosistema.
+
+> **Regla de oro para desarrolladores:** Nunca mezcles el flujo de las agencias. Si el proyecto es nuevo, usa la **Agencia 0**. Si el proyecto ya fue tocado por humanos u otras herramientas, respétalo y usa la **Agencia Existentes**. 
