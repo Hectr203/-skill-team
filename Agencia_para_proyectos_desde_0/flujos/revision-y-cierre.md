@@ -12,6 +12,8 @@ Asegurar que cada funcionalidad o fase de implementación cumpla con los estánd
 - Pruebas (unitarias o manuales) ejecutadas y exitosas.
 - Riesgos residuales o deuda técnica declarados.
 - Tareas pendientes separadas del trabajo actual.
+- Si hubo Azure: recursos y configuración verificados, comandos `az` registrados, secretos redactados, pruebas integradas ejecutadas y rollback documentado.
+- La documentación operativa coincide con lo realmente desplegado y distingue pruebas externas pendientes.
 
 ## Informe de Cierre
 Al finalizar una tarea significativa, se debe generar un breve resumen que incluya:

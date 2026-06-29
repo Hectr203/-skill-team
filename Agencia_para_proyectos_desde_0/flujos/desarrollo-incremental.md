@@ -5,7 +5,7 @@ Añadir valor al proyecto nuevo mediante características (features) desarrollad
 
 ## Pasos
 1. **Delimitar Alcance**: Entender claramente la funcionalidad a implementar en esta iteración.
-2. **Diseño Técnico**: Identificar dónde encaja la nueva funcionalidad dentro de la arquitectura base del proyecto.
+2. **Diseño Técnico**: Identificar dónde encaja la nueva funcionalidad dentro de la arquitectura base y, si existe un perfil Azure, comprobar si cambia variables, red, almacenamiento, jobs, escalado u observabilidad.
 3. **Desarrollo (TDD/BDD si aplica)**:
    - Crear la estructura de archivos necesaria.
    - Escribir pruebas unitarias/integración (opcional, recomendado).
@@ -14,9 +14,10 @@ Añadir valor al proyecto nuevo mediante características (features) desarrollad
 5. **Revisión de Calidad**:
    - Comprobar que se siguen las convenciones de código.
    - Refactorizar si la solución inicial no es limpia.
-6. **Documentación**: Actualizar los documentos del contexto (memoria) si la nueva característica añade dependencias clave, variables de entorno o cambia la arquitectura.
+6. **Documentación**: Actualizar los documentos del contexto (memoria) si la nueva característica añade dependencias clave, variables de entorno, cambia la arquitectura o modifica el perfil de despliegue.
 
 ## Reglas
 - **Cohesión**: Toda característica nueva debe respetar la arquitectura decidida en la fase de inicialización.
 - **Sin sobre-ingeniería**: Construir solo lo necesario para el requerimiento actual.
 - **Verificable**: Cada iteración debe terminar en un estado funcional.
+- **Preparación cloud**: No introducir dependencias de `localhost`, filesystem efímero, puertos fijos o secretos compilados que contradigan el perfil Azure aprobado.

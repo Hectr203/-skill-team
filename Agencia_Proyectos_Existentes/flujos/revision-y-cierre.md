@@ -9,6 +9,8 @@
 - Pruebas ejecutadas o motivo documentado si no se ejecutaron.
 - Riesgos residuales declarados.
 - Pendientes claramente separados del trabajo terminado.
+- Si hubo Azure: se conserva evidencia del análisis previo, aprobación, comandos `az`, estado de recursos, validaciones y rollback.
+- La guía final fue escrita después del despliegue y no presenta propuestas o comandos no ejecutados como hechos.
 
 ## Informe de cierre
 Debe incluir:

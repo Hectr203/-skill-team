@@ -1,0 +1,4 @@
+interface:
+  display_name: "Despliegue adaptable en Azure CLI"
+  short_description: "Analiza y despliega proyectos con Azure CLI"
+  default_prompt: "Usa $deploy-azure-cli para analizar este repositorio y proponer un despliegue seguro y justificable en Azure."

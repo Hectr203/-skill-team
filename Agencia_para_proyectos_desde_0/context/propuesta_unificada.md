@@ -82,6 +82,7 @@ La agencia debe contar como minimo con estos agentes:
 | Agente de diseno | Mantener coherencia visual, Atomic Design, accesibilidad basica y experiencia clara. | Sistema de diseno, componentes base y criterios UI/UX aplicados. |
 | Agente de base de datos | Disenar modelos, migraciones, semillas, relaciones, restricciones e integridad referencial con Prisma/PostgreSQL. | `schema.prisma`, migraciones, semillas y repositorios alineados al dominio. |
 | Agente de documentacion | Mantener trazabilidad de decisiones, cambios, riesgos, pendientes y entregables. | Documentacion tecnica, ADRs, bitacoras y reportes de cierre. |
+| Agente de despliegue Azure | Integrar el perfil de ejecución con la arquitectura aprobada y conducir preparación, infraestructura, despliegue y validación. | Decisión Azure, evaluación previa, comandos `az`, resultados, rollback y evidencia operativa. |
 
 ---
 
@@ -94,7 +95,7 @@ El flujo inicia siempre con el asistente principal:
 3. Si el contexto no esta claro, el asistente principal pregunta hasta definir alcance, herramientas, agentes, skills, restricciones y entregables.
 4. El agente de requerimientos formaliza especificaciones cuando el trabajo lo requiera.
 5. El humano valida requerimientos y alcance.
-6. El asistente principal asigna tareas al agente de desarrollo, diseno, base de datos o testeo segun corresponda.
+6. El asistente principal asigna tareas al agente de desarrollo, diseno, base de datos, despliegue Azure o testeo segun corresponda.
 7. Desarrollo y testeo trabajan con la misma especificacion para evitar desviaciones.
 8. El agente de testeo reporta incumplimientos al asistente principal y al agente de desarrollo.
 9. El humano valida entregables criticos.
@@ -113,8 +114,15 @@ Las skills obligatorias se aplican asi:
 - **`ui-ux-pro-max`:** Obligatoria en diseno visual, componentes, layouts, accesibilidad, experiencia de usuario y sistemas de diseno.
 - **`ahorro-contexto`:** Obligatoria al iniciar y cerrar sesiones para evitar perdida de contexto y reducir lectura innecesaria de archivos.
 - **`commits-espanol`:** Obligatoria para commits, reportes de cambios, pull requests y trazabilidad en control de versiones.
+- **`despliegue-azure-proyecto-nuevo`:** Obligatoria cuando el proyecto defina, prepare o ejecute Azure. Consume `deploy-azure-cli`, conserva el stack global y separa diseño de infraestructura de aprovisionamiento.
 
 Cada agente recibe solo las skills necesarias para su tarea. Si una tarea mezcla frontend con backend o base de datos, el asistente principal separa el contexto visual del contexto critico.
+
+### Integración de Azure en proyectos nuevos
+
+Azure se contempla desde la arquitectura inicial, una vez aprobados los requerimientos y el stack, para que puerto, configuración, CORS, persistencia, migraciones, identidad y observabilidad formen parte del diseño. Esta fase solo produce decisiones y contratos; no crea recursos.
+
+El aprovisionamiento comienza después de implementar y validar el proyecto, presentar la evaluación previa y obtener aprobación humana sobre entorno, costo, red, secretos y migraciones. Toda administración y despliegue Azure usa comandos directos `az`. La documentación operativa final se genera después de verificar el estado realmente desplegado.
 
 ---
 

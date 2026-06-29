@@ -9,3 +9,4 @@ La arquitectura debe servir al producto, no al revés. No compliques excesivamen
 3. **Escalabilidad Gradual**: Comienza con una arquitectura simple que pueda evolucionar. No implementes infraestructuras hiper-complejas (como Kubernetes o CQRS) para un MVP a menos que sea un requerimiento explícito.
 4. **Documentación Activa**: Toda decisión arquitectónica debe ser registrada en el contexto del proyecto para servir de guía durante el desarrollo incremental.
 5. **Independencia de Componentes**: Promover bajo acoplamiento y alta cohesión desde las primeras líneas de código.
+6. **Arquitectura de Ejecución**: Si el proyecto se desplegará en Azure, definir durante esta fase el perfil de ejecución, datos, red, secretos, observabilidad y alternativas de servicio. Esta decisión guía el desarrollo, pero no autoriza crear recursos antes de la compuerta de despliegue.

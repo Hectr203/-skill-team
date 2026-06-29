@@ -12,5 +12,18 @@
 10. Ejecutar pruebas o verificaciones pertinentes.
 11. Registrar cierre en `.memoria/` con tareas, archivos, decisiones, riesgos y pendientes.
 
+## Rama obligatoria para despliegues Azure
+
+Si la solicitud incluye preparación cloud, infraestructura o despliegue, sustituir los pasos 8 a 11 por el flujo [desplegar-en-azure.md](desplegar-en-azure.md). El orden es obligatorio:
+
+1. terminar el análisis de solo lectura;
+2. presentar y aprobar la propuesta;
+3. corregir bloqueantes;
+4. crear infraestructura y desplegar;
+5. validar;
+6. documentar el estado real.
+
+No generar infraestructura durante el mapeo ni adelantar la documentación final.
+
 ## Criterio de cierre
 La tarea solo se considera cerrada cuando el resultado cumple el requerimiento, respeta el sistema existente y se declaran las validaciones realizadas.

@@ -12,6 +12,8 @@ Reducir riesgo en proyectos existentes mediante cambios pequenos y verificables.
 6. Ajustar si hay regresiones.
 7. Documentar.
 
+Si el cambio corrige un bloqueante de despliegue, volver a ejecutar únicamente las validaciones afectadas de `despliegue-azure-proyecto-existente` y actualizar el informe de preparación. La corrección no autoriza por sí sola a crear infraestructura.
+
 ## Reglas
 - No mezclar refactorizaciones no solicitadas con funcionalidades.
 - No cambiar formato masivo de archivos no relacionados.

@@ -28,3 +28,4 @@ Crear y mantener documentacion tecnica, ADRs, guias, bitacoras e informes de cie
 
 ## Limites
 - No documentar informacion no verificada como hecho.
+- En despliegues, no redactar la guia operativa final antes de recibir comandos, resultados y validaciones reales del agente de despliegue Azure.

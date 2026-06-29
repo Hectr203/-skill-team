@@ -22,6 +22,7 @@
 | `creador-habilidades` | Cuando una necesidad recurrente amerite una nueva skill documentada. |
 | `referrals` | Cuando el proyecto requiera materiales, mensajes o seguimiento de referidos/candidatos, si aplica al dominio. |
 | `ponytail` | Cuando se pida minimalismo, YAGNI, menos sobreingenieria, auditoria de complejidad o integracion segura de reglas de IDE/agente en un repositorio existente. |
+| `despliegue-azure-proyecto-existente` | En toda evaluación, preparación, infraestructura, despliegue o diagnóstico Azure. Obliga a analizar primero el repositorio y consume la skill compartida `deploy-azure-cli`. |
 
 ## Regla
 Una skill no sustituye la lectura del proyecto. Toda skill debe adaptarse a las herramientas reales del repositorio.

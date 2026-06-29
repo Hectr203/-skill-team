@@ -18,6 +18,7 @@
 | APIs externas, colas, webhooks o interoperabilidad | `agente-integracion` |
 | Soporte continuo, bugs menores y salud del sistema | `agente-mantenimiento` |
 | Resumir, conservar o actualizar conocimiento | `agente-contexto` |
+| Analizar preparación, diseñar infraestructura o desplegar en Azure | Primero `agente-analisis-proyecto-existente`; después `agente-despliegue-azure` |
 
 ## Regla de combinacion
 Cuando una tarea afecte mas de una capa, el asistente principal debe dividir responsabilidades y mantener un unico criterio de cierre.

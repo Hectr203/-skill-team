@@ -10,3 +10,5 @@
 | Refactorizacion | `agente-refactorizacion`, `code-reviewer`, `tester` | `refactorizacion-controlada`, `conservacion-estructura-actual`, `testing` |
 | Integracion externa | `agente-integracion`, `security-editor`, `tester` | `seguridad`, `testing`, `documentacion-tecnica` |
 | Cierre de entrega | `asistente-principal`, `agente-documentacion`, `code-reviewer` | `revision-codigo`, `documentacion-tecnica`, `comunicacion-espanol` |
+| Evaluacion Azure | `agente-analisis-proyecto-existente`, `agente-arquitectura`, `agente-despliegue-azure`, `security-editor` | `despliegue-azure-proyecto-existente`, `lectura-arquitectura-existente`, `conservacion-estructura-actual`, `seguridad` |
+| Despliegue Azure | `agente-despliegue-azure`, especialistas detectados, `tester`, `agente-documentacion` | `despliegue-azure-proyecto-existente`, `testing`, `seguridad`, `documentacion-tecnica` |

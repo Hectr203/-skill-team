@@ -18,3 +18,16 @@
 ## 4. Hitos y Tareas Principales
 - [ ] Fase 1: MVP y configuración base.
 - [ ] Fase 2: ...
+
+## 5. Perfil de Despliegue
+
+- **Destino:** [Azure / otro / pendiente]
+- **Entornos:** [desarrollo, staging, producción]
+- **Región y restricciones:** [región, residencia, presupuesto, disponibilidad]
+- **Frontend:** [tipo de artefacto y servicio propuesto]
+- **Backend y procesos:** [API, workers, jobs, tiempo real y servicio propuesto]
+- **Datos y almacenamiento:** [PostgreSQL/Prisma, archivos, backup y migraciones]
+- **Red, identidad y secretos:** [exposición, Managed Identity, Key Vault]
+- **Observabilidad:** [logs, métricas y alertas]
+- **Estado:** [propuesto / aprobado / desplegado / validado]
+- **Decisión y alternativas:** [enlace al ADR o justificación]

@@ -11,6 +11,7 @@ Guiar la comprension inicial de cualquier proyecto ya avanzado antes de modifica
 5. Base de datos: modelos, migraciones, seeds, repositorios, consultas y reglas de integridad.
 6. Pruebas: framework usado, comandos, cobertura y patrones de mocks.
 7. Documentacion funcional: reglas de negocio, ADRs, tickets, guias operativas y comentarios relevantes.
+8. Entrega y operación: pipelines, infraestructura como código, contenedores, artefactos, variables de build/runtime, puertos, health checks, almacenamiento, jobs, observabilidad y despliegues previos.
 
 ## Resultado esperado
 Al terminar la lectura, el agente debe poder responder:
@@ -20,6 +21,8 @@ Al terminar la lectura, el agente debe poder responder:
 - Que patrones deben respetarse.
 - Que riesgos existen si se cambia esa zona.
 - Que pruebas o validaciones son necesarias.
+- Cómo se construye, inicia, configura y opera cada componente.
+- Qué datos siguen desconocidos o presentan evidencia conflictiva.
 
 ## Regla de conservacion
 Si el proyecto ya tiene una forma consistente de resolver un problema, se debe seguir esa forma aunque no sea la preferencia generica del agente.

@@ -28,3 +28,4 @@ Crear y mantener documentacion tecnica, ADRs, guias, bitacoras e informes de cie
 
 ## Limites
 - No documentar informacion no verificada como hecho.
+- En despliegues, crear la guia operativa final solo despues de validar infraestructura y aplicacion; distinguir claramente propuesta, ejecucion y pendientes.
