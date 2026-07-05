@@ -6,10 +6,13 @@ Asegurar que cada funcionalidad o fase de implementación cumpla con los estánd
 ## Checklist
 - Requerimiento entendido y cubierto en su totalidad.
 - Arquitectura e infraestructura respetadas.
+- CI/CD pipeline ejecutado y verde (`.github/workflows/ci.yml`).
+- Code review aprobado sin hallazgos critical/high.
 - Código limpio, comentado y formateado.
-- Dependencias nuevas documentadas e instaladas correctamente.
-- Consideraciones de seguridad aplicadas (ej. validación de inputs, manejo de variables de entorno).
-- Pruebas (unitarias o manuales) ejecutadas y exitosas.
+- Dependencias nuevas documentadas e instaladas correctamente (ninguna sin justificacion).
+- Consideraciones de seguridad aplicadas (validacion de inputs, manejo de variables de entorno).
+- Pruebas unitarias, integracion y E2E (Playwright) ejecutadas y exitosas.
+- `ponytail` aplicado: no hay abstracciones, dependencias o archivos innecesarios.
 - Riesgos residuales o deuda técnica declarados.
 - Tareas pendientes separadas del trabajo actual.
 - Si hubo Azure: recursos y configuración verificados, comandos `az` registrados, secretos redactados, pruebas integradas ejecutadas y rollback documentado.

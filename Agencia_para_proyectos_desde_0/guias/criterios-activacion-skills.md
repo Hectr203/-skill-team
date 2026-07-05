@@ -23,6 +23,20 @@
 | `referrals` | Cuando el proyecto requiera materiales, mensajes o seguimiento de referidos/candidatos, si aplica al dominio. |
 | `ponytail` | Cuando se pida minimalismo, YAGNI, menos sobreingenieria, auditoria de complejidad o integracion segura de reglas de IDE/agente en un repositorio existente. |
 | `despliegue-azure-proyecto-nuevo` | Al definir el perfil Azure de un proyecto nuevo, preparar producción, crear infraestructura, desplegar o documentar la operación. Consume la skill compartida `deploy-azure-cli` y respeta el stack obligatorio. |
+| `playwright-mcp-testing` | Para pruebas E2E, integracion y regresion con Playwright en proyectos nuevos. Configuracion inicial, estructura de tests y CI. |
+| `mejora-asesor` | Para auditoria de codigo, mejora de arquitectura, deteccion de bugs y deuda tecnica. Usa el flujo de dos modelos: caro para analisis, barato para ejecucion. Activa la skill `improve` de shadcn. |
+| `agent-skills/skills/test-driven-development/SKILL.md` | TDD classico - Red/Green/Refactor. Para desarrollo guiado por pruebas. |
+| `agent-skills/skills/browser-testing-with-devtools/SKILL.md` | Debugging visual con DevTools MCP. Para inspeccion de DOM, console, network y rendimiento. |
+| `agent-skills/skills/code-review-and-quality/SKILL.md` | Revision de codigo en 5 ejes. Complemento de `revision-codigo`. |
+| `agent-skills/skills/code-simplification/SKILL.md` | Simplificacion de codigo. Complemento de `ponytail` para reduccion de complejidad. |
+| `agent-skills/skills/security-and-hardening/SKILL.md` | Endurecimiento de seguridad OWASP. Complemento de `seguridad`. |
+| `agent-skills/skills/api-and-interface-design/SKILL.md` | Diseno de APIs contract-first. Para definir interfaces publicas. |
+| `agent-skills/skills/spec-driven-development/SKILL.md` | Especificaciones antes de codigo. Para funcionalidades grandes. |
+| `agent-skills/skills/incremental-implementation/SKILL.md` | Implementacion por slices verticales. Para cambios que tocan varios archivos. |
+| `agent-skills/skills/context-engineering/SKILL.md` | Gestion de contexto para agentes. Complemento de `ahorro-contexto`. |
+| `agent-skills/skills/frontend-ui-engineering/SKILL.md` | Ingenieria de UI profesional. Complemento de `ui-ux-pro-max`. |
+| `agent-skills/skills/ci-cd-and-automation/SKILL.md` | Pipelines CI/CD. Para automatizar pruebas y despliegue. |
+| `agent-skills/skills/documentation-and-adrs/SKILL.md` | ADRs y documentacion tecnica. Complemento de `documentacion-tecnica`. |
 
 ## Regla
 Una skill no sustituye la lectura del proyecto. Toda skill debe adaptarse a las herramientas reales del repositorio.

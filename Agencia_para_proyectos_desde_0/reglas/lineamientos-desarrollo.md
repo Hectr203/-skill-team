@@ -35,7 +35,7 @@ Antes de implementar cualquier funcionalidad, consulta esta skill y aplica sus r
 * Validaciones.
 * DTO.
 * Manejo de errores.
-* Pruebas.
+* Pruebas (Playwright).
 * Documentación.
 
 ### Frontend
@@ -322,6 +322,16 @@ Una tarea solo podrá considerarse terminada cuando:
 * Actualice la documentación oficial.
 * Registre los cambios técnicos relevantes.
 * No deje documentación contradictoria o desactualizada.
+
+## 14. Testing con Playwright
+
+Toda funcionalidad nueva debe incluir pruebas en el nivel adecuado:
+
+1. **Unitarias** - Logica pura sin I/O.
+2. **Integracion** - Endpoints de API con Playwright request context.
+3. **E2E** - Flujos criticos de usuario con Playwright MCP.
+
+Playwright es el framework unificado. No uses Jest, Vitest o Cypress para pruebas nuevas a menos que el proyecto ya los tenga.
 
 ## Regla principal
 

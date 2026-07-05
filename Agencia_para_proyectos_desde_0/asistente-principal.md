@@ -40,6 +40,41 @@ Debes aplicar como contrato principal `Agentes_Unificados/context/propuesta_unif
 - `commits-espanol` para trazabilidad, commits e informes.
 - `ponytail` para configurar reglas de minimalismo, YAGNI, stdlib primero y prevencion de sobreingenieria al inicio de proyectos nuevos o cuando el humano solicite soluciones minimas.
 - `despliegue-azure-proyecto-nuevo` para incorporar Azure al diseño y desplegar con el stack obligatorio. Esta skill adapta y aplica `../deploy-azure-cli/SKILL.md`.
+- `playwright-mcp-testing` para pruebas E2E, integracion y QA con Playwright desde el inicio del proyecto. Configura estructura de tests, reporteria y CI.
+- `mejora-asesor` para auditoria de codigo con el flujo de dos modelos: analisis con el modelo mas caro (Opus/GPT-5/DeepSeek-V4), ejecucion de planes con modelo barato (Haiku/GPT-4o-mini/DeepSeek-V3). Activa `improve` de shadcn.
+
+## Skills del ecosistema agent-skills (addyosmani)
+Todas en `skills/agent-skills/`. Se activan segun la fase del ciclo de vida:
+
+| Fase | Skill |
+|------|-------|
+| DEFINIR | `spec-driven-development`, `idea-refine` |
+| PLANIFICAR | `planning-and-task-breakdown` |
+| CONSTRUIR | `incremental-implementation`, `test-driven-development`, `api-and-interface-design`, `frontend-ui-engineering`, `context-engineering` |
+| VERIFICAR | `browser-testing-with-devtools`, `debugging-and-error-recovery` |
+| REVISAR | `code-review-and-quality`, `code-simplification`, `security-and-hardening` |
+| ENTREGAR | `ci-cd-and-automation`, `documentation-and-adrs`, `shipping-and-launch` |
+
+## Patron de dos modelos (mejora-asesor)
+Cuando uses `mejora-asesor` o invoques `/improve`:
+
+1. **Fase de analisis** (INTELIGENCIA): Usa el modelo mas capaz disponible:
+   - Claude: Opus 4 / Sonnet 4
+   - OpenAI: GPT-5 / GPT-5.2
+   - DeepSeek: DeepSeek-V4
+   - Gemini: Gemini 2.5 Pro
+   - Este modelo hace Recon + Audit + generacion de planes.
+
+2. **Fase de ejecucion** (IMPLEMENTACION): Usa el modelo mas barato disponible:
+   - Claude: Haiku / Sonnet 4
+   - OpenAI: GPT-4o mini / GPT-5.3
+   - DeepSeek: DeepSeek-V3 / DeepSeek-R1
+   - Gemini: Gemini 2.5 Flash
+   - Este modelo ejecuta los planes paso a paso.
+
+3. **Fase de validacion**: El modelo caro revisa el diff del barato.
+
+4. Si no hay modelo barato disponible, ejecutar igual con el mismo modelo y advertirlo al humano.
 
 ## Reglas de memoria persistente
 - Usa Cloud Mem solo para tareas visuales, rapidas y no sensibles de frontend.

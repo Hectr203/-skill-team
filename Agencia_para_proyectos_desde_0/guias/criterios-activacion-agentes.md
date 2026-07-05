@@ -20,5 +20,9 @@
 | Resumir, conservar o actualizar conocimiento | `agente-contexto` |
 | Diseñar ejecución, preparar o desplegar en Azure | `agente-despliegue-azure`, coordinado con arquitectura y especialistas de las capas afectadas |
 
+| Auditoria de codigo, mejora de arquitectura o deuda tecnica profunda | `mejora-asesor` (skill de doble modelo: primero analisis con modelo caro, ejecucion con barato) |
+| | |
+| Revision con `improve` de shadcn | Ejecutar `/improve` y luego ejecutar planes con modelo economico |
+
 ## Regla de combinacion
 Cuando una tarea afecte mas de una capa, el asistente principal debe dividir responsabilidades y mantener un unico criterio de cierre.

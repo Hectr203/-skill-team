@@ -6,11 +6,13 @@
 4. Leer documentacion y archivos de configuracion solo cuando la memoria no tenga contexto suficiente.
 5. Mapear arquitectura, tecnologias, capas y convenciones.
 6. Localizar codigo relacionado con la tarea.
-7. Revisar pruebas existentes y comandos de validacion.
-8. Definir estrategia: conservar, adaptar, extender o refactorizar.
-9. Implementar cambios incrementales.
-10. Ejecutar pruebas o verificaciones pertinentes.
-11. Registrar cierre en `.memoria/` con tareas, archivos, decisiones, riesgos y pendientes.
+7. Revisar pruebas existentes, comandos de validacion y si existe CI/CD.
+8. Si el proyecto no tiene CI/CD, configurar `.github/workflows/ci.yml` adaptado al stack detectado.
+9. Definir estrategia: conservar, adaptar, extender o refactorizar.
+10. Implementar cambios incrementales.
+11. Ejecutar CI pipeline (push a rama).
+12. Crear PR, code review, merge.
+13. Registrar cierre en `.memoria/` con tareas, archivos, decisiones, riesgos y pendientes.
 
 ## Rama obligatoria para despliegues Azure
 

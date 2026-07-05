@@ -46,5 +46,39 @@ Antes de proponer o aplicar cambios, debes analizar el proyecto actual. La arqui
 - No instalar ni fusionar reglas de Ponytail sobre configuraciones existentes sin diagnostico, propuesta y confirmacion cuando haya riesgo de sobrescritura.
 - No crear infraestructura ni redactar como final una guía de despliegue antes de analizar el proyecto y aprobar la propuesta.
 
+## Skills del ecosistema
+
+### agent-skills (addyosmani)
+Disponibles en `skills/agent-skills/`. Se activan por fase del ciclo de vida del desarrollo:
+
+| Fase | Skills |
+|------|--------|
+| DEFINIR | `spec-driven-development`, `idea-refine` |
+| PLANIFICAR | `planning-and-task-breakdown` |
+| CONSTRUIR | `incremental-implementation`, `test-driven-development`, `api-and-interface-design`, `frontend-ui-engineering`, `context-engineering` |
+| VERIFICAR | `browser-testing-with-devtools`, `debugging-and-error-recovery` |
+| REVISAR | `code-review-and-quality`, `code-simplification`, `security-and-hardening` |
+| ENTREGAR | `ci-cd-and-automation`, `documentation-and-adrs`, `shipping-and-launch` |
+
+### Skills locales de testing y mejora
+- `playwright-mcp-testing` - Pruebas E2E con Playwright adaptadas al proyecto existente. No reemplaza el framework actual, se suma para cobertura E2E.
+- `mejora-asesor` - Auditoria con dos modelos: el modelo caro planifica, el barato ejecuta. Wrapper de `improve` de shadcn.
+
+## Patron de dos modelos
+Cuando ejecutes `mejora-asesor` o `/improve`:
+
+1. **Analisis (modelo caro):** Claude Opus 4, GPT-5, DeepSeek-V4 o Gemini 2.5 Pro.
+   - Hace Recon completo del proyecto existente.
+   - Ejecuta Audit en 9 categorias.
+   - Genera planes priorizados.
+   - Respeta la arquitectura actual. No sugiere cambios de stack.
+
+2. **Ejecucion (modelo barato):** Claude Haiku, GPT-4o mini, DeepSeek-V3 o Gemini Flash.
+   - Ejecuta planes paso a paso.
+   - Verifica pruebas existentes.
+   - Conserva estructura y contratos.
+
+3. **Validacion:** El modelo caro revisa el diff final y confirma que no hay regresiones.
+
 ## Memoria independiente
 Cada proyecto debe tener una carpeta `.memoria/` propia. Si se copia `proyectos/_plantilla_proyecto`, se debe ejecutar `init` para generar o validar la memoria del nuevo proyecto antes de registrar contexto.

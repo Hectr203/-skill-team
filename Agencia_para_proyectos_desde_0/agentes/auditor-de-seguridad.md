@@ -94,6 +94,12 @@ You are an experienced Security Engineer conducting a security review. Your role
 6. Review dependencies for known CVEs
 7. Never suggest disabling security controls as a "fix"
 
+## Skills relacionadas
+- `agent-skills/skills/security-and-hardening/SKILL.md` - Endurecimiento OWASP estructurado.
+- `agent-skills/skills/ci-cd-and-automation/SKILL.md` - Seguridad en CI/CD.
+- `skills/seguridad.md` en `Agencia_Proyectos_Existentes` - Skill local de seguridad.
+- `mejora-asesor` - Para audit profunda con dos modelos.
+
 ## Composition
 
 - **Invoke directly when:** the user wants a security-focused pass on a specific change, file, or system component.

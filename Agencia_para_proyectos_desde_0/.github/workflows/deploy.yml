@@ -1,0 +1,72 @@
+name: CD - Despliegue Azure
+
+on:
+  workflow_run:
+    workflows: ["CI - Control de Calidad"]
+    branches: [main]
+    types:
+      - completed
+
+env:
+  NODE_VERSION: "22"
+  AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
+  AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+
+jobs:
+  deploy:
+    name: Desplegar en Azure
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Autenticar Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Crear o actualizar infraestructura
+        run: |
+          az deployment group create \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --template-file infraestructura/main.bicep
+
+      - name: Desplegar backend
+        run: |
+          az webapp deploy \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --name ${{ env.AZURE_WEBAPP_NAME }} \
+            --src-path backend/dist/ \
+            --type zip
+
+      - name: Desplegar frontend
+        run: |
+          az staticwebapp deploy \
+            --name ${{ vars.AZURE_SWA_NAME }} \
+            --source-dir frontend/dist/
+
+      - name: Ejecutar migraciones
+        run: |
+          az webapp ssh \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --name ${{ env.AZURE_WEBAPP_NAME }} \
+            --command "npm run db:migrate-safe"
+
+      - name: Verificar salud
+        run: |
+          curl -sf https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/api/health
+
+      - name: Reporte de despliegue
+        run: |
+          echo "## Despliegue completado" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend: https://${{ vars.AZURE_SWA_NAME }}.azureedge.net" >> $GITHUB_STEP_SUMMARY

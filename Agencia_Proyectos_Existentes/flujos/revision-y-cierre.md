@@ -5,6 +5,7 @@
 - Arquitectura existente respetada.
 - Cambios limitados al alcance.
 - Dependencias nuevas justificadas o evitadas.
+- CI pipeline ejecutado y verde.
 - Seguridad revisada si aplica.
 - Pruebas ejecutadas o motivo documentado si no se ejecutaron.
 - Riesgos residuales declarados.
