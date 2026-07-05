@@ -18,6 +18,11 @@
 | APIs externas, colas, webhooks o interoperabilidad | `agente-integracion` |
 | Soporte continuo, bugs menores y salud del sistema | `agente-mantenimiento` |
 | Resumir, conservar o actualizar conocimiento | `agente-contexto` |
+| Analizar preparación, diseñar infraestructura o desplegar en Azure | Primero `agente-analisis-proyecto-existente`; después `agente-despliegue-azure` |
+
+| Auditoria de codigo, mejora controlada o deuda tecnica | `mejora-asesor` (skill de doble modelo: analisis con modelo caro, ejecucion con barato) |
+| | |
+| Revision con `improve` de shadcn | Ejecutar `/improve` con modelo caro, ejecutar planes con modelo economico |
 
 ## Regla de combinacion
 Cuando una tarea afecte mas de una capa, el asistente principal debe dividir responsabilidades y mantener un unico criterio de cierre.

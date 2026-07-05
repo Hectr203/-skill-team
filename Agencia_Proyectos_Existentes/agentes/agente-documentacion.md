@@ -21,10 +21,16 @@ Crear y mantener documentacion tecnica, ADRs, guias, bitacoras e informes de cie
 - Distinguir decisiones de pendientes.
 
 ## Salidas esperadas
-- ADRs.
-- Informes.
-- Guias.
-- Bitacoras.
+- ADRs usando formato de `agent-skills/skills/documentation-and-adrs/`.
+- Informes de cierre.
+- Guias de operacion y uso.
+- Bitacoras de decisiones.
+
+## Skills relacionadas
+- `agent-skills/skills/documentation-and-adrs/SKILL.md` - Formato ADR estructurado.
+- `skills/documentacion-tecnica.md` - Skill local de documentacion.
 
 ## Limites
 - No documentar informacion no verificada como hecho.
+- En despliegues, crear la guia operativa final solo despues de validar infraestructura y aplicacion; distinguir claramente propuesta, ejecucion y pendientes.
+- No documentar detalles triviales que el codigo ya explica (aplica ponytail).

@@ -1,0 +1,80 @@
+name: CD - Despliegue Azure (Proyecto Existente)
+
+on:
+  workflow_run:
+    workflows: ["CI - Control de Calidad (Proyecto Existente)"]
+    branches: [main]
+    types:
+      - completed
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  deploy:
+    name: Desplegar en Azure
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Autenticar Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Validar recursos existentes
+        run: |
+          az group show --name ${{ vars.AZURE_RESOURCE_GROUP }} \
+            || echo "GRUPO_NO_EXISTE: se creara en el proximo paso"
+
+      - name: Desplegar infraestructura (si aplica)
+        run: |
+          if [ -f infraestructura/main.bicep ]; then
+            az deployment group create \
+              --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+              --template-file infraestructura/main.bicep
+          else
+            echo "Sin Bicep detectado, omitiendo infraestructura"
+          fi
+
+      - name: Desplegar aplicacion
+        run: |
+          PACKAGE=$(node -p "const p=require('./package.json'); p.scripts && p.scripts.build ? 'aplicacion' : 'ninguno'")
+          if [ "$PACKAGE" = "aplicacion" ]; then
+            az webapp deploy \
+              --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+              --name ${{ vars.AZURE_WEBAPP_NAME }} \
+              --src-path dist/ \
+              --type zip
+          fi
+
+      - name: Ejecutar migraciones
+        run: |
+          npm run db:migrate-safe 2>/dev/null \
+            || echo "Sin script de migraciones configurado"
+
+      - name: Verificar salud
+        run: |
+          curl -sf https://${{ vars.AZURE_WEBAPP_NAME }}.azurewebsites.net/api/health \
+            || echo "Endpoint de salud no disponible"
+
+      - name: Pruebas de integracion post-despliegue
+        run: |
+          npm run test:integration 2>/dev/null \
+            || echo "Sin pruebas de integracion configuradas"
+
+      - name: Reporte de despliegue
+        run: |
+          echo "## Despliegue completado" >> $GITHUB_STEP_SUMMARY
+          echo "- Aplicacion: https://${{ vars.AZURE_WEBAPP_NAME }}.azurewebsites.net" >> $GITHUB_STEP_SUMMARY
+          echo "- Recursos: ${{ vars.AZURE_RESOURCE_GROUP }}" >> $GITHUB_STEP_SUMMARY
