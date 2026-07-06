@@ -72,7 +72,7 @@ def reproducir_sonido_sistema(repeticiones: int) -> None:
         ejecutado = False
         for comando in comandos:
             try:
-                subprocess.Popen(
+                subprocess.run(
                     comando,
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
@@ -83,7 +83,7 @@ def reproducir_sonido_sistema(repeticiones: int) -> None:
                 continue
         if not ejecutado:
             reproducir_sonido_terminal(1)
-        time.sleep(1.0)
+        time.sleep(0.5)
 
 
 def crear_html_notificacion(tarea: str, estado: str, mensaje: str, repeticiones: int) -> Path:
@@ -197,7 +197,7 @@ def parse_args() -> argparse.Namespace:
         default=os.getenv("MENSAJE", "La tarea fue completada correctamente."),
         help="Mensaje visual de la notificacion.",
     )
-    parser.add_argument("--repeticiones", type=int, default=3, help="Cantidad de sonidos a emitir.")
+    parser.add_argument("--repeticiones", type=int, default=1, help="Cantidad de sonidos a emitir.")
     parser.add_argument("--sin-navegador", action="store_true", help="No abre una pestana visual.")
     parser.add_argument("--sin-sonido", action="store_true", help="No emite sonido audible.")
     parser.add_argument("--sin-escritorio", action="store_true", help="No intenta notificacion de escritorio.")
