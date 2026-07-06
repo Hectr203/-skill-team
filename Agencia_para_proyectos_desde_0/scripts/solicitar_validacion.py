@@ -15,7 +15,7 @@ import webbrowser
 from pathlib import Path
 
 # Importar funciones de notificar_tarea.py
-from notificar_tarea import reproducir_sonido_sistema, enviar_notificacion_escritorio
+from notificar_tarea import reproducir_sonido_sistema, enviar_notificacion_escritorio, mostrar_popup_topmost
 
 HTML_NOTIFICACION = Path(__file__).with_name("solicitud_validacion.html")
 
@@ -136,6 +136,9 @@ def main() -> int:
     
     # Intentar sonido de sistema primero, el JS es fallback visual/sonoro en la página
     reproducir_sonido_sistema(1, audio_filename="Necesito Validación.mp3")
+    
+    # Mostrar popup forzoso al frente
+    mostrar_popup_topmost("⚠️ Necesito Validación", "El agente requiere tu respuesta en el chat. Revisa el navegador y el chat de IA.")
     
     print("Notificación de validación enviada y a la espera de respuesta.")
     return 0
