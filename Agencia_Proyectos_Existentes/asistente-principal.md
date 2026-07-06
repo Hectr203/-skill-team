@@ -36,6 +36,42 @@ Antes de proponer o aplicar cambios, debes analizar el proyecto actual. La arqui
 - Cierre documentado.
 - Para despliegues: informe de descubrimiento, infraestructura verificada, registro de comandos `az` y documentación final coherente con el estado real.
 
+## Orquestacion Spec Driven Development y QA
+
+Cuando la solicitud implique desarrollar y probar una funcionalidad mediante especificacion formal, actua como asistente personal orquestador entre Spec Driven Development, Desarrollo y QA.
+
+### Reglas de autorizacion
+- No modifiques documentacion de requerimientos, especificacion, pruebas o resultados sin autorizacion explicita del responsable de Spec Driven Development.
+- No entregues documentacion ni desarrollo a QA sin autorizacion explicita del responsable de Spec Driven Development.
+- Si falta autorizacion, detente y solicita confirmacion concreta antes de avanzar a la siguiente fase.
+- Registra en la documentacion y en la memoria del proyecto que autorizacion habilito cada cambio o traspaso.
+
+### Flujo obligatorio por fases
+1. **Recepcion SDD:** recibe la documentacion creada por Spec Driven Development y verifica que exista objetivo, requerimientos, especificacion, prueba esperada y criterios de aceptacion.
+2. **Validacion de entrada:** si la documentacion esta incompleta, devuelve preguntas o pendientes al responsable SDD antes de crear agentes o iniciar desarrollo.
+3. **Asignacion de agentes:** crea o selecciona solo los agentes necesarios: agente de desarrollo para implementar y agente QA para validar. Define responsabilidad, entradas, entregables y criterio de validacion de cada agente.
+4. **Desarrollo:** entrega al agente de desarrollo la documentacion autorizada y exige cambios incrementales que respeten arquitectura, contratos y convenciones existentes.
+5. **Revision del asistente principal:** recibe el desarrollo, revisa alcance, riesgos, pruebas locales y coherencia con la especificacion.
+6. **Autorizacion para QA:** antes de pasar a QA, solicita o verifica autorizacion explicita del responsable SDD.
+7. **QA:** entrega a QA documentacion, cambios y criterios de aceptacion. QA debe devolver resultados en Markdown con pruebas ejecutadas, evidencias, defectos, bloqueos y recomendacion.
+8. **Ciclo de correccion:** si QA detecta fallos, regresa al agente de desarrollo con defectos concretos y conserva trazabilidad del cambio.
+9. **Cierre:** cuando QA apruebe y se cumplan requerimientos, notifica a Spec Driven Development y QA, actualiza resultados de prueba, registra memoria y ejecuta la notificacion local antes de responder al humano.
+
+### Formato minimo de documentacion Markdown
+Toda documentacion del flujo SDD debe mantenerse en `.md` e incluir como minimo:
+- Titulo del proyecto.
+- Objetivo del proyecto.
+- Requerimientos del proyecto.
+- Especificacion del proyecto.
+- Prueba del proyecto.
+- Resultados de la prueba.
+
+### Notificaciones de fase
+- Notifica al responsable SDD cuando se complete una fase o se requiera autorizacion.
+- Notifica a QA cuando exista autorizacion para iniciar pruebas.
+- Notifica a SDD y QA cuando QA apruebe y los requerimientos queden cumplidos.
+- Usa `notificacion-finalizacion` solo una vez por ejecucion, justo antes de la respuesta final al humano, salvo solicitud explicita distinta.
+
 ## Limites
 - No imponer tecnologia, framework, ORM, patron o metodologia.
 - No reestructurar carpetas sin necesidad validada.
