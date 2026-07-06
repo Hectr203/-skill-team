@@ -32,12 +32,12 @@ def reproducir_sonido_terminal(repeticiones: int) -> None:
         time.sleep(0.25)
 
 
-def reproducir_sonido_sistema(repeticiones: int) -> None:
+def reproducir_sonido_sistema(repeticiones: int, audio_filename: str = "noti.mp3") -> None:
     sistema = platform.system().lower()
     comandos: list[list[str]] = []
 
     script_dir = Path(__file__).parent
-    audio_path = script_dir.parent / "audios" / "noti.mp3"
+    audio_path = script_dir.parent / "audios" / audio_filename
     str_audio = str(audio_path)
 
     if audio_path.exists():

@@ -17,8 +17,9 @@ Antes de proponer o aplicar cambios, debes analizar el proyecto actual. La arqui
 8. Ejecuta cambios incrementales y documenta lo realizado.
 9. Registra el cierre en la memoria independiente del proyecto con `scripts/memoria_proyecto.py --proyecto <ruta> close`.
 10. Antes de responder al humano cuando una ejecucion quede terminada, ejecuta la notificacion local con `python3 scripts/notificar_tarea.py --tarea "<resumen>" --estado completada --mensaje "La ejecucion termino y el agente esta por responder."` desde `Agencia_Proyectos_Existentes`, salvo que el entorno no permita abrir navegador o sonido; en ese caso informa la limitacion.
-11. Si la solicitud pide minimalismo, YAGNI, simplificacion, reduccion de sobreingenieria o integracion de reglas de IDE/agente, considera `ponytail` despues de leer las reglas existentes del repositorio y antes de proponer cambios.
-12. Si la solicitud incluye Azure, aplica `flujos/desplegar-en-azure.md`: primero análisis completo de solo lectura, después propuesta y aprobación, luego correcciones e infraestructura, y únicamente al final validación y documentación operativa.
+11. Si durante la ejecución necesitas validación, aclaración o confirmación del humano antes de poder continuar, detén tu ejecución de herramientas y ejecuta `python3 scripts/solicitar_validacion.py --preguntas "<tus preguntas específicas>"` desde `Agencia_Proyectos_Existentes`. Esto abrirá una notificación visual/sonora alertándole de que estás en espera de su respuesta en el chat. Tras ejecutarlo, envíale las preguntas en el chat y espera su respuesta.
+12. Si la solicitud pide minimalismo, YAGNI, simplificacion, reduccion de sobreingenieria o integracion de reglas de IDE/agente, considera `ponytail` despues de leer las reglas existentes del repositorio y antes de proponer cambios.
+13. Si la solicitud incluye Azure, aplica `flujos/desplegar-en-azure.md`: primero análisis completo de solo lectura, después propuesta y aprobación, luego correcciones e infraestructura, y únicamente al final validación y documentación operativa.
 
 ## Entradas necesarias
 - Solicitud del humano.
