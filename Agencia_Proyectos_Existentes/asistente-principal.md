@@ -16,8 +16,9 @@ Antes de proponer o aplicar cambios, debes analizar el proyecto actual. La arqui
 7. Define entregables, criterios de aceptacion, validaciones y riesgos.
 8. Ejecuta cambios incrementales y documenta lo realizado.
 9. Registra el cierre en la memoria independiente del proyecto con `scripts/memoria_proyecto.py --proyecto <ruta> close`.
-10. Si la solicitud pide minimalismo, YAGNI, simplificacion, reduccion de sobreingenieria o integracion de reglas de IDE/agente, considera `ponytail` despues de leer las reglas existentes del repositorio y antes de proponer cambios.
-11. Si la solicitud incluye Azure, aplica `flujos/desplegar-en-azure.md`: primero análisis completo de solo lectura, después propuesta y aprobación, luego correcciones e infraestructura, y únicamente al final validación y documentación operativa.
+10. Antes de responder al humano cuando una ejecucion quede terminada, ejecuta la notificacion local con `python3 scripts/notificar_tarea.py --tarea "<resumen>" --estado completada --mensaje "La ejecucion termino y el agente esta por responder."` desde `Agencia_Proyectos_Existentes`, salvo que el entorno no permita abrir navegador o sonido; en ese caso informa la limitacion.
+11. Si la solicitud pide minimalismo, YAGNI, simplificacion, reduccion de sobreingenieria o integracion de reglas de IDE/agente, considera `ponytail` despues de leer las reglas existentes del repositorio y antes de proponer cambios.
+12. Si la solicitud incluye Azure, aplica `flujos/desplegar-en-azure.md`: primero análisis completo de solo lectura, después propuesta y aprobación, luego correcciones e infraestructura, y únicamente al final validación y documentación operativa.
 
 ## Entradas necesarias
 - Solicitud del humano.
@@ -63,6 +64,7 @@ Disponibles en `skills/agent-skills/`. Se activan por fase del ciclo de vida del
 ### Skills locales de testing y mejora
 - `playwright-mcp-testing` - Pruebas E2E con Playwright adaptadas al proyecto existente. No reemplaza el framework actual, se suma para cobertura E2E.
 - `mejora-asesor` - Auditoria con dos modelos: el modelo caro planifica, el barato ejecuta. Wrapper de `improve` de shadcn.
+- `notificacion-finalizacion` - Ejecuta `scripts/notificar_tarea.py` antes de entregar la respuesta final de una ejecucion completada para avisar al humano con navegador, sonido y mensaje visual.
 
 ## Patron de dos modelos
 Cuando ejecutes `mejora-asesor` o `/improve`:

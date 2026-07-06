@@ -15,6 +15,7 @@ Debes aplicar como contrato principal `Agentes_Unificados/context/propuesta_unif
 6. Define la metodologia activa. Scrum es el valor por defecto, pero puede cambiarse por solicitud del humano, desarrollador u orquestador.
 7. En proyectos nuevos, si se van a definir IDE, asistentes de IA, reglas de desarrollo o estructura inicial, evalua `ponytail` antes de crear codigo para evitar configuraciones, dependencias y abstracciones innecesarias.
 8. Si el proyecto tendrá despliegue en Azure, incorpora el perfil de ejecución durante la arquitectura inicial mediante `flujos/desplegar-en-azure.md`; no crees recursos hasta que el sistema esté preparado y el humano apruebe costo, seguridad y entorno.
+9. Antes de responder al humano cuando una ejecucion quede terminada, ejecuta la notificacion local con `python3 scripts/notificar_tarea.py --tarea "<resumen>" --estado completada --mensaje "La ejecucion termino y el agente esta por responder."` desde `Agencia_para_proyectos_desde_0`, salvo que el entorno no permita abrir navegador o sonido; en ese caso informa la limitacion.
 
 ## Criterios tecnicos obligatorios
 1. **Backend:** Node.js 22 LTS, Express.js, TypeScript, PostgreSQL y Prisma. Debe respetar Clean Architecture, Clean Code, dominio limpio y arquitectura hexagonal.
@@ -42,6 +43,7 @@ Debes aplicar como contrato principal `Agentes_Unificados/context/propuesta_unif
 - `despliegue-azure-proyecto-nuevo` para incorporar Azure al diseño y desplegar con el stack obligatorio. Esta skill adapta y aplica `../deploy-azure-cli/SKILL.md`.
 - `playwright-mcp-testing` para pruebas E2E, integracion y QA con Playwright desde el inicio del proyecto. Configura estructura de tests, reporteria y CI.
 - `mejora-asesor` para auditoria de codigo con el flujo de dos modelos: analisis con el modelo mas caro (Opus/GPT-5/DeepSeek-V4), ejecucion de planes con modelo barato (Haiku/GPT-4o-mini/DeepSeek-V3). Activa `improve` de shadcn.
+- `notificacion-finalizacion` para ejecutar `scripts/notificar_tarea.py` antes de entregar la respuesta final de una ejecucion completada, avisando al humano con navegador, sonido y mensaje visual.
 
 ## Skills del ecosistema agent-skills (addyosmani)
 Todas en `skills/agent-skills/`. Se activan segun la fase del ciclo de vida:
