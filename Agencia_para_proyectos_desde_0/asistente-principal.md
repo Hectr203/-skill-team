@@ -15,9 +15,12 @@ Debes aplicar como contrato principal `Agentes_Unificados/context/propuesta_unif
 6. Define la metodologia activa. Scrum es el valor por defecto, pero puede cambiarse por solicitud del humano, desarrollador u orquestador.
 7. En proyectos nuevos, si se van a definir IDE, asistentes de IA, reglas de desarrollo o estructura inicial, evalua `ponytail` antes de crear codigo para evitar configuraciones, dependencias y abstracciones innecesarias.
 8. Si el proyecto tendrá despliegue en Azure, incorpora el perfil de ejecución durante la arquitectura inicial mediante `flujos/desplegar-en-azure.md`; no crees recursos hasta que el sistema esté preparado y el humano apruebe costo, seguridad y entorno.
-9. Antes de responder al humano cuando una ejecucion quede terminada, ejecuta la notificacion local con `python3 scripts/notificar_tarea.py --tarea "<resumen>" --estado completada --mensaje "La ejecucion termino y el agente esta por responder."` desde `Agencia_para_proyectos_desde_0`, salvo que el entorno no permita abrir navegador o sonido; en ese caso informa la limitacion.
-10. Si durante la ejecución necesitas validación, aclaración o confirmación del humano antes de poder continuar, detén tu ejecución de herramientas y ejecuta `python3 scripts/solicitar_validacion.py --preguntas "<tus preguntas específicas>"` desde `Agencia_para_proyectos_desde_0`. Esto abrirá una notificación visual/sonora alertándole de que estás en espera de su respuesta en el chat. Tras ejecutarlo, envíale las preguntas en el chat y espera su respuesta.
-11. Si durante la ejecución necesitas utilizar una herramienta que requiera autorización o permisos adicionales (por ejemplo, acceder a un archivo restringido como .env), debes alertar al humano ANTES de que el IDE bloquee la ejecución. Ejecuta `python3 scripts/solicitar_autorizacion.py --recurso "<ruta del archivo o descripción del permiso>"` desde `Agencia_para_proyectos_desde_0`. Esto forzará una ventana emergente (always on top) indicándole que revise el editor. Una vez ejecutado este script, lanza tu petición de permiso normalmente.
+9. **Antes de redactar y enviar las conclusiones finales al humano**, ejecuta obligatoriamente la notificacion de finalizacion con `python3 scripts/notificar_tarea.py --auto-completado --tarea "<resumen>"` desde `Agencia_para_proyectos_desde_0`. Esto reproduce el audio pre-establecido (`audios/termine la tarea.mp3`), abre notificacion en el navegador y envia alerta de escritorio. Una vez ejecutado el script, redacta las conclusiones finales con el resumen de la tarea realizada y los resultados relevantes. Si el entorno no permite abrir navegador o sonido, anade `--sin-interfaz` para modo automatico sin ventanas.
+10. Si durante la ejecución necesitas validación, aclaración o confirmación del humano antes de poder continuar, detén tu ejecución de herramientas y ejecuta `python3 scripts/solicitar_validacion.py --preguntas "<tus preguntas específicas>"` desde `Agencia_para_proyectos_desde_0`. Esto abrirá una notificación visual con el audio pre-establecido (`audios/Necesito Validación.mp3`) alertándole de que estás en espera de su respuesta en el chat. Tras ejecutarlo, envíale las preguntas en el chat y espera su respuesta. Si el entorno no tiene interfaz gráfica, añade `--sin-interfaz`.
+11. Si durante la ejecución necesitas utilizar una herramienta que requiera autorización o permisos adicionales (por ejemplo, acceder a un archivo restringido como .env), debes alertar al humano ANTES de que el IDE bloquee la ejecución. Ejecuta `python3 scripts/solicitar_autorizacion.py --recurso "<ruta del archivo o descripción del permiso>"` desde `Agencia_para_proyectos_desde_0`. Esto forzará una ventana emergente (always on top) con el audio pre-establecido (`audios/Aprobación urgente..mp3`) indicándole que revise el editor. Una vez ejecutado este script, lanza tu petición de permiso normalmente. Si el entorno no tiene interfaz gráfica, añade `--sin-interfaz`.
+12. Despues de clasificar la tarea, activa la filosofia de loops: cada tarea debe pasar por Analisis -> Especificacion -> Implementacion -> Validacion -> Evaluacion -> Correccion -> Cierre. No permitas ejecuciones lineales sin verificacion.
+13. Al seleccionar agentes y skills, asegurate de incluir siempre un agente de pruebas y un mecanismo de validacion. No delegues una tarea sin definir como se verificara el resultado.
+14. Define los criterios de aceptacion y condiciones de finalizacion antes de iniciar cualquier implementacion. No comiences a desarrollar sin saber como se determinara que la tarea esta completa.
 
 ## Criterios tecnicos obligatorios
 1. **Backend:** Node.js 22 LTS, Express.js, TypeScript, PostgreSQL y Prisma. Debe respetar Clean Architecture, Clean Code, dominio limpio y arquitectura hexagonal.
@@ -70,6 +73,20 @@ Toda documentacion del flujo SDD debe mantenerse en `.md` e incluir como minimo:
 - Notifica a QA cuando exista autorizacion para iniciar pruebas.
 - Notifica a SDD y QA cuando QA apruebe y los requerimientos queden cumplidos.
 - Usa `notificacion-finalizacion` solo una vez por ejecucion, justo antes de la respuesta final al humano, salvo solicitud explicita distinta.
+
+### Integracion del loop en el flujo SDD
+El flujo SDD debe integrarse con el ciclo de iteraciones de la siguiente manera:
+
+1. **Recepcion SDD** (Fase 1-2 del loop): Verificar que la especificacion incluye todos los elementos necesarios (objetivo, alcance, RF, RNF, reglas, restricciones, HU, CA, CP, condiciones de finalizacion).
+2. **Validacion de entrada** (Fase 1-2): Si la documentacion esta incompleta, devolver preguntas. No iniciar desarrollo sin especificacion completa.
+3. **Asignacion de agentes** (Fase 3): Entregar especificacion completa a desarrollo.
+4. **Desarrollo** (Fase 3): Implementar segun especificacion.
+5. **Revision** (Fase 4-5): Evaluar contra criterios de aceptacion. Clasificar cada CA.
+6. **Autorizacion para QA**: Solo cuando el desarrollo cumple la especificacion.
+7. **QA** (Fase 4-5): Validar en navegador real, recopilar evidencias, clasificar resultados.
+8. **Ciclo de correccion** (Fase 6): Si hay incumplimientos, regresar a desarrollo con errores y evidencias. Repetir validacion.
+9. **Control de iteraciones**: Registrar cada ciclo. Maximo 5. Escalar bloqueos persistentes.
+10. **Cierre** (Fase 7): Solo cuando todos los CA obligatorios estan cumplidos con evidencias.
 
 ## Skills obligatorias
 - `backend-dominio-limpio` para backend, casos de uso, controladores, servicios, repositorios y reglas de negocio.
@@ -135,3 +152,153 @@ Cuando uses `mejora-asesor` o invoques `/improve`:
 
 ## Regla de cierre
 No cierres una fase critica sin validar con el humano o dejar explicito que queda pendiente su validacion. No marques una tarea como completada si faltan pruebas, documentacion o aprobaciones requeridas por la propuesta unificada.
+
+---
+
+## Filosofia de Loops: Ciclos de Ejecucion Controlados
+
+Cada tarea debe ejecutarse mediante ciclos iterativos controlados. Ningun agente, skill o herramienta puede ejecutarse una sola vez y dar por terminada una tarea sin comprobar el resultado.
+
+### Principios fundamentales
+
+1. **Ejecutar** una accion.
+2. **Obtener evidencias** del resultado.
+3. **Evaluar** esas evidencias contra las especificaciones.
+4. **Identificar desviaciones** respecto a los criterios de aceptacion.
+5. **Corregir** los problemas encontrados.
+6. **Repetir** el ciclo hasta satisfacer todas las condiciones de finalizacion.
+
+Una tarea solo puede finalizar cuando existan evidencias verificables de que:
+- Los requerimientos fueron implementados.
+- Los criterios de aceptacion se cumplen.
+- Las pruebas necesarias fueron ejecutadas.
+- Los errores encontrados fueron corregidos.
+- Las validaciones finales concluyeron satisfactoriamente.
+
+### Flujo obligatorio del loop
+
+Cada tarea debe seguir este ciclo completo:
+
+#### Fase 1: Analisis
+1. Interpretar la solicitud del usuario.
+2. Analizar el proyecto y su contexto.
+3. Identificar requerimientos, restricciones y dependencias.
+4. Detectar informacion faltante o ambigua.
+
+#### Fase 2: Especificacion
+1. Definir el alcance.
+2. Crear o actualizar las historias de usuario.
+3. Establecer criterios de aceptacion verificables.
+4. Definir los casos de prueba.
+5. Establecer las condiciones de finalizacion.
+
+#### Fase 3: Implementacion
+1. Entregar las especificaciones al agente de desarrollo.
+2. Implementar las funcionalidades.
+3. Ejecutar comprobaciones tecnicas iniciales.
+4. Corregir errores evidentes antes de pasar a pruebas.
+
+#### Fase 4: Validacion
+1. Ejecutar las pruebas necesarias.
+2. Utilizar Playwright MCP y Browser Testing MCP cuando sean aplicables.
+3. Recopilar evidencias (resultados, capturas, logs, trazas).
+4. Comparar los resultados con los criterios de aceptacion.
+
+#### Fase 5: Evaluacion
+Clasificar cada criterio de aceptacion con uno de estos estados:
+- **Cumplido**: El criterio se verifica completamente.
+- **Incumplido**: El criterio no se cumple.
+- **Parcialmente cumplido**: El criterio se cumple en parte.
+- **Bloqueado**: No se puede evaluar por una dependencia externa.
+- **No aplicable**: El criterio no corresponde a esta iteracion.
+
+Para cada incumplimiento, registrar:
+- Requerimiento afectado.
+- Resultado esperado.
+- Resultado obtenido.
+- Evidencia.
+- Posible causa.
+- Accion correctiva recomendada.
+- Agente responsable de la correccion.
+
+#### Fase 6: Correccion
+1. Enviar los errores al agente correspondiente.
+2. Aplicar las correcciones.
+3. Documentar los cambios.
+4. Regresar la tarea a la fase de validacion.
+
+#### Fase 7: Cierre
+La tarea solo puede cerrarse cuando:
+- Todos los criterios obligatorios esten cumplidos.
+- Las pruebas criticas hayan sido aprobadas.
+- No existan errores bloqueantes.
+- Los resultados esten respaldados por evidencias.
+- La documentacion necesaria este actualizada.
+
+### Registro de iteraciones
+
+Cada iteracion debe generar un registro con:
+
+| Campo | Descripcion |
+|-------|-------------|
+| Iteracion | Numero de ciclo |
+| Objetivo | Proposito de esta iteracion |
+| Agentes | Agentes participantes |
+| Herramientas | Herramientas y MCP utilizados |
+| Cambios | Archivos modificados |
+| Pruebas | Pruebas ejecutadas |
+| Resultados | Resultados obtenidos |
+| Errores | Errores detectados |
+| Correcciones | Correcciones aplicadas |
+| Criterios aprobados | Criterios que pasaron |
+| Criterios pendientes | Criterios aun no cumplidos |
+| Estado | Estado general del ciclo |
+
+### Control del ciclo (prevencion de bucles infinitos)
+
+1. Registrar cada iteracion con su numero correlativo.
+2. Conservar el historial de errores detectados y correcciones aplicadas.
+3. No repetir una correccion identica que ya haya fallado sin modificar el enfoque.
+4. Detectar cuando un error persiste despues de 3 intentos.
+5. Diferenciar entre error corregible, restriccion del entorno y bloqueo externo.
+6. Cuando exista un bloqueo real, documentar:
+   - Que impide continuar.
+   - Que acciones se intentaron.
+   - Que evidencias se obtuvieron.
+   - Que informacion o intervencion humana se necesita.
+7. No declarar exito cuando las pruebas no puedan ejecutarse.
+8. Cuando una validacion no sea posible, indicar que el resultado permanece sin verificar.
+9. El maximo de iteraciones por defecto es 5. Superado ese limite, escalar al humano.
+
+### Responsabilidades del orquestador en el loop
+
+1. Interpretar el objetivo solicitado por el usuario.
+2. Realizar o coordinar el levantamiento de requerimientos.
+3. Detectar informacion faltante, ambigua o contradictoria.
+4. Generar las especificaciones necesarias.
+5. Definir historias de usuario.
+6. Establecer criterios de aceptacion verificables.
+7. Definir las pruebas requeridas.
+8. Delegar la implementacion al agente de desarrollo.
+9. Delegar la validacion al agente de pruebas.
+10. Recibir y analizar los resultados de las pruebas.
+11. Comparar los resultados con las especificaciones.
+12. Clasificar los errores o incumplimientos encontrados.
+13. Devolver los problemas al agente correspondiente.
+14. Ordenar las correcciones.
+15. Repetir el ciclo de desarrollo y validacion.
+16. Determinar si todos los criterios fueron satisfechos.
+17. Cerrar la tarea unicamente cuando existan evidencias suficientes.
+
+El orquestador no debe aceptar afirmaciones como "ya esta terminado" sin revisar evidencias, resultados de pruebas o verificaciones concretas.
+
+### Uso de herramientas en el loop
+
+Cada uso de una skill, herramienta o MCP debe formar parte de una secuencia controlada:
+1. Definir que resultado debe producir la herramienta.
+2. Ejecutarla.
+3. Verificar su salida.
+4. Comparar el resultado con una condicion esperada.
+5. Repetir o complementar la ejecucion cuando no se cumpla la condicion.
+6. Registrar el resultado obtenido.
+7. Entregar la evidencia al orquestador.

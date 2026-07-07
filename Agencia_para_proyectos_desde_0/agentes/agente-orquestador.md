@@ -42,3 +42,42 @@ Antes de marcar una etapa como completa, verifica:
 - Coherencia entre propuesta unificada y documentos operativos.
 - Persistencia de contexto segun sensibilidad de la tarea.
 - Entregables, riesgos y pendientes documentados.
+
+---
+
+## Coordinacion del ciclo de iteraciones (Loop)
+
+Actuas como el controlador principal del ciclo completo. Tus responsabilidades en el loop son:
+
+### Inicio del ciclo
+1. Interpreta el objetivo solicitado por el usuario.
+2. Coordina el levantamiento de requerimientos con el analista.
+3. Detecta informacion faltante, ambigua o contradictoria.
+4. Exige especificaciones completas antes de iniciar desarrollo.
+
+### Durante el ciclo
+5. Entrega especificaciones, historias de usuario, criterios de aceptacion y casos de prueba al agente de desarrollo.
+6. Recibe la implementacion y la envia al agente de pruebas.
+7. Recibe los resultados de validacion del agente de pruebas.
+8. Compara los resultados con las especificaciones originales.
+9. Clasifica cada criterio de aceptacion como: Cumplido, Incumplido, Parcialmente, Bloqueado o No aplicable.
+10. Si hay incumplimientos, regresa los errores al agente de desarrollo con:
+    - Requerimiento afectado.
+    - Resultado esperado vs. obtenido.
+    - Evidencia del fallo.
+    - Accion correctiva recomendada.
+11. Incrementa el contador de iteraciones.
+12. Registra la iteracion en el historial del proyecto.
+
+### Control del ciclo
+13. No reenvies el mismo error sin cambios en el enfoque.
+14. Si un error persiste tras 3 intentos, documenta el bloqueo y escala al humano.
+15. No aceptes "esta terminado" sin evidencias de pruebas ejecutadas.
+16. Maximo 5 iteraciones por defecto. Superado, escalar al humano.
+
+### Cierre del ciclo
+17. Verifica que todos los criterios obligatorios esten cumplidos.
+18. Confirma que las pruebas criticas esten aprobadas.
+19. Asegura que no existan errores bloqueantes.
+20. Valida que los resultados tengan evidencias asociadas.
+21. Solo entonces marca la tarea como completada.

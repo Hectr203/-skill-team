@@ -9,7 +9,7 @@ description: Skill de mejora y auditoria con dos modelos. Usar primero /improve 
 Aplicar la skill `shadcn/improve` con un flujo de dos modelos: el modelo mas capaz y caro para el analisis y la generacion de planes (fase de inteligencia intensiva), y un modelo barato o gratuito para la ejecucion de esos planes (fase de implementacion).
 
 ## Integracion con shadcn/improve
-Esta skill es un wrapper que orquesta el uso de `shadcn/improve` (ubicada en `.agents/skills/improve/SKILL.md`). La skill original es estrictamente read-only y produce planes; esta skill anade la capa de ejecucion con el modelo economico.
+Esta skill es un wrapper que orquesta el uso de `shadcn/improve` (ubicada en `skills/improve/SKILL.md`). La skill original es estrictamente read-only y produce planes; esta skill anade la capa de ejecucion con el modelo economico.
 
 ## Filosofia
 El analisis profundo requiere el mejor modelo disponible. La ejecucion de tareas bien especificadas puede hacerla cualquier modelo competente. Esto optimiza calidad por dolar gastado.
@@ -69,5 +69,5 @@ El analisis profundo requiere el mejor modelo disponible. La ejecucion de tareas
 7. Si no hay modelo barato disponible, ejecutar igual con el mismo modelo pero advertirlo.
 
 ## Referencias
-- `.agents/skills/improve/SKILL.md` - Documentacion original de shadcn/improve.
-- `.agents/skills/improve/references/` - Referencias de audit, plan template, cierre.
+- `skills/improve/SKILL.md` - Documentacion original de shadcn/improve.
+- `skills/improve/references/` - Referencias de audit, plan template, cierre.

@@ -19,3 +19,13 @@ Establecer bases sólidas para un proyecto nuevo asegurando que su arquitectura,
 
 ## Criterio de cierre
 La fase de inicialización se considera terminada cuando el proyecto compila/ejecuta exitosamente en su forma base, cuenta con documentación arquitectónica y perfil de despliegue en `context/`, y está listo para recibir desarrollo incremental. La infraestructura Azure puede seguir sin crear hasta la fase aprobada de entrega.
+
+## Integracion con el ciclo de iteraciones
+
+Cada fase de configuracion e inicializacion debe verificarse antes de continuar:
+
+1. Despues de cada paso, verificar que el resultado sea correcto.
+2. Si un paso falla, corregirlo antes de avanzar al siguiente.
+3. No declarar un paso completado sin evidencias (compilacion exitosa, test pasado, archivo creado).
+4. Registrar cualquier desviacion del plan original.
+5. Si un bloqueo no puede resolverse en 3 intentos, documentarlo y escalar al humano.

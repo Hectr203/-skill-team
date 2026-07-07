@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Notifica que el agente requiere validación por parte del usuario.
 
-Uso:
-    python3 scripts/solicitar_validacion.py --preguntas "¿Debo borrar este archivo?"
+Uso normal:
+    python3 scripts/solicitar_validacion.py --preguntas "Debo borrar este archivo?"
+
+Uso sin interfaz grafica (entorno automatico/headless):
+    python3 scripts/solicitar_validacion.py --preguntas "Texto" --sin-interfaz
 """
 
 from __future__ import annotations
@@ -11,16 +14,20 @@ import argparse
 import html
 import sys
 import textwrap
+import time
 import webbrowser
 from pathlib import Path
 
 # Importar funciones de notificar_tarea.py
-from notificar_tarea import reproducir_sonido_sistema, enviar_notificacion_escritorio, mostrar_popup_topmost
+from notificar_tarea import reproducir_sonido_sistema, enviar_notificacion_escritorio, mostrar_popup_topmost, reproducir_sonido_terminal
 
 HTML_NOTIFICACION = Path(__file__).with_name("solicitud_validacion.html")
 
+AUDIO_VALIDACION = "Necesito Validación.mp3"
+
+
 def crear_html_validacion(preguntas: str) -> Path:
-    titulo = "⚠️ Necesito Validación"
+    titulo = "Necesito Validacion"
     
     # Convertir las preguntas (que pueden venir con saltos de línea) a HTML
     preguntas_html = html.escape(preguntas).replace("\n", "<br>")
@@ -83,18 +90,17 @@ def crear_html_validacion(preguntas: str) -> Path:
     </head>
     <body>
       <main>
-        <div class="alerta">Acción Requerida</div>
-        <h1>Necesito Validación</h1>
+        <div class="alerta">Accion Requerida</div>
+        <h1>Necesito Validacion</h1>
         
         <div class="preguntas">
             {preguntas_html}
         </div>
 
-        <p class="instruccion">El agente está en espera. Por favor, proporciona tus respuestas en el chat para continuar.</p>
+        <p class="instruccion">El agente esta en espera. Por favor, proporciona tus respuestas en el chat para continuar.</p>
         <div class="hora" id="hora"></div>
       </main>
       <script>
-        // Reproducir el sonido con JavaScript como fallback, por si el de sistema falla (mismo que en notificar_tarea)
         document.getElementById('hora').textContent = new Date().toLocaleString('es-MX');
         function beep() {{
           const contexto = new (window.AudioContext || window.webkitAudioContext)();
@@ -120,28 +126,54 @@ def crear_html_validacion(preguntas: str) -> Path:
     HTML_NOTIFICACION.write_text(textwrap.dedent(contenido).strip(), encoding="utf-8")
     return HTML_NOTIFICACION
 
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Notifica que el agente necesita validación en el chat.")
+    parser = argparse.ArgumentParser(description="Notifica que el agente necesita validacion en el chat.")
     parser.add_argument("--preguntas", required=True, help="Las preguntas o contexto a validar por el usuario.")
+    parser.add_argument("--sin-navegador", action="store_true", help="No abre una pestana visual.")
+    parser.add_argument("--sin-sonido", action="store_true", help="No emite sonido audible.")
+    parser.add_argument("--sin-escritorio", action="store_true", help="No intenta notificacion de escritorio.")
+    parser.add_argument("--sin-interfaz", action="store_true",
+                        help="Modo automatico para entornos sin interfaz grafica (headless/CI). "
+                             "Solo emite sonido de terminal y mensaje en consola, sin navegador ni popups.")
     return parser.parse_args()
+
 
 def main() -> int:
     args = parse_args()
-    titulo = "Agente: Necesito Validación"
-    
-    enviar_notificacion_escritorio(titulo, "Requiere tu respuesta en el chat para continuar.")
-    
-    archivo = crear_html_validacion(args.preguntas)
-    webbrowser.open_new_tab(archivo.as_uri())
-    
-    # Intentar sonido de sistema primero, el JS es fallback visual/sonoro en la página
-    reproducir_sonido_sistema(1, audio_filename="Necesito Validación.mp3")
-    
-    # Mostrar popup forzoso al frente
-    mostrar_popup_topmost("⚠️ Necesito Validación", "El agente requiere tu respuesta en el chat. Revisa el navegador y el chat de IA.")
-    
-    print("Notificación de validación enviada y a la espera de respuesta.")
+    titulo = "Agente: Necesito Validacion"
+
+    # --sin-interfaz: desactiva todo lo visual
+    if args.sin_interfaz:
+        args.sin_navegador = True
+        args.sin_escritorio = True
+        args.sin_sonido = True
+
+    if not args.sin_escritorio:
+        enviar_notificacion_escritorio(titulo, "Requiere tu respuesta en el chat para continuar.")
+
+    if not args.sin_navegador:
+        archivo = crear_html_validacion(args.preguntas)
+        try:
+            webbrowser.open_new_tab(archivo.as_uri())
+        except Exception:
+            print(f"  [solicitar_validacion] No se pudo abrir el navegador. HTML generado en: {archivo}", file=sys.stderr)
+
+    if not args.sin_sonido:
+        reproducir_sonido_sistema(1, audio_filename=AUDIO_VALIDACION)
+
+    if not args.sin_interfaz:
+        mostrar_popup_topmost("Necesito Validacion", "El agente requiere tu respuesta en el chat. Revisa el navegador y el chat de IA.")
+
+    # En modo --sin-interfaz, solo pitido de terminal
+    if args.sin_interfaz:
+        for _ in range(3):
+            print("\a", end="", flush=True)
+            time.sleep(0.25)
+
+    print(f"  [solicitar_validacion] Notificacion enviada. Esperando respuesta del humano.")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

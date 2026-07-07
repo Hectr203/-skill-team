@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Notifica que el agente requiere autorización por parte del usuario (ej. para leer/modificar un archivo o ejecutar comando).
+"""Notifica que el agente requiere autorizacion por parte del usuario.
 
-Uso:
+Uso normal:
     python3 scripts/solicitar_autorizacion.py --recurso "leer archivo .env"
+
+Uso sin interfaz grafica (entorno automatico/headless):
+    python3 scripts/solicitar_autorizacion.py --recurso "leer archivo" --sin-interfaz
 """
 
 from __future__ import annotations
@@ -11,16 +14,20 @@ import argparse
 import html
 import sys
 import textwrap
+import time
 import webbrowser
 from pathlib import Path
 
 # Importar funciones de notificar_tarea.py
-from notificar_tarea import reproducir_sonido_sistema, enviar_notificacion_escritorio, mostrar_popup_topmost
+from notificar_tarea import reproducir_sonido_sistema, enviar_notificacion_escritorio, mostrar_popup_topmost, reproducir_sonido_terminal
 
 HTML_NOTIFICACION = Path(__file__).with_name("solicitud_autorizacion.html")
 
+AUDIO_AUTORIZACION = "Aprobación urgente..mp3"
+
+
 def crear_html_autorizacion(recurso: str) -> Path:
-    titulo = "🛡️ Autorización Requerida"
+    titulo = "Autorizacion Requerida"
     
     # Convertir a HTML
     recurso_html = html.escape(recurso).replace("\n", "<br>")
@@ -85,15 +92,15 @@ def crear_html_autorizacion(recurso: str) -> Path:
     <body>
       <main>
         <div class="alerta">Permiso Requerido</div>
-        <h1>Necesito Autorización</h1>
+        <h1>Necesito Autorizacion</h1>
         
-        <p class="instruccion">Para continuar, el agente necesita acceso al siguiente recurso o acción:</p>
+        <p class="instruccion">Para continuar, el agente necesita acceso al siguiente recurso o accion:</p>
         
         <div class="recurso">
             {recurso_html}
         </div>
 
-        <p class="instruccion">Revisa tu editor de código o chat para "Aceptar" (Allow) o "Rechazar" (Reject).</p>
+        <p class="instruccion">Revisa tu editor de codigo o chat para Aceptar (Allow) o Rechazar (Reject).</p>
         <div class="hora" id="hora"></div>
       </main>
       <script>
@@ -109,7 +116,7 @@ def crear_html_autorizacion(recurso: str) -> Path:
             ganancia.gain.exponentialRampToValueAtTime(0.35, contexto.currentTime + i * 0.45 + 0.02);
             ganancia.gain.exponentialRampToValueAtTime(0.0001, contexto.currentTime + i * 0.45 + 0.32);
             oscilador.connect(ganancia);
-            ganancia.connect(contexto.destination);
+            oscilador.connect(contexto.destination);
             oscilador.start(contexto.currentTime + i * 0.45);
             oscilador.stop(contexto.currentTime + i * 0.45 + 0.34);
           }}
@@ -122,28 +129,54 @@ def crear_html_autorizacion(recurso: str) -> Path:
     HTML_NOTIFICACION.write_text(textwrap.dedent(contenido).strip(), encoding="utf-8")
     return HTML_NOTIFICACION
 
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Notifica que el agente necesita autorización de permisos.")
-    parser.add_argument("--recurso", required=True, help="El recurso, archivo o comando para el cual se requiere autorización.")
+    parser = argparse.ArgumentParser(description="Notifica que el agente necesita autorizacion de permisos.")
+    parser.add_argument("--recurso", required=True, help="El recurso, archivo o comando para el cual se requiere autorizacion.")
+    parser.add_argument("--sin-navegador", action="store_true", help="No abre una pestana visual.")
+    parser.add_argument("--sin-sonido", action="store_true", help="No emite sonido audible.")
+    parser.add_argument("--sin-escritorio", action="store_true", help="No intenta notificacion de escritorio.")
+    parser.add_argument("--sin-interfaz", action="store_true",
+                        help="Modo automatico para entornos sin interfaz grafica (headless/CI). "
+                             "Solo emite sonido de terminal y mensaje en consola, sin navegador ni popups.")
     return parser.parse_args()
+
 
 def main() -> int:
     args = parse_args()
-    titulo = "🛡️ Autorización Requerida"
-    
-    enviar_notificacion_escritorio(titulo, f"Permiso necesario para: {args.recurso}")
-    
-    archivo = crear_html_autorizacion(args.recurso)
-    webbrowser.open_new_tab(archivo.as_uri())
-    
-    # Intentar sonido de sistema primero
-    reproducir_sonido_sistema(1, audio_filename="Aprobación urgente..mp3")
-    
-    # Mostrar popup forzoso al frente
-    mostrar_popup_topmost(titulo, f"El agente requiere autorización para:\\n\\n{args.recurso}\\n\\nRevisa tu editor (Ej: VS Code) para Aceptar o Rechazar.")
-    
-    print("Notificación de autorización enviada.")
+    titulo = "Autorizacion Requerida"
+
+    # --sin-interfaz: desactiva todo lo visual
+    if args.sin_interfaz:
+        args.sin_navegador = True
+        args.sin_escritorio = True
+        args.sin_sonido = True
+
+    if not args.sin_escritorio:
+        enviar_notificacion_escritorio(titulo, f"Permiso necesario para: {args.recurso}")
+
+    if not args.sin_navegador:
+        archivo = crear_html_autorizacion(args.recurso)
+        try:
+            webbrowser.open_new_tab(archivo.as_uri())
+        except Exception:
+            print(f"  [solicitar_autorizacion] No se pudo abrir el navegador. HTML generado en: {archivo}", file=sys.stderr)
+
+    if not args.sin_sonido:
+        reproducir_sonido_sistema(1, audio_filename=AUDIO_AUTORIZACION)
+
+    if not args.sin_interfaz:
+        mostrar_popup_topmost(titulo, f"El agente requiere autorizacion para:\n\n{args.recurso}\n\nRevisa tu editor (Ej: VS Code) para Aceptar o Rechazar.")
+
+    # En modo --sin-interfaz, solo pitido de terminal
+    if args.sin_interfaz:
+        for _ in range(3):
+            print("\a", end="", flush=True)
+            time.sleep(0.25)
+
+    print(f"  [solicitar_autorizacion] Notificacion enviada.")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

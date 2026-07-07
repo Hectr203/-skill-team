@@ -34,5 +34,23 @@ Cada iteracion de desarrollo debe pasar por el pipeline CI antes de considerar l
 - **Pruebas**: Toda funcionalidad nueva incluye pruebas unitarias o de integracion con Playwright.
 - **Preparación cloud**: No introducir dependencias de `localhost`, filesystem efímero, puertos fijos o secretos compilados que contradigan el perfil Azure aprobado.
 
+## Ciclo iterativo de correccion
+Si al verificar localmente (paso 4) o en CI (paso 2 de CI/CD) se detectan errores:
+
+1. Registrar el error en el registro de iteraciones.
+2. Clasificar la gravedad: bloqueante, alto, medio, bajo.
+3. Aplicar la correccion especifica.
+4. No repetir una correccion identica que ya haya fallado.
+5. Volver a ejecutar verificacion local.
+6. Si el error persiste tras 3 intentos, documentar bloqueo y escalar al humano.
+7. Actualizar el registro de iteraciones con el resultado.
+
+Cada iteracion de desarrollo debe quedar registrada con:
+- Numero de iteracion.
+- Errores detectados.
+- Correcciones aplicadas.
+- Pruebas ejecutadas y resultado.
+- Estado de los criterios de aceptacion afectados.
+
 ## Flujo completo
 Para el ciclo completo desde especificacion hasta despliegue, usar `flujos/dev-flow-completo.md`.

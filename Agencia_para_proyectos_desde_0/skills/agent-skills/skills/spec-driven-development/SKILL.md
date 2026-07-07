@@ -171,6 +171,37 @@ The spec is a living document, not a one-time artifact:
 - **Commit the spec** — The spec belongs in version control alongside the code.
 - **Reference the spec in PRs** — Link back to the spec section that each PR implements.
 
+## Loop Integration
+
+The spec is the source of truth throughout the entire iterative cycle. Every loop iteration references the spec to determine what to validate.
+
+### In the Analysis Phase
+- The spec defines what "done" means before any code is written.
+- Ambiguities in the spec must be resolved before implementation begins.
+- Acceptance criteria in the spec become the validation checklist.
+
+### In the Implementation Phase
+- Code must match the spec. If code and spec contradict, fix the code (unless the spec is wrong, in which case update the spec first).
+- Each implementation iteration produces a delta against the spec.
+
+### In the Validation Phase
+- Every acceptance criterion is evaluated against the spec.
+- Results are classified as: Met, Not Met, Partially Met, Blocked, N/A.
+- Each criterion is traced back to its spec section.
+
+### In the Correction Phase
+- Failed criteria are returned to development with evidence.
+- Corrections must address the specific spec requirement that failed.
+- No correction is repeated identically without changing the approach.
+- After correction, re-validate against the same spec criteria.
+
+### Closure Conditions
+- All mandatory acceptance criteria are met.
+- Evidence exists for every criterion.
+- No blocking errors remain.
+- The spec is updated to reflect the final state.
+- Iteration history is documented.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

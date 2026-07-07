@@ -203,6 +203,46 @@ Reporte
 | DESPLEGAR | `despliegue-azure-proyecto-existente` | `ci-cd-and-automation`, `git-workflow-and-versioning`, `shipping-and-launch` |
 | DOCUMENTAR | `documentacion-tecnica`, `ahorro-contexto` | `documentation-and-adrs` |
 
+## Loop de iteraciones (Fase 8: Ciclo de Correccion)
+
+Despues de la Fase 5 (Revision), si existen criterios de aceptacion incumplidos, se activa el ciclo de correccion:
+
+### Fase 8.1: Evaluacion de resultados
+1. Clasificar cada criterio de aceptacion como: Cumplido, Incumplido, Parcialmente, Bloqueado o No aplicable.
+2. Para cada incumplimiento, registrar:
+   - Requerimiento afectado.
+   - Resultado esperado vs. obtenido.
+   - Evidencia (captura, log, traza).
+   - Posible causa.
+   - Accion correctiva recomendada.
+
+### Fase 8.2: Correccion
+1. Enviar errores al agente de desarrollo con evidencias.
+2. Aplicar correcciones especificas respetando la arquitectura existente.
+3. No repetir una correccion identica que ya haya fallado.
+4. Verificar localmente antes de reingresar a validacion.
+
+### Fase 8.3: Re-validacion
+1. Ejecutar nuevamente las pruebas afectadas.
+2. Verificar que las correcciones no introdujeron regresiones en pruebas existentes.
+3. Recopilar nuevas evidencias.
+4. Actualizar el registro de iteraciones.
+
+### Fase 8.4: Control del ciclo
+1. Registrar cada iteracion con su numero correlativo.
+2. Maximo 5 iteraciones por defecto.
+3. Si un error persiste tras 3 intentos, documentar bloqueo y escalar al humano.
+4. No declarar exito si las pruebas no pueden ejecutarse.
+5. Cuando una validacion no sea posible, indicar que queda sin verificar.
+
+### Registro de iteracion
+
+Cada ciclo debe documentarse en el informe de cierre con:
+
+| Iteracion | Objetivo | Agentes | Pruebas | Errores | Correcciones | Criterios OK | Criterios pendientes | Estado |
+|-----------|----------|---------|---------|---------|--------------|-------------|---------------------|--------|
+| 1 | Implementar X | Desarrollo, Pruebas | Unitarias, E2E | Error en Y | Se corrigio Z | CA-001, CA-002 | CA-003 | En progreso |
+
 ## Reglas para Proyectos Existentes
 
 1. La arquitectura existente prevalece. No imponer tecnologias nuevas.
@@ -213,3 +253,5 @@ Reporte
 6. Las migraciones de BD siempre con backup y rollback.
 7. `ponytail` aplica: preguntar si realmente se necesita cambiar algo o solo documentar.
 8. Si el proyecto no tiene CI, crearlo como primer paso antes de cualquier cambio funcional.
+9. Ninguna tarea se cierra sin evidencias de que todos los criterios de aceptacion obligatorios estan cumplidos.
+10. El orquestador no acepta "esta terminado" sin revisar resultados de pruebas y evidencias concretas.

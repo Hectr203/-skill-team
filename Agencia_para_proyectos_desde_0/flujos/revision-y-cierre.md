@@ -25,3 +25,30 @@ Al finalizar una tarea significativa, se debe generar un breve resumen que inclu
 - Decisiones técnicas tomadas y su justificación.
 - Validaciones realizadas (cómo se probó).
 - Siguientes pasos recomendados para la siguiente fase.
+
+## Registro de iteraciones
+Incluir en el informe de cierre el historial completo de iteraciones:
+
+| Iteracion | Objetivo | Agentes | Pruebas | Errores | Correcciones | Criterios OK | Criterios pendientes | Estado |
+|-----------|----------|---------|---------|---------|--------------|-------------|---------------------|--------|
+| 1 | | | | | | | | |
+
+## Evaluacion final de criterios de aceptacion
+
+| ID Criterio | Estado | Evidencia | Observaciones |
+|-------------|--------|-----------|---------------|
+| CA-001 | Cumplido/Incumplido/Parcial/Bloqueado/N/A | Link o referencia | Detalle |
+
+## Bloqueos documentados (si aplica)
+- Que impidio continuar:
+- Acciones intentadas:
+- Evidencias obtenidas:
+- Intervencion humana necesaria:
+
+## Condiciones de finalizacion verificadas
+- [ ] Todos los CA obligatorios cumplidos.
+- [ ] Pruebas criticas aprobadas.
+- [ ] Sin errores bloqueantes.
+- [ ] Evidencias recopiladas para cada criterio.
+- [ ] Documentacion actualizada.
+- [ ] Iteraciones registradas.

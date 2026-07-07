@@ -12,7 +12,7 @@ Aplicar la skill `shadcn/improve` con dos modelos en proyectos existentes, asegu
 En proyectos existentes, el auditor debe primero entender la arquitectura actual antes de proponer cambios. La regla "la arquitectura existente prevalece" se aplica tambien aqui.
 
 ## Integracion con shadcn/improve
-Orquesta `shadcn/improve` (en `.agents/skills/improve/SKILL.md`). La skill original es read-only; esta skill anade la ejecucion con el modelo economico.
+Orquesta `shadcn/improve` (en `skills/improve/SKILL.md`). La skill original es read-only; esta skill anade la ejecucion con el modelo economico.
 
 ## Flujo adaptado para proyectos existentes
 
@@ -54,6 +54,6 @@ Orquesta `shadcn/improve` (en `.agents/skills/improve/SKILL.md`). La skill origi
 5. Preferir cambios pequenos y frecuentes sobre cambios masivos.
 
 ## Referencias
-- `.agents/skills/improve/SKILL.md`
+- `skills/improve/SKILL.md`
 - `skills/conservacion-estructura-actual.md`
 - `skills/refactorizacion-controlada.md`

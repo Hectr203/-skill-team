@@ -4,6 +4,9 @@
 Uso basico:
     python3 scripts/notificar_tarea.py --tarea "Analisis Oaxaca" --estado completada
 
+Uso para tarea 100% terminada (reproduccion total):
+    python3 scripts/notificar_tarea.py --auto-completado --tarea "Implementar modulo X"
+
 Integracion con automatizadores:
     comando_largo && python3 scripts/notificar_tarea.py --tarea "Build API"
 """
@@ -14,6 +17,7 @@ import argparse
 import html
 import os
 import platform
+import shutil
 import subprocess
 import sys
 import textwrap
@@ -23,6 +27,66 @@ from pathlib import Path
 
 
 HTML_NOTIFICACION = Path(__file__).with_name("notificacion_tarea.html")
+
+AUDIO_COMPLETADO = "termine la tarea.mp3"
+
+# Cache de reproductores disponibles para evitar escanear en cada llamada
+_REPRODUCTORES_CACHE: list[list[str]] | None = None
+
+
+def _detectar_reproductores(audio_path: Path, es_mp3: bool) -> list[list[str]]:
+    """Detecta reproductores de audio disponibles en el sistema."""
+    global _REPRODUCTORES_CACHE
+    if _REPRODUCTORES_CACHE is not None:
+        return _REPRODUCTORES_CACHE
+
+    sistema = platform.system().lower()
+    candidatos: list[list[str]] = []
+
+    str_audio = str(audio_path)
+
+    if sistema == "darwin":
+        if es_mp3:
+            candidatos.append(["afplay", str_audio])
+        # Fallback macOS
+        candidatos.append(["afplay", "/System/Library/Sounds/Glass.aiff"])
+
+    elif sistema == "linux":
+        if es_mp3:
+            candidatos = [
+                ["ffplay", "-nodisp", "-autoexit", "-loglevel", "error", str_audio],
+                ["mpg123", "-q", str_audio],
+                ["mpv", "--no-video", "--really-quiet", str_audio],
+            ]
+        candidatos += [
+            ["paplay", str_audio],
+            ["aplay", str_audio],
+        ]
+        # Fallbacks del sistema (sonidos cortos WAV/OGG)
+        for fallback in [
+            "/usr/share/sounds/freedesktop/stereo/complete.oga",
+            "/usr/share/sounds/alsa/Front_Center.wav",
+        ]:
+            if Path(fallback).exists():
+                candidatos.append(
+                    ["paplay", fallback] if fallback.endswith(".oga")
+                    else ["aplay", fallback]
+                )
+
+    elif sistema == "windows":
+        if es_mp3:
+            candidatos = [
+                ["vlc", "-I", "dummy", "--play-and-exit", str_audio],
+                ["ffplay", "-nodisp", "-autoexit", "-loglevel", "error", str_audio],
+            ]
+        candidatos.append(["powershell", "-NoProfile", "-Command", "[console]::beep(1200,500)"])
+
+    # Cachear solo comandos que realmente existen
+    _REPRODUCTORES_CACHE = [
+        cmd for cmd in candidatos
+        if cmd and shutil.which(cmd[0]) is not None
+    ]
+    return _REPRODUCTORES_CACHE
 
 
 def mostrar_popup_topmost(titulo: str, mensaje: str) -> None:
@@ -82,43 +146,38 @@ def reproducir_sonido_terminal(repeticiones: int) -> None:
         time.sleep(0.25)
 
 
-def reproducir_sonido_sistema(repeticiones: int, audio_filename: str = "noti.mp3") -> None:
+def reproducir_sonido_sistema(repeticiones: int, audio_filename: str = AUDIO_COMPLETADO) -> None:
+    """Reproduce un archivo de audio. Busca reproductores disponibles, con fallback a pitido de terminal."""
     sistema = platform.system().lower()
-    comandos: list[list[str]] = []
 
     script_dir = Path(__file__).parent
     audio_path = script_dir.parent / "audios" / audio_filename
-    str_audio = str(audio_path)
+    es_mp3 = audio_filename.lower().endswith(".mp3")
 
-    if audio_path.exists():
-        if sistema == "darwin":
-            comandos = [["afplay", str_audio]]
-        elif sistema == "linux":
-            comandos = [
-                ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", str_audio],
-                ["paplay", str_audio],
-                ["mpg123", "-q", str_audio],
-                ["mpv", "--no-video", "--really-quiet", str_audio]
-            ]
-        elif sistema == "windows":
-            comandos = [
-                ["vlc", "-I", "dummy", "--play-and-exit", str_audio],
-                ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", str_audio]
-            ]
+    # Diagnosticar estado del archivo de audio
+    if not audio_path.exists():
+        print(f"  [audio] AVISO: Archivo no encontrado: {audio_path}", file=sys.stderr)
+        print(f"  [audio] Usando pitido de terminal como fallback.", file=sys.stderr)
+        for _ in range(max(1, repeticiones)):
+            reproducir_sonido_terminal(1)
+            time.sleep(0.25)
+        return
 
-    # Fallbacks si no existe el audio o fallan los reproductores de mp3
+    print(f"  [audio] Reproduciendo: {audio_filename} ({audio_path.stat().st_size} bytes, x{repeticiones})", file=sys.stderr, flush=True)
+
+    comandos = _detectar_reproductores(audio_path, es_mp3)
+
     if not comandos:
-        if sistema == "darwin":
-            comandos = [["afplay", "/System/Library/Sounds/Glass.aiff"]]
-        elif sistema == "linux":
-            comandos = [
-                ["paplay", "/usr/share/sounds/freedesktop/stereo/complete.oga"],
-                ["aplay", "/usr/share/sounds/alsa/Front_Center.wav"],
-            ]
-        elif sistema == "windows":
-            comandos = [["powershell", "-NoProfile", "-Command", "[console]::beep(1200,500)"]]
+        print(f"  [audio] No se encontraron reproductores de audio en el sistema.", file=sys.stderr)
+        print(f"  [audio] Usando pitido de terminal como fallback.", file=sys.stderr)
+        for _ in range(max(1, repeticiones)):
+            reproducir_sonido_terminal(1)
+            time.sleep(0.25)
+        return
 
-    for _ in range(max(1, repeticiones)):
+    for i in range(max(1, repeticiones)):
+        if repeticiones > 1:
+            print(f"  [audio] Reproduccion {i+1}/{repeticiones}...", file=sys.stderr, flush=True)
         ejecutado = False
         for comando in comandos:
             try:
@@ -126,14 +185,17 @@ def reproducir_sonido_sistema(repeticiones: int, audio_filename: str = "noti.mp3
                     comando,
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
+                    timeout=30,
                 )
                 ejecutado = True
                 break
-            except OSError:
+            except (OSError, subprocess.TimeoutExpired):
                 continue
         if not ejecutado:
+            print(f"  [audio] Todos los reproductores fallaron. Usando pitido de terminal.", file=sys.stderr)
             reproducir_sonido_terminal(1)
-        time.sleep(0.5)
+        if i < repeticiones - 1:
+            time.sleep(0.5)
 
 
 def crear_html_notificacion(tarea: str, estado: str, mensaje: str, repeticiones: int) -> Path:
@@ -252,11 +314,84 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sin-sonido", action="store_true", help="No emite sonido audible.")
     parser.add_argument("--sin-escritorio", action="store_true", help="No intenta notificacion de escritorio.")
     parser.add_argument("--urgente", action="store_true", help="Muestra una ventana popup forzosa (siempre encima).")
+    parser.add_argument("--auto-completado", action="store_true",
+                        help="Modo tarea 100%% terminada: usa audio pre-establecido (termine la tarea.mp3), "
+                             "3 repeticiones, mensaje de finalizacion, navegador y escritorio activados.")
+    parser.add_argument("--sin-interfaz", action="store_true",
+                        help="Modo automatico para entornos sin interfaz grafica (headless/CI). "
+                             "Solo emite sonido de terminal y mensaje en consola, sin navegador ni popups.")
+    parser.add_argument("--diagnostico", action="store_true",
+                        help="Ejecuta diagnostico de audio: verifica archivos, reproductores y reproduccion de prueba.")
     return parser.parse_args()
+
+
+def ejecutar_diagnostico() -> int:
+    """Ejecuta diagnostico completo del sistema de audio."""
+    print("\n=== DIAGNOSTICO DE AUDIO ===")
+    print()
+    
+    # 1. Archivos de audio
+    audios_dir = Path(__file__).parent.parent / "audios"
+    print(f"Directorio de audios: {audios_dir}")
+    print(f"Existe: {audios_dir.exists()}")
+    if audios_dir.exists():
+        print(f"Archivos:")
+        for f in sorted(audios_dir.iterdir()):
+            if f.suffix.lower() in (".mp3", ".wav", ".ogg", ".aiff"):
+                print(f"  - {f.name} ({f.stat().st_size} bytes)")
+    print()
+    
+    # 2. Reproductores disponibles
+    print("Reproductores disponibles:")
+    for cmd in ["ffplay", "paplay", "mpg123", "mpv", "aplay", "afplay", "vlc", "play", "sox"]:
+        path = shutil.which(cmd)
+        print(f"  {cmd}: {'OK' if path else 'NO ENCONTRADO'}")
+    print()
+    
+    # 3. Prueba de cada audio
+    for audio_file in sorted(audios_dir.iterdir()):
+        if audio_file.suffix.lower() != ".mp3":
+            continue
+        print(f"Probando: {audio_file.name}...", end=" ", flush=True)
+        try:
+            reproducir_sonido_sistema(1, audio_file.name)
+            print("OK")
+        except Exception as e:
+            print(f"ERROR: {e}")
+    
+    # 4. Prueba de pitido de terminal
+    print()
+    print("Probando pitido de terminal (x3)...", end=" ", flush=True)
+    for _ in range(3):
+        print("\a", end="", flush=True)
+        time.sleep(0.25)
+    print("OK")
+    print()
+    print("=== DIAGNOSTICO COMPLETADO ===")
+    return 0
 
 
 def main() -> int:
     args = parse_args()
+
+    # --diagnostico: prueba de audio
+    if args.diagnostico:
+        return ejecutar_diagnostico()
+
+    # --auto-completado: configuracion predefinida para tareas 100% terminadas
+    if args.auto_completado:
+        args.estado = "completada"
+        if not args.mensaje or args.mensaje == "La tarea fue completada correctamente.":
+            args.mensaje = "La ejecucion termino y el agente esta por responder."
+        args.repeticiones = 3
+        # --auto-completado siempre activa navegador y escritorio, salvo que se use --sin-interfaz
+
+    # --sin-interfaz: modo headless, desactiva todo lo visual
+    if args.sin_interfaz:
+        args.sin_navegador = True
+        args.sin_escritorio = True
+        args.sin_sonido = True  # sin audio del sistema, solo terminal
+
     titulo = f"Tarea {args.estado}: {args.tarea}"
 
     if not args.sin_escritorio:
@@ -264,7 +399,10 @@ def main() -> int:
 
     if not args.sin_navegador:
         archivo = crear_html_notificacion(args.tarea, args.estado, args.mensaje, args.repeticiones)
-        webbrowser.open_new_tab(archivo.as_uri())
+        try:
+            webbrowser.open_new_tab(archivo.as_uri())
+        except Exception:
+            print(f"  [notificar_tarea] No se pudo abrir el navegador. HTML generado en: {archivo}", file=sys.stderr)
 
     if not args.sin_sonido:
         reproducir_sonido_sistema(args.repeticiones)
@@ -272,7 +410,13 @@ def main() -> int:
     if args.urgente:
         mostrar_popup_topmost(titulo, args.mensaje)
 
-    print(f"Notificacion enviada: {titulo}")
+    # En modo --sin-interfaz, reproducir sonido de terminal como fallback
+    if args.sin_interfaz:
+        for _ in range(args.repeticiones):
+            print("\a", end="", flush=True)
+            time.sleep(0.25)
+
+    print(f"  [notificar_tarea] Notificacion enviada: {titulo}")
     return 0
 
 

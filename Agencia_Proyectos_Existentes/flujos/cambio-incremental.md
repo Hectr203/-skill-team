@@ -28,5 +28,24 @@ Si el cambio corrige un bloqueante de despliegue, volver a ejecutar únicamente 
 - No ocultar pruebas fallidas.
 - Toda correccion debe pasar por CI antes del merge.
 
+## Ciclo iterativo de correccion
+Si al verificar localmente (paso 5) o en CI (paso 2 de CI/CD) se detectan errores:
+
+1. Registrar el error en el registro de iteraciones.
+2. Clasificar la gravedad: bloqueante, alto, medio, bajo.
+3. Aplicar la correccion especifica.
+4. No repetir una correccion identica que ya haya fallado.
+5. Volver a ejecutar verificacion local.
+6. Si el error persiste tras 3 intentos, documentar bloqueo y escalar al humano.
+7. Actualizar el registro de iteraciones con el resultado.
+
+Cada iteracion de cambio debe quedar registrada con:
+- Numero de iteracion.
+- Errores detectados.
+- Correcciones aplicadas.
+- Pruebas ejecutadas y resultado.
+- Estado de los criterios de aceptacion afectados.
+- Regresiones verificadas (pruebas existentes que siguen pasando).
+
 ## Flujo completo
 Para el ciclo completo desde especificacion hasta despliegue, usar `flujos/dev-flow-completo.md`.

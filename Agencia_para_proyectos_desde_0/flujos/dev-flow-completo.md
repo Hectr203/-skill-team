@@ -207,12 +207,54 @@ Reporte de despliegue
 | DESPLEGAR | `despliegue-azure-proyecto-nuevo` | `ci-cd-and-automation`, `shipping-and-launch`, `git-workflow-and-versioning` |
 | DOCUMENTAR | `documentacion-tecnica`, `ahorro-contexto` | `documentation-and-adrs` |
 
+## Loop de iteraciones (Fase 8: Ciclo de Correccion)
+
+Despues de la Fase 5 (Revision), si existen criterios de aceptacion incumplidos, se activa el ciclo de correccion:
+
+### Fase 8.1: Evaluacion de resultados
+1. Clasificar cada criterio de aceptacion como: Cumplido, Incumplido, Parcialmente, Bloqueado o No aplicable.
+2. Para cada incumplimiento, registrar:
+   - Requerimiento afectado.
+   - Resultado esperado vs. obtenido.
+   - Evidencia (captura, log, traza).
+   - Posible causa.
+   - Accion correctiva recomendada.
+
+### Fase 8.2: Correccion
+1. Enviar errores al agente de desarrollo con evidencias.
+2. Aplicar correcciones especificas.
+3. No repetir una correccion identica que ya haya fallado.
+4. Verificar localmente antes de reingresar a validacion.
+
+### Fase 8.3: Re-validacion
+1. Ejecutar nuevamente las pruebas afectadas.
+2. Verificar que las correcciones no introdujeron regresiones.
+3. Recopilar nuevas evidencias.
+4. Actualizar el registro de iteraciones.
+
+### Fase 8.4: Control del ciclo
+1. Registrar cada iteracion con su numero correlativo.
+2. Maximo 5 iteraciones por defecto.
+3. Si un error persiste tras 3 intentos, documentar bloqueo y escalar al humano.
+4. No declarar exito si las pruebas no pueden ejecutarse.
+5. Cuando una validacion no sea posible, indicar que queda sin verificar.
+
+### Registro de iteracion
+
+Cada ciclo debe documentarse en el informe de cierre con:
+
+| Iteracion | Objetivo | Agentes | Pruebas | Errores | Correcciones | Criterios OK | Criterios pendientes | Estado |
+|-----------|----------|---------|---------|---------|--------------|-------------|---------------------|--------|
+| 1 | Implementar X | Desarrollo, Pruebas | Unitarias, E2E | Error en Y | Se corrigio Z | CA-001, CA-002 | CA-003 | En progreso |
+
 ## Reglas Globales
 
-1. No saltar fases. Toda funcionalidad debe pasar por especificacion -> plan -> desarrollo -> verificacion -> revision -> despliegue.
+1. No saltar fases. Toda funcionalidad debe pasar por especificacion -> plan -> desarrollo -> verificacion -> revision -> despliegue, con ciclos de correccion cuando sea necesario.
 2. CI debe pasar antes de hacer merge a main. Sin excepciones.
 3. No desplegar sin CI verde. Si es urgente, documentar el riesgo y obtener aprobacion humana explicita.
 4. E2E solo para flujos criticos. Lo demas con unitarias o integracion.
 5. Toda dependencia nueva debe justificarse en la revision.
 6. `ponytail` aplica en cada fase de desarrollo: preguntar si realmente se necesita.
 7. Los nombres de commits en espanol usando `commits-espanol`.
+8. Ninguna tarea se cierra sin evidencias de que todos los criterios de aceptacion obligatorios estan cumplidos.
+9. El orquestador no acepta "esta terminado" sin revisar resultados de pruebas y evidencias.
