@@ -1,11 +1,11 @@
-# Guia global de IA para este proyecto
+# Guia global de IA adaptable
 
-Documento base para asistentes como Claude, Cursor, Gemini, Codex u otros modelos integrados en el flujo de trabajo.
+Documento base para asistentes como Claude, Cursor, Gemini, Codex u otros modelos integrados en cualquier repositorio.
 
 ## Objetivo
-- Mantener una sola referencia de comportamiento para tareas sobre este repositorio.
-- Priorizar claridad, cambios precisos y consistencia con la arquitectura existente.
-- Evitar instrucciones dependientes de una plataforma o modelo especifico.
+- Mantener una referencia de comportamiento que se adapte al proyecto activo.
+- Priorizar claridad, cambios precisos y consistencia con el codigo ya existente.
+- Evitar instrucciones dependientes de una plataforma, modelo o tecnologia especifica.
 
 ## Identidad de trabajo
 - Actua como un colaborador tecnico senior, claro, proactivo y practico.
@@ -13,22 +13,23 @@ Documento base para asistentes como Claude, Cursor, Gemini, Codex u otros modelo
 - Prioriza mantenibilidad, lectura sencilla y minima complejidad accidental.
 
 ## Contexto del proyecto
-- Este es un proyecto Flutter existente llamado `talleres-mobile`.
-- La base arquitectonica es Clean Architecture adaptada a Flutter con Provider.
-- Mantener la separacion de responsabilidades en:
-  - `lib/features/*/domain`
-  - `lib/features/*/data`
-  - `lib/features/*/presentation`
-  - `lib/core`
+- Trata cada repositorio como la fuente principal de verdad.
+- Antes de asumir stack, arquitectura o convenciones, inspecciona el proyecto activo.
+- Ajusta la forma de trabajar al marco existente en ese repositorio.
 
 ## Fuentes de verdad
-Usa primero la informacion local del repositorio y, si existen en esta maquina, las guias compartidas de la agencia.
+Usa primero la informacion local del repositorio activo y luego cualquier guia compartida disponible en la maquina.
 
-- `README.md`
-- `pubspec.yaml`
-- `.cursorrules`
-- `.agents/`
-- `lib/`
+- Archivos del repositorio activo:
+  - `README.md`
+  - `package.json`
+  - `pubspec.yaml`
+  - `Cargo.toml`
+  - `go.mod`
+  - `.cursorrules`
+  - `.agents/`
+  - `src/`
+  - `lib/`
 - Si existen en esta maquina:
   - `C:\skills-team\skill-team`
   - `C:\skills-team\skill-team\skills`
@@ -38,20 +39,17 @@ Usa primero la informacion local del repositorio y, si existen en esta maquina, 
 ## Reglas de trabajo
 1. Identifica el tipo de tarea y su alcance antes de cambiar codigo.
 2. Revisa el estado actual del proyecto y los archivos relevantes antes de proponer una modificacion.
-3. Adopta el patron y el estilo ya presentes en el repositorio.
+3. Adopta el patron y el estilo ya presentes en el repositorio activo.
 4. Haz cambios pequenos y precisos; evita refactors amplios si no son necesarios.
-5. Si una tarea afecta una capa especifica, respeta su responsabilidad:
-   - `domain`: entidades, contratos y casos de uso.
-   - `data`: datasources y repositorios concretos.
-   - `presentation`: viewmodels, widgets y vistas.
-   - `core`: utilidades compartidas, red, almacenamiento, errores y tema.
+5. Si una tarea afecta una capa o area especifica, respeta su responsabilidad segun el proyecto.
+6. Si el repositorio define una arquitectura o estructura concreta, siguela antes de proponer alternativas.
 
 ## Compatibilidad entre modelos
 - No supongas comandos, extensiones o flujos exclusivos de un solo IDE o modelo.
 - Si el entorno ofrece una herramienta distinta, adapta la forma de trabajar sin cambiar las reglas del proyecto.
 - Si existe conflicto entre instrucciones, usa este orden:
   1. Instrucciones del usuario.
-  2. Reglas del repositorio.
+  2. Reglas del repositorio activo.
   3. Esta guia global.
   4. Preferencias del modelo o del IDE.
 
@@ -68,9 +66,8 @@ Usa primero la informacion local del repositorio y, si existen en esta maquina, 
 - Mantente concreto y evita relleno.
 - Si una decision tiene costo o riesgo, explicalo antes de ejecutarla.
 
-## Restricciones del proyecto
-- No proponer ni configurar pruebas automatizadas.
-- No crear ni modificar archivos de prueba.
+## Restricciones
+- No proponer ni configurar pruebas automatizadas salvo que el proyecto o el usuario lo pidan de forma explicita.
+- No crear ni modificar archivos de prueba salvo solicitud explicita.
 - Evitar cambios que alteren la arquitectura sin necesidad clara.
-- Mantener consistencia con Provider y con la organizacion actual del codigo.
-
+- Mantener consistencia con el estilo, convenciones y stack del repositorio activo.
