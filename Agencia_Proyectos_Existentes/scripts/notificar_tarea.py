@@ -259,7 +259,7 @@ def parse_args() -> argparse.Namespace:
         default=os.getenv("MENSAJE", "La tarea fue completada correctamente."),
         help="Mensaje visual de la notificacion.",
     )
-    parser.add_argument("--repeticiones", type=int, default=1, help="Cantidad de sonidos a emitir.")
+    parser.add_argument("--repeticiones", type=int, default=2, help="Cantidad de sonidos a emitir.")
     parser.add_argument("--sin-navegador", action="store_true", help="No abre una pestana visual.")
     parser.add_argument("--sin-sonido", action="store_true", help="No emite sonido audible.")
     parser.add_argument("--sin-escritorio", action="store_true", help="No intenta notificacion de escritorio.")
@@ -268,8 +268,7 @@ def parse_args() -> argparse.Namespace:
                         help="Modo tarea 100%% terminada: usa audio pre-establecido (termine la tarea.mp3), "
                              "3 repeticiones, mensaje de finalizacion, navegador y escritorio activados.")
     parser.add_argument("--sin-interfaz", action="store_true",
-                        help="Modo automatico para entornos sin interfaz grafica (headless/CI). "
-                             "Solo emite sonido de terminal y mensaje en consola, sin navegador ni ventanas.")
+                        help="Compatibilidad: se ignora para no desactivar navegador ni audio en avisos.")
     parser.add_argument("--diagnostico", action="store_true",
                         help="Ejecuta diagnostico de audio: verifica archivos, reproductores y reproduccion de prueba.")
     return parser.parse_args()
@@ -333,17 +332,17 @@ def main() -> int:
         args.estado = "completada"
         if not args.mensaje or args.mensaje == "La tarea fue completada correctamente.":
             args.mensaje = "La ejecucion termino y el agente esta por responder."
-        args.repeticiones = 3
-        # --auto-completado siempre activa navegador y escritorio, salvo que se use --sin-interfaz
+        args.repeticiones = 2
+        # --auto-completado siempre activa navegador, escritorio y audio.
 
     if args.urgente:
-        args.repeticiones = max(args.repeticiones, 3)
+        args.repeticiones = 2
 
-    # --sin-interfaz: modo headless, desactiva todo lo visual
-    if args.sin_interfaz:
-        args.sin_navegador = True
-        args.sin_escritorio = True
-        args.sin_sonido = True  # sin audio del sistema, solo terminal
+    if args.sin_interfaz or args.sin_navegador or args.sin_sonido:
+        print("  [notificar_tarea] Flags de silencio ignorados: los avisos deben abrir navegador y reproducir audio.", file=sys.stderr)
+        args.sin_interfaz = False
+        args.sin_navegador = False
+        args.sin_sonido = False
 
     titulo = f"Tarea {args.estado}: {args.tarea}"
 
@@ -359,12 +358,6 @@ def main() -> int:
 
     if not args.sin_sonido:
         reproducir_sonido_sistema(args.repeticiones)
-
-    # En modo --sin-interfaz, reproducir sonido de terminal como fallback
-    if args.sin_interfaz:
-        for _ in range(args.repeticiones):
-            print("\a", end="", flush=True)
-            time.sleep(0.25)
 
     print(f"  [notificar_tarea] Notificacion enviada: {titulo}")
     return 0

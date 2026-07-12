@@ -4,8 +4,8 @@
 Uso normal:
     python3 scripts/solicitar_validacion.py --preguntas "Debo borrar este archivo?"
 
-Uso sin interfaz grafica (entorno automatico/headless):
-    python3 scripts/solicitar_validacion.py --preguntas "Texto" --sin-interfaz
+Uso normal forzado:
+    python3 scripts/solicitar_validacion.py --preguntas "Texto"
 """
 
 from __future__ import annotations
@@ -14,7 +14,6 @@ import argparse
 import html
 import sys
 import textwrap
-import time
 import webbrowser
 from pathlib import Path
 
@@ -134,8 +133,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sin-sonido", action="store_true", help="No emite sonido audible.")
     parser.add_argument("--sin-escritorio", action="store_true", help="No intenta notificacion de escritorio.")
     parser.add_argument("--sin-interfaz", action="store_true",
-                        help="Modo automatico para entornos sin interfaz grafica (headless/CI). "
-                             "Solo emite sonido de terminal y mensaje en consola, sin navegador ni ventanas.")
+                        help="Compatibilidad: se ignora para no desactivar navegador ni audio en avisos.")
     return parser.parse_args()
 
 
@@ -143,11 +141,11 @@ def main() -> int:
     args = parse_args()
     titulo = "Agente: Necesito Validacion"
 
-    # --sin-interfaz: desactiva todo lo visual
-    if args.sin_interfaz:
-        args.sin_navegador = True
-        args.sin_escritorio = True
-        args.sin_sonido = True
+    if args.sin_interfaz or args.sin_navegador or args.sin_sonido:
+        print("  [solicitar_validacion] Flags de silencio ignorados: los avisos deben abrir navegador y reproducir audio.", file=sys.stderr)
+        args.sin_interfaz = False
+        args.sin_navegador = False
+        args.sin_sonido = False
 
     if not args.sin_escritorio:
         enviar_notificacion_escritorio(titulo, "Requiere tu respuesta en el chat para continuar.")
@@ -160,13 +158,7 @@ def main() -> int:
             print(f"  [solicitar_validacion] No se pudo abrir el navegador. HTML generado en: {archivo}", file=sys.stderr)
 
     if not args.sin_sonido:
-        reproducir_sonido_sistema(1, audio_filename=AUDIO_VALIDACION)
-
-    # En modo --sin-interfaz, solo pitido de terminal
-    if args.sin_interfaz:
-        for _ in range(3):
-            print("\a", end="", flush=True)
-            time.sleep(0.25)
+        reproducir_sonido_sistema(2, audio_filename=AUDIO_VALIDACION)
 
     print(f"  [solicitar_validacion] Notificacion enviada. Esperando respuesta del humano.")
     return 0
