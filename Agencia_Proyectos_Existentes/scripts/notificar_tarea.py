@@ -89,56 +89,6 @@ def _detectar_reproductores(audio_path: Path, es_mp3: bool) -> list[list[str]]:
     return _REPRODUCTORES_CACHE
 
 
-def mostrar_popup_topmost(titulo: str, mensaje: str) -> None:
-    """Muestra una ventana emergente en primer plano absoluto usando Tkinter o fallbacks."""
-    sistema = platform.system().lower()
-    
-    # 1. Intentar con tkinter
-    try:
-        import tkinter as tk
-        root = tk.Tk()
-        root.title(titulo)
-        root.attributes("-topmost", True)
-        
-        # Configurar tamano y centrado
-        ancho = 500
-        alto = 250
-        ws = root.winfo_screenwidth()
-        hs = root.winfo_screenheight()
-        x = int((ws/2) - (ancho/2))
-        y = int((hs/2) - (alto/2))
-        root.geometry(f'{ancho}x{alto}+{x}+{y}')
-        
-        root.configure(bg='#0f172a')
-        
-        lbl = tk.Label(root, text=mensaje, font=("Arial", 14, "bold"), fg="white", bg="#0f172a", wraplength=450, justify="center")
-        lbl.pack(expand=True, fill="both", padx=20, pady=20)
-        
-        btn = tk.Button(root, text="ENTENDIDO", font=("Arial", 12, "bold"), bg="#f43f5e", fg="white", command=root.destroy, padx=20, pady=5)
-        btn.pack(pady=20)
-        
-        # Forzar al frente
-        root.lift()
-        root.focus_force()
-        root.mainloop()
-        return
-    except Exception:
-        pass
-        
-    # 2. Fallbacks de sistema operativo
-    try:
-        if sistema == "linux":
-            subprocess.run(["zenity", "--warning", "--title", titulo, "--text", mensaje, "--width=400"], check=False)
-        elif sistema == "darwin":
-            script = f'tell app "System Events" to display dialog "{mensaje}" with title "{titulo}" buttons {{"OK"}} default button 1 with icon caution'
-            subprocess.run(["osascript", "-e", script], check=False)
-        elif sistema == "windows":
-            subprocess.run(["msg", "*", mensaje], check=False)
-    except Exception:
-        pass
-
-
-
 def reproducir_sonido_terminal(repeticiones: int) -> None:
     """Emite campanas de terminal como respaldo multiplataforma."""
     for _ in range(max(1, repeticiones)):
@@ -313,13 +263,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sin-navegador", action="store_true", help="No abre una pestana visual.")
     parser.add_argument("--sin-sonido", action="store_true", help="No emite sonido audible.")
     parser.add_argument("--sin-escritorio", action="store_true", help="No intenta notificacion de escritorio.")
-    parser.add_argument("--urgente", action="store_true", help="Muestra una ventana popup forzosa (siempre encima).")
+    parser.add_argument("--urgente", action="store_true", help="Refuerza la notificacion con mas sonido.")
     parser.add_argument("--auto-completado", action="store_true",
                         help="Modo tarea 100%% terminada: usa audio pre-establecido (termine la tarea.mp3), "
                              "3 repeticiones, mensaje de finalizacion, navegador y escritorio activados.")
     parser.add_argument("--sin-interfaz", action="store_true",
                         help="Modo automatico para entornos sin interfaz grafica (headless/CI). "
-                             "Solo emite sonido de terminal y mensaje en consola, sin navegador ni popups.")
+                             "Solo emite sonido de terminal y mensaje en consola, sin navegador ni ventanas.")
     parser.add_argument("--diagnostico", action="store_true",
                         help="Ejecuta diagnostico de audio: verifica archivos, reproductores y reproduccion de prueba.")
     return parser.parse_args()
@@ -386,6 +336,9 @@ def main() -> int:
         args.repeticiones = 3
         # --auto-completado siempre activa navegador y escritorio, salvo que se use --sin-interfaz
 
+    if args.urgente:
+        args.repeticiones = max(args.repeticiones, 3)
+
     # --sin-interfaz: modo headless, desactiva todo lo visual
     if args.sin_interfaz:
         args.sin_navegador = True
@@ -406,9 +359,6 @@ def main() -> int:
 
     if not args.sin_sonido:
         reproducir_sonido_sistema(args.repeticiones)
-
-    if args.urgente:
-        mostrar_popup_topmost(titulo, args.mensaje)
 
     # En modo --sin-interfaz, reproducir sonido de terminal como fallback
     if args.sin_interfaz:

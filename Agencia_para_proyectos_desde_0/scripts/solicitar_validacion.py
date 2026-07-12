@@ -19,7 +19,7 @@ import webbrowser
 from pathlib import Path
 
 # Importar funciones de notificar_tarea.py
-from notificar_tarea import reproducir_sonido_sistema, enviar_notificacion_escritorio, mostrar_popup_topmost, reproducir_sonido_terminal
+from notificar_tarea import reproducir_sonido_sistema, enviar_notificacion_escritorio
 
 HTML_NOTIFICACION = Path(__file__).with_name("solicitud_validacion.html")
 
@@ -135,7 +135,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sin-escritorio", action="store_true", help="No intenta notificacion de escritorio.")
     parser.add_argument("--sin-interfaz", action="store_true",
                         help="Modo automatico para entornos sin interfaz grafica (headless/CI). "
-                             "Solo emite sonido de terminal y mensaje en consola, sin navegador ni popups.")
+                             "Solo emite sonido de terminal y mensaje en consola, sin navegador ni ventanas.")
     return parser.parse_args()
 
 
@@ -161,9 +161,6 @@ def main() -> int:
 
     if not args.sin_sonido:
         reproducir_sonido_sistema(1, audio_filename=AUDIO_VALIDACION)
-
-    if not args.sin_interfaz:
-        mostrar_popup_topmost("Necesito Validacion", "El agente requiere tu respuesta en el chat. Revisa el navegador y el chat de IA.")
 
     # En modo --sin-interfaz, solo pitido de terminal
     if args.sin_interfaz:

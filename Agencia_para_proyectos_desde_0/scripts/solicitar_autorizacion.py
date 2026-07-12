@@ -19,7 +19,7 @@ import webbrowser
 from pathlib import Path
 
 # Importar funciones de notificar_tarea.py
-from notificar_tarea import reproducir_sonido_sistema, enviar_notificacion_escritorio, mostrar_popup_topmost, reproducir_sonido_terminal
+from notificar_tarea import reproducir_sonido_sistema, enviar_notificacion_escritorio
 
 HTML_NOTIFICACION = Path(__file__).with_name("solicitud_autorizacion.html")
 
@@ -116,7 +116,7 @@ def crear_html_autorizacion(recurso: str) -> Path:
             ganancia.gain.exponentialRampToValueAtTime(0.35, contexto.currentTime + i * 0.45 + 0.02);
             ganancia.gain.exponentialRampToValueAtTime(0.0001, contexto.currentTime + i * 0.45 + 0.32);
             oscilador.connect(ganancia);
-            oscilador.connect(contexto.destination);
+            ganancia.connect(contexto.destination);
             oscilador.start(contexto.currentTime + i * 0.45);
             oscilador.stop(contexto.currentTime + i * 0.45 + 0.34);
           }}
@@ -138,7 +138,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sin-escritorio", action="store_true", help="No intenta notificacion de escritorio.")
     parser.add_argument("--sin-interfaz", action="store_true",
                         help="Modo automatico para entornos sin interfaz grafica (headless/CI). "
-                             "Solo emite sonido de terminal y mensaje en consola, sin navegador ni popups.")
+                             "Solo emite sonido de terminal y mensaje en consola, sin navegador ni ventanas.")
     return parser.parse_args()
 
 
@@ -164,9 +164,6 @@ def main() -> int:
 
     if not args.sin_sonido:
         reproducir_sonido_sistema(1, audio_filename=AUDIO_AUTORIZACION)
-
-    if not args.sin_interfaz:
-        mostrar_popup_topmost(titulo, f"El agente requiere autorizacion para:\n\n{args.recurso}\n\nRevisa tu editor (Ej: VS Code) para Aceptar o Rechazar.")
 
     # En modo --sin-interfaz, solo pitido de terminal
     if args.sin_interfaz:
