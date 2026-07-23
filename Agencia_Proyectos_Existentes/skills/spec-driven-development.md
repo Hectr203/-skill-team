@@ -26,3 +26,26 @@ Esta skill es la traduccion local del flujo de especificacion del nucleo. Convie
 - Especificacion tecnica o funcional.
 - Criterios de aceptacion.
 - Plan de validacion.
+
+## Integracion con el ciclo de iteraciones
+
+La especificacion generada por esta skill es la fuente principal de verdad durante todo el ciclo de desarrollo.
+
+### Uso en el loop
+1. La especificacion se entrega al orquestador antes de iniciar la implementacion.
+2. El orquestador la utiliza como referencia para definir criterios de aceptacion y casos de prueba.
+3. Durante la validacion, cada criterio de aceptacion se evalua contra la especificacion original.
+4. Si se detecta una contradiccion entre la implementacion y la especificacion, se corrige la implementacion.
+5. Si la especificacion esta incorrecta o incompleta, se actualiza antes de continuar.
+
+### Condiciones para avanzar
+- No se debe iniciar implementacion sin una especificacion completa.
+- No se debe pasar a pruebas sin que la implementacion corresponda a la especificacion.
+- No se debe cerrar la tarea sin que todos los criterios de aceptacion esten verificados.
+
+### Registro de trazabilidad
+Cada requerimiento en la especificacion debe poder trazarse hasta:
+- Las historias de usuario que lo originaron.
+- Los criterios de aceptacion que lo verifican.
+- Los casos de prueba que lo validan.
+- Las iteraciones donde fue implementado y corregido.

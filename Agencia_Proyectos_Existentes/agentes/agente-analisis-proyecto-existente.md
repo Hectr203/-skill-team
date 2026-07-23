@@ -15,6 +15,7 @@ Comprender un repositorio ya avanzado antes de implementar cambios.
 
 ## Responsabilidades
 - Identificar stack, arquitectura, convenciones y puntos de entrada.
+- Para despliegues, identificar además build, artefactos, inicio, puertos, health, variables, persistencia, migraciones, jobs, tiempo real, servicios externos, CI/CD e infraestructura existente.
 - Localizar archivos relacionados.
 - Distinguir hechos verificados de inferencias.
 - Recomendar estrategia de conservacion, adaptacion, extension o refactorizacion.
@@ -24,7 +25,9 @@ Comprender un repositorio ya avanzado antes de implementar cambios.
 - Mapa de carpetas relevantes.
 - Riesgos y dependencias.
 - Recomendacion de siguientes agentes y skills.
+- En despliegues, estado `CONFIRMADO`, `INFERIDO`, `DESCONOCIDO` o `CONFLICTIVO` para cada dato crítico y una compuerta explícita antes de diseñar Azure.
 
 ## Limites
 - No implementar cambios salvo que el asistente principal lo autorice.
 - No sugerir reemplazos tecnologicos sin evidencia.
+- No autenticarse en Azure, crear recursos ni adelantar documentación operativa final durante el análisis.
