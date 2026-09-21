@@ -1,0 +1,4 @@
+interface:
+  display_name: "Azure para proyectos existentes"
+  short_description: "Analiza y despliega proyectos existentes"
+  default_prompt: "Usa $despliegue-azure-proyecto-existente para analizar primero este proyecto existente y después preparar su despliegue en Azure."

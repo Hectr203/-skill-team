@@ -17,33 +17,58 @@ Debe identificar primero el tipo de proyecto y seleccionar el flujo, agentes, sk
 
 Además, la nueva agencia debe:
 * Ser nativamente compatible con el ecosistema **Google Antigravity** (Antigravity IDE, CLI `agy`, configuración `.agents/`, `~/.gemini/config`, catálogo de skills con YAML frontmatter, `rules/` y `mcp_config.json`).
+* Cubrir el **ciclo de vida completo del software y del negocio**: creación desde cero, modernización de existentes, ingeniería frontend/backend, diseño UI/UX, animaciones de élite, seguridad, testing web, preparación para producción, despliegue, posicionamiento SEO/GEO, administración de prospectos/CRM, marketing de contenidos en redes sociales y analítica de crecimiento.
 * Integrar de forma prioritaria el **MCP de Google Stitch** (`stitch-mcp`) para potenciar el diseño visual, generación rápida de pantallas UI/UX, extracción de tokens y flujos de conversión de diseño a código (*design-to-code*).
 * Adoptar obligatoriamente una arquitectura de **Monorepo dividido** para los proyectos de software, separando estrictamente `frontend/` y `backend/` y prohibiendo estructuras monolíticas acopladas (como Laravel tradicional o vistas mezcladas con lógica de servidor).
-* Integrar de forma obligatoria la skill de **Graphify** para la navegación, relaciones y búsqueda de archivos mediante grafos de conocimiento de código, erradicando la quema innecesaria de tokens por búsquedas y lecturas a ciegas en el repositorio.
-* Implementar e integrar de forma universal el sistema de memoria persistente **claude-mem** ([github.com/thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)), adaptado y expuesto para que pueda ser utilizado por **cualquier IA** (Google Antigravity, Claude Code, OpenCode, Cursor, Codex, Windsurf y agentes compatibles con MCP), garantizando que todo modelo comparta la misma base de recuerdos, reduciendo drásticamente el consumo de tokens y ofreciendo control total de la memoria al usuario.
+* Integrar una **suite de optimización extrema de contexto y ahorro de tokens** compuesta por:
+  - **Graphify**: navegación, relaciones y búsqueda de dependencias mediante grafos de conocimiento de código para no explorar a ciegas.
+  - **`claude-mem`** ([github.com/thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)): memoria persistente universal compartida y consultada obligatoriamente antes de cada tarea para no reinyectar historiales pesados.
+  - **Headroom** ([github.com/headroomlabs-ai/headroom](https://github.com/headroomlabs-ai/headroom)): compresión semántica en tiempo real para outputs de herramientas, logs y diffs, preservando información crítica con un ahorro de hasta el 80% de tokens.
+* Incorporar una suite de **Diseño Visual e Ingeniería de Animación Premium**:
+  - **Apple Design & Skills de Emil Kowalski** ([github.com/emilkowalski/skills](https://github.com/emilkowalski/skills)): catálogo de directivas de diseño de clase mundial (`apple-design`, `emil-design-eng`, `animation-vocabulary`, `interruptible-animation`) para garantizar acabados visuales, microinteracciones y físicas de movimiento al nivel de Apple, Vercel y Linear.
+  - **Anime.js Motion Skill**: convertir la biblioteca Anime.js ([animejs.com](https://animejs.com/)) en una skill especializada de animación (análoga a `ui-ux-pro-max`) con recetas de timelines, motion SVG y físicas reactivas.
+  - **React Bits** ([reactbits.dev](https://www.reactbits.dev/)): catálogo de componentes motion interactivos listos para React y Tailwind/CSS.
+* Incorporar capacidad de **Automatización Web y Pruebas E2E**:
+  - **Playwright MCP** ([github.com/microsoft/playwright-mcp](https://github.com/microsoft/playwright-mcp)) con **regla de fallback prioritario**: control directo y visual mediante el navegador integrado de Google Antigravity IDE por defecto, y uso de Playwright MCP como adaptador universal cuando se ejecute en otros entornos (Cursor, Windsurf, Claude Code, VS Code).
+* Incorporar **Investigación Asistida por IA con NotebookLM MCP** ([github.com/PleasePrompto/notebooklm-mcp](https://github.com/PleasePrompto/notebooklm-mcp)): para interrogar fuentes documentales extensas, con notas de contingencia por estado archivado del repositorio.
+* Incorporar dominios de **Negocio, Marketing y Posicionamiento**:
+  - **Claude SEO** ([github.com/AgriciDaniel/claude-seo](https://github.com/AgriciDaniel/claude-seo)): auditoría técnica SEO, GEO/AEO (optimización para buscadores de IA), Schema.org, Core Web Vitals y reportes falsables.
+  - **Auto-CRM** ([github.com/hainrixz/auto-crm](https://github.com/hainrixz/auto-crm)): arquetipo y módulo de CRM local 100% privado en SQLite, gestión de leads, pipeline comercial y webhooks sin obligar a usar su stack en proyectos externos.
+  - **Social Media Skills** ([github.com/charlie947/social-media-skills](https://github.com/charlie947/social-media-skills)): 17 skills de estrategia de contenidos, publicaciones LinkedIn, guiones para Reels/video y aislamiento de voz mediante `voice-builder`.
 * Incorporar de forma nativa un subsistema de **Auditoría Técnica Integral y Seguridad de Código** orquestado de extremo a extremo por el **Asistente Principal**:
   - Integrar la skill **improve** (`/mnt/nvme/skill-team/.agents/skills/improve`): asesor senior de solo lectura para auditorías exhaustivas de codebase (bugs, seguridad, rendimiento, cobertura de pruebas, deuda técnica, dependencias y arquitectura), emitiendo planes autosuficientes de ejecución desacoplada sin mutar código directamente.
   - Integrar la skill **security-audit** de Cloudflare ([github.com/cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill)): marco de cacería y auditoría de seguridad ofensiva/defensiva en 6 fases con ledger de cobertura (`coverage-ledger.json`), agentes cazadores aislados, verificación independiente contra desmentido y matrices especializadas de ataque (Web, Auth, LLM/AI, Memory Safety, Supply Chain).
   - Dotar a la agencia de una estructura de **agentes especializados de auditoría y seguridad** comandados por el Asistente Principal para auditar cualquier proyecto nuevo o existente.
   - Mandato proactivo de **investigación continua e integración de nuevas skills de seguridad** de la industria para expandir constantemente las capacidades de análisis estático, dinámico, de dependencias y secretos.
-
-
+* Garantizar el principio de **Control Humano en el Bucle (*Human-in-the-Loop*)**:
+  - Los agentes operan de forma autónoma únicamente en tareas locales, reversibles y de solo lectura.
+  - Toda acción externa o con impacto real (publicar posts, contactar clientes, enviar correos, cambiar DNS, compras, migraciones destructivas o despliegues a producción) requiere obligatoriamente aprobación humana explícita.
 
 # Fuentes principales
 
-Analiza completamente estas agencias:
+Analiza completamente estas fuentes internas y repositorios de referencia:
 
-## Agencia de Proyectos Desde Cero
+## Agencias internas de origen
 
+### Agencia de Proyectos Desde Cero
 `/mnt/nvme/skill-team/Agencia_para_proyectos_desde_0`
+Fuente principal para comprender cómo iniciar, diseñar y desarrollar un proyecto nuevo.
 
-Esta será una fuente principal para comprender cómo iniciar, diseñar y desarrollar un proyecto nuevo.
-
-## Agencia de Proyectos Existentes
-
+### Agencia de Proyectos Existentes
 `/mnt/nvme/skill-team/Agencia_Proyectos_Existentes`
+Fuente principal para comprender, diagnosticar, modificar y mantener proyectos ya desarrollados.
 
-Esta será una fuente principal para comprender, diagnosticar, modificar y mantener proyectos ya desarrollados.
+## Repositorios externos y herramientas a integrar
+
+1. **Claude SEO**: `https://github.com/AgriciDaniel/claude-seo` (Auditoría SEO, SEO técnico, Schema.org, GEO/AEO, Core Web Vitals, reportes falsables).
+2. **Auto-CRM**: `https://github.com/hainrixz/auto-crm` (CRM local privado, pipeline comercial, calificación de leads, webhooks, MCP).
+3. **Social Media Skills**: `https://github.com/charlie947/social-media-skills` (17 skills de estrategia de marca, LinkedIn, guiones para Reels/video, analítica y `voice-builder`).
+4. **Headroom**: `https://github.com/headroomlabs-ai/headroom` (Capa de compresión de contexto para LLMs, reducción radical de tokens en logs y outputs de tools).
+5. **Playwright MCP**: `https://github.com/microsoft/playwright-mcp` (Servidor MCP oficial de Playwright para navegación, pruebas y verificación web determinista).
+6. **NotebookLM MCP**: `https://github.com/PleasePrompto/notebooklm-mcp` (Servidor MCP para Google NotebookLM vía Patchright Chromium).
+7. **Anime.js**: `https://animejs.com/` / `https://github.com/juliangarnier/anime` (Motor de animación JS/CSS/SVG ligero y potente).
+8. **React Bits**: `https://www.reactbits.dev/` / `https://github.com/DavidHDev/react-bits` (Catálogo de componentes UI y animaciones interactivas para React).
+9. **Apple Design & Emil Kowalski Skills**: `https://github.com/emilkowalski/skills` (Estándares de diseño de Apple, Linear y Vercel, física de movimiento, microinteracciones).
 
 # Aclaración obligatoria
 
@@ -298,6 +323,56 @@ Este flujo se activa cuando el usuario solicita auditar la seguridad, calidad o 
 5. **Orquestación y consolidación por el Asistente Principal**:
    - Clasificación por gravedad/leverage, eliminación de duplicados entre herramientas y presentación del informe consolidado de auditoría al usuario para definir prioridades de remediación antes de modificar una sola línea de código.
 
+## Flujo de proyecto en producción (Operación, Crecimiento y Mantenimiento Continuo)
+
+Este flujo se activa cuando la aplicación ya está desplegada y accesible para usuarios reales:
+
+1. **Monitoreo y Salud Operativa**:
+   - Detección de errores en runtime, análisis de logs y métricas de infraestructura.
+   - Compresión semántica de salidas de depuración mediante **Headroom** para no quemar tokens al inspeccionar incidentes.
+2. **Auditoría Continua de Posicionamiento (Claude SEO)**:
+   - Verificación periódica de indexabilidad, rastreo de regresiones en Core Web Vitals y monitoreo de posición en motores de búsqueda tradicionales y de IA (GEO).
+3. **Optimización de Conversión y Pipeline Comercial (Auto-CRM)**:
+   - Seguimiento del flujo de prospectos capturados a través de landing pages y formularios web.
+   - Calificación automática de leads y generación de alertas de deals estancados para el equipo comercial.
+4. **Estrategia de Retención y Distribución en Redes (Social Media Skills)**:
+   - Publicación periódica de contenido técnico, casos de estudio y novedades del producto en LinkedIn y formatos cortos (Reels/Shorts).
+   - Medición del engagement con `analytics-dashboard` y optimización con `post-scorer`.
+5. **Experimentación y Crecimiento (Growth Loop)**:
+   - Diseño de experimentos A/B en UI/UX, iteraciones rápidas de copy y optimización continua de embudos de conversión.
+
+## Flujo de Automatización y Pruebas Web (E2E y Control de Navegador)
+
+Este flujo garantiza la verificación funcional y visual del software en navegadores reales:
+
+1. **Regla de Precedencia de Navegador**:
+   - **Prioridad 1 (Nativo)**: Cuando la agencia opera dentro de **Google Antigravity IDE**, utiliza directamente el control del navegador integrado de Antigravity (navegador Chrome real integrado con inspección de DOM, clics, typing y grabación visual automática en webp).
+   - **Prioridad 2 (Fallback Universal)**: Si la agencia se ejecuta en otros entornos de desarrollo (Cursor, Windsurf, Claude Code, VS Code o terminales CLI), activa automáticamente el **Playwright MCP** (`@playwright/mcp@latest`) para interactuar con la página mediante snapshots de accesibilidad deterministas y rápidos.
+2. **Ejecución de Pruebas**:
+   - Verificación de flujos críticos de usuario: inicio de sesión, registro, checkout, formularios complejos y responsividad multidispositivo (móvil, tablet, desktop).
+   - Pruebas de accesibilidad (a11y) y tiempos de carga.
+3. **Reporte de Evidencias**:
+   - Captura de artefactos visuales, logs de consola y resumen de resultados sin almacenar archivos temporales innecesarios.
+
+## Flujo de Diseño Visual y Motion Engineering (Apple Design, Anime.js, React Bits)
+
+Garantiza que la interfaz gráfica alcance estándares de excelencia estética (*look and feel* premium de Apple/Vercel/Linear):
+
+1. **Ideación e Inspección**:
+   - Extracción de conceptos visuales y pantallas prototipadas desde Google Stitch vía MCP.
+2. **Ingeniería de Diseño y Tokens**:
+   - Definición de paletas de color, tipografía y espaciado consistente.
+   - Aplicación de las directivas de **Apple Design & Emil Kowalski**:
+     - Curvas de aceleración naturales (`ease-out` en entradas, físicas elásticas sutiles).
+     - Microinteracciones interrumpibles (evitar que las animaciones bloqueen la interacción del usuario).
+     - Sombras semitransparentes en capas en lugar de bordes sólidos pesados.
+3. **Implementación de Componentes y Animaciones**:
+   - **En proyectos React**: Integración de componentes interactivos y animaciones de **React Bits** (cards reactivas, motion text, backgrounds fluidos).
+   - **Animaciones generales ligeras**: Uso de la **skill de Anime.js Motion** para transiciones CSS/SVG complejas, timelines secuenciales y morphing de vectores con cero sobrecarga.
+4. **Verificación de Taste y Accesibilidad**:
+   - Respeto estricto a la preferencia del usuario `prefers-reduced-motion`.
+   - Validación visual con el navegador de Antigravity o Playwright MCP.
+
 # Asistente principal
 
 Crea un sistema de orquestación mediante:
@@ -398,6 +473,38 @@ Para garantizar continuidad operativa cross-sesión y cross-modelo sin desperdic
   - No volcar archivos completos en prompts si solo se modifica una función o bloque.
   - Usar referencias puntuales a la memoria y al grafo de conocimiento de Graphify en vez de concatenar transcripciones largas.
   - Generar resúmenes compactos al completar cada hito y almacenarlos en `claude-mem` para sesiones futuras.
+
+## Capa de Compresión Semántica en Tiempo Real con `Headroom`
+
+Para resolver el problema del desbordamiento de contexto (*context bloat*) y optimizar el consumo de tokens en tareas intensivas (depuración de tests, análisis de logs masivos, diffs de git y salidas de herramientas de auditoría):
+
+* **Integración de `Headroom`** ([github.com/headroomlabs-ai/headroom](https://github.com/headroomlabs-ai/headroom)):
+  - Opera como una capa de compresión semántica local que intercepta los datos antes de que lleguen al modelo de lenguaje.
+  - Comprime hasta en un 80% las salidas voluminosas de herramientas, volcados de terminal y respuestas JSON de APIs, preservando byte por byte la información crítica (líneas `FATAL`, errores, stack traces y fragmentos deterministas).
+* **Modalidades de uso en la agencia**:
+  - **Servidor MCP (`io.github.headroomlabs-ai/headroom`)**: Expone las herramientas `headroom_compress` (para comprimir textos largos bajo demanda), `headroom_retrieve` (para consultar fragmentos preservados) y `headroom_stats` (para auditar el ahorro de tokens).
+  - **Modo Proxy y Wrapper**: Compatible con invocación transparente mediante `headroom wrap <herramienta>` para agentes CLI (Antigravity, Claude Code, Cursor, OpenCode).
+  - **Aprendizaje y Mejora Continua (`headroom learn`)**: Analiza sesiones de depuración fallidas y extrae correcciones automáticas para registrarlas en `AGENTS.md` o `GEMINI.md`.
+
+## Aislamiento Estricto de Contextos Multidimensionales (Zero Cross-Contamination)
+
+La agencia opera bajo una estricta política de compartimentación para evitar fugas de información o contaminación cruzada entre clientes, marcas y proyectos:
+
+1. **Jerarquía de carpetas de contexto**:
+   ```text
+   contexts/
+   ├── agency/                               # Directivas y memoria interna de la agencia
+   ├── projects/<project-id>/                # Requisitos técnicos, arquitectura, ADRs y estado del software
+   ├── clients/<client-id>/                  # Datos comerciales, acuerdos y pipeline del cliente
+   ├── brands/<brand-id>/                    # Identidad y tono de voz (about-me.md, voice.md)
+   └── campaigns/<campaign-id>/              # Estrategias temporales de marketing y redes sociales
+   ```
+2. **Reglas de contención innegociables**:
+   - **Cero mezcla entre clientes**: Los datos, prospectos, contratos y notas de un cliente jamás deben leerse o referenciarse dentro del contexto de otro proyecto.
+   - **Aislamiento de voz de marca**: Las pautas de estilo y tono de voz de una marca (`voice.md`) son exclusivas; ningún agente debe aplicar el tono de una marca a un producto ajeno.
+   - **Protección de palabras clave y datos comerciales**: Las investigaciones de palabras clave, análisis de competidores y deals de CRM se confinan a su respectivo cliente.
+   - **Prohibición de secretos en contexto**: Las credenciales, API keys y tokens nunca se escriben en archivos de contexto ni en documentación; residen exclusivamente en archivos `.env` locales ignorados por git.
+   - **Carga progresiva de contexto**: Los subagentes reciben únicamente el contexto mínimo indispensable para su tarea inmediata, evitando cargar simultáneamente dominios no relacionados.
 
 # Arquitectura general del proyecto: Monorepo dividido
 
@@ -828,30 +935,93 @@ Documenta:
 
 La carpeta de tecnologías debe permitir agregar nuevos stacks sin modificar los principios generales.
 
+# Nuevos dominios especializados de la Agencia
+
+La Agencia de Proyectos expande sus capacidades para cubrir 6 dominios especializados de extremo a extremo:
+
+## 1. Ingeniería de Software
+Cubre la totalidad de la construcción y mantenimiento técnico de aplicaciones:
+* Descubrimiento del problema y refinamiento de requisitos técnicos y funcionales.
+* Arquitectura desacoplada en **Monorepo dividido** (`frontend/` y `backend/`).
+* Frontend modular por dominios con **Atomic Design** en React / TypeScript.
+* Backend escalable y tipado con **Clean Architecture** pragmática y filosofía **Ponytail** en Node.js / Express / Prisma.
+* Persistencia y modelado de datos en PostgreSQL / SQLite.
+* Pruebas automatizadas (unitarias, integración, E2E) e infraestructura CI/CD.
+* Observabilidad, monitoreo en producción, manejo de errores y documentación continua.
+
+## 2. SEO y Posicionamiento en Motores de Búsqueda e IA (Claude SEO)
+Basado en las capacidades adaptadas de [Claude SEO](https://github.com/AgriciDaniel/claude-seo):
+* **Auditoría SEO Integral y Falsable**: Diagnósticos de 0 a 100 con comprobaciones verificables (*"¿cómo sabríamos si esta recomendación falló?"*).
+* **SEO Técnico**: Rastreo, indexabilidad, sitemaps XML, `robots.txt`, canonización, redirecciones y arquitectura de enlaces internos.
+* **Core Web Vitals y Rendimiento**: Diagnóstico de LCP, FID/INP, CLS y optimización de carga de activos e imágenes.
+* **Datos Estructurados Schema.org**: Generación y validación de microdatos JSON-LD enriquecidos.
+* **Optimización para Motores de IA (GEO / AEO)**: Citabilidad algorítmica para ChatGPT, Claude, Perplexity y Gemini; optimización de `llms.txt` y metadatos IPTC para imágenes generadas por IA.
+* **SEO de Contenido y E-E-A-T**: Evaluación de experiencia, pericia, autoridad y confiabilidad.
+* **SEO Local e Internacional**: Hreflang, orientación geográfica y optimización de fichas locales.
+* **Monitoreo de Regresiones**: Comparativas históricas para asegurar que nuevos despliegues no degraden el tráfico orgánico.
+
+## 3. CRM y Gestión Comercial (Auto-CRM)
+Basado en las capacidades adaptadas de [Auto-CRM](https://github.com/hainrixz/auto-crm):
+* **Captura y Calificación de Leads**: Ingestión automática de prospectos mediante webhooks, formularios de contacto y cargas CSV.
+* **Pipeline Comercial Visual**: Etapas de venta configurables según el modelo de negocio (B2B, B2C, SaaS, servicios).
+* **Seguimiento Automatizado**: Registro de interacciones (llamadas, correos, notas), alertas de deals estancados y tareas pendientes.
+* **Privacidad Local y Soberanía**: Base de datos SQLite local; ningún dato de clientes sale del entorno del usuario ni se envía a plataformas SaaS externas.
+* **Interfaz Conversacional y Servidor MCP**: Consultas en lenguaje natural del estado del pipeline (`/pipeline`, `/deals`, `/summary`).
+* **Tratamiento como Módulo / Plantilla Opcional**: Auto-CRM no se impone en proyectos que no lo soliciten; opera como servicio local desacoplado o como referencia arquitectónica.
+
+## 4. Marketing y Redes Sociales (Social Media Skills)
+Basado en el kit de 17 habilidades de [Social Media Skills](https://github.com/charlie947/social-media-skills):
+* **Extracción y Aislamiento de Voz de Marca (`voice-builder`)**: Formalización de tono, estilo y vocabulario en `about-me.md` y `voice.md` dentro de `contexts/brands/<brand-id>/`.
+* **Creación de Contenido para LinkedIn**: Publicaciones técnicas y ejecutivas con ganchos (*hooks*), storytelling y formatos optimizados para alcance orgánico.
+* **Guiones Audiovisuales para Reels, TikTok y YouTube Shorts**: Estructuración de guiones dinámicos (gancho 0-3s, desarrollo, llamado a la acción).
+* **Matriz de Contenidos y Calendarios Editoriales**: Planificación temática, reempaquetado y reciclaje de ideas clave entre plataformas.
+* **Evaluación Previa de Publicaciones (`post-scorer`)**: Puntuación de copys antes de su publicación para maximizar retención y lectura.
+* **Generación de Prompts Visuales**: Prompts optimizados para Gemini / Midjourney para ilustrar posts sin depender de bancos de imágenes genéricos.
+
+## 5. Crecimiento Posterior al Lanzamiento (Growth & Analytics)
+Conecta los datos de todos los dominios para optimizar el producto en producción:
+* Conexión entre métricas de producto, tráfico SEO, prospectos en CRM y campañas en redes sociales.
+* Análisis de embudos de conversión (visita -> lead -> cliente activo -> retención).
+* Diseño de experimentos rápidos (tests A/B de copys, páginas de aterrizaje, botones de llamada a la acción).
+* Identificación de cuellos de botella en la activación y retención de usuarios.
+
+## 6. Diseño Visual e Ingeniería de Animación Premium
+Garantiza interfaces con acabados del más alto nivel de la industria:
+* **Apple Design & Principios de Emil Kowalski**: Físicas elásticas naturales, sombras multicapa sutiles, microinteracciones interrumpibles y curvas `ease-out`.
+* **Anime.js Motion Skill**: Motor ligero para animaciones SVG, morphing, timelines secuenciales y orquestación de movimiento sin dependencias pesadas.
+* **React Bits**: Biblioteca de componentes y micro-animaciones reactivas de alto impacto visual listas para producción.
+* **Google Stitch MCP**: Integración con herramientas de diseño para traducir especificaciones visuales en código estructurado y tokens de diseño.
+
 # Agentes especializados
 
-Define, como mínimo, agentes para:
+Define, como mínimo, los siguientes agentes especializados con contratos estrictos:
 
-* **Orquestación principal (Asistente Principal / Lead Orchestrator)**: Dirección general del flujo, delegación, coordinación de auditorías, mitigación de alucinaciones y control de tokens.
-* **Auditoría de Calidad y Asesor de Codebase (Codebase Advisor)**: Auditoría integral basada en la skill `improve` (análisis en 9 categorías de salud técnica, bugs, rendimiento, deuda y generación de planes en `plans/`).
-* **Auditoría de Seguridad y Threat Hunter**: Cacería rigurosa de vulnerabilidades basada en la skill `security-audit` de Cloudflare (cobertura determinista, validación contra refutación, vectores Web, Auth, LLM y dependencias).
-* Análisis de requisitos.
-* Arquitectura.
-* Análisis de proyectos existentes.
-* Planificación de funcionalidades.
-* UX/UI.
-* Sistemas de diseño.
-* Frontend.
-* Backend.
-* Bases de datos.
-* Seguridad.
-* Pruebas.
-* Control de calidad.
-* DevOps.
-* Despliegue.
-* Documentación.
-* Revisión de código.
-* Investigación técnica.
+1. **Agente Director de Proyecto (Project Lead / Orchestrator)**:
+   - Responsable de: Alcance global, análisis de requisitos, selección de flujos, dependencias entre tareas, estado del proyecto y coordinación de compuertas humanas (*Human-in-the-loop*).
+2. **Agente de Arquitectura**:
+   - Responsable de: Arquitectura de software, Monorepo dividido, decisiones técnicas fundamentales (ADRs), contratos de datos entre frontend y backend, escalabilidad y mantenibilidad.
+3. **Agente Frontend**:
+   - Responsable de: Implementación en React/TypeScript bajo Atomic Design, componentes modulares por dominio, diseño responsivo, accesibilidad (a11y) y rendimiento visual.
+4. **Agente Backend**:
+   - Responsable de: Clean Architecture en Node.js/Express/Prisma, controladores, esquemas DTO con Zod, servicios de negocio, endpoints tipados y filosofía Ponytail.
+5. **Agente de Auditoría de Calidad (Codebase Advisor con `improve`)**:
+   - Responsable de: Auditoría senior en modo solo lectura en 9 categorías técnicas, vetting riguroso contra falsos positivos y generación de planes autosuficientes en `plans/`.
+6. **Agente de Seguridad y Threat Hunter (con `security-audit` de Cloudflare)**:
+   - Responsable de: Mapeo de superficies de ataque, ledger de cobertura determinista (`coverage-ledger.json`), cacería de vulnerabilidades con agentes disprobatorios independientes y reportes estructurados.
+7. **Agente de Automatización Web y Pruebas E2E**:
+   - Responsable de: Ejecución y validación de pruebas en navegadores reales. Utiliza prioritariamente el **navegador integrado de Google Antigravity IDE** y activa como fallback universal **Playwright MCP** para otros entornos.
+8. **Agente DevOps y Despliegue**:
+   - Responsable de: Contenedores, variables de entorno validadas, scripts de build, pipelines CI/CD, configuración de Vercel/Cloud, copias de seguridad y procedimientos de rollback.
+9. **Agente de Diseño y Motion Engineering**:
+   - Responsable de: Aplicar las directivas de Apple Design, animaciones con Anime.js y React Bits, prototipado asistido por Google Stitch MCP y consistencia de tokens de diseño.
+10. **Agente SEO y Posicionamiento (Claude SEO adaptado)**:
+    - Responsable de: Auditorías técnicas SEO, optimización de Schema.org, visibilidad en buscadores de IA (GEO), Core Web Vitals, sitemaps y prevención de regresiones de tráfico orgánico.
+11. **Agente CRM y Pipeline Comercial (Auto-CRM adaptado)**:
+    - Responsable de: Configuración y administración del CRM local en SQLite, captura de prospectos vía webhooks, seguimiento de deals, análisis de oportunidades y resúmenes de pipeline.
+12. **Agente de Estrategia de Contenidos y Redes Sociales (Social Media Skills)**:
+    - Responsable de: Extracción de voz (`voice-builder`), investigación de nicho, redacción para LinkedIn, guiones para Reels/video, matrices editoriales y evaluación de copys con `post-scorer`.
+13. **Agente de Crecimiento (Growth Lead)**:
+    - Responsable de: Consolidar métricas cruzadas (analítica web + SEO + CRM + redes sociales), diseñar hipótesis de experimentación y optimizar embudos de conversión sin duplicar la labor técnica de los especialistas.
 
 ## Agentes de Auditoría y Seguridad Especializados
 
@@ -954,6 +1124,14 @@ Crea o adapta skills para:
 * `claude-mem` y memoria persistente universal (gestión de memoria acumulada, búsqueda híbrida/semántica con SQLite/vectores y recuperación de contexto cross-IA para cualquier modelo mediante MCP y CLI).
 * `improve` (auditoría técnica integral senior de código, análisis en 9 categorías y generación de planes autosuficientes de ejecución desacoplada en `plans/` sin mutar código).
 * `security-audit` de Cloudflare (auditoría rigurosa de seguridad y cacería de vulnerabilidades en 6 fases con ledger de cobertura, verificación independiente y matrices de ataque).
+* `apple-design` & Skills de Emil Kowalski (`apple-design`, `emil-design-eng`, `animation-vocabulary`, `interruptible-animation` para diseño e ingeniería de animación con taste Apple/Linear/Vercel).
+* `animejs-motion` (skill de animación ligera y control de timelines CSS/SVG basada en Anime.js, estructurada análogamente a `ui-ux-pro-max`).
+* `react-bits` (catálogo y patrones de componentes interactivos y motion para React).
+* `claude-seo` (sub-skills adaptadas para SEO técnico, Schema.org, Core Web Vitals, GEO y optimización para motores de IA).
+* `auto-crm` (flujos comerciales, pipelines y calificación de leads sin forzar dependencias en proyectos).
+* `social-media-skills` (17 skills de estrategia de contenidos, publicaciones LinkedIn, guiones para Reels/video y aislamiento de voz con `voice-builder`).
+* `headroom` (compresión semántica en tiempo real y optimización de tokens).
+* `playwright-testing` (automatización de navegador y pruebas E2E con fallback).
 * Accesibilidad.
 * Seguridad.
 * Pruebas.
@@ -1019,6 +1197,83 @@ La agencia debe integrar la skill de **security-audit** (`skills/security-audit/
   - *Supply Chain & Release*: Dependencias vulnerables, typosquatting, scripts maliciosos de pre/post-instalación y flujo de publicación.
   - *Memory Safety & Binary*: Fugas de memoria, buffer overflows y seguridad binaria para componentes nativos.
 
+### Integración de Apple Design y Skills de Emil Kowalski para acabado visual e ingeniería de diseño
+
+La agencia debe incorporar las directivas y skills de **Emil Kowalski** ([github.com/emilkowalski/skills](https://github.com/emilkowalski/skills)):
+
+* **Directivas maestras de diseño e interacción**:
+  - `apple-design`: Reglas de diseño visual con estándares de Apple (sombras multicapa semi-transparentes en lugar de bordes pesados, proporciones tipográficas armónicas, jerarquía limpia y contrastes cuidados).
+  - `emil-design-eng`: Ingeniería de diseño para interfaces con personalidad (*taste*), evitando los errores comunes de los modelos de IA (animaciones con easings equivocados, falta de estados hover/active, falta de feedback táctil).
+  - `animation-vocabulary`: Vocabulario estandarizado de movimiento (damping, stiffness, mass, enter/exit transitions).
+  - `interruptible-animation`: Regla de oro para microinteracciones: ninguna animación debe retener el foco o impedir que el usuario interactúe inmediatamente; las animaciones deben ser interrumpibles por eventos del usuario.
+* **Aplicación en el flujo de trabajo**:
+  - Toda propuesta de diseño y componente interactivo generado por el Agente Frontend o Diseñador UI/UX debe someterse a la validación de estas directivas antes de considerarse terminada.
+
+### Creación de la Skill de Animación Anime.js (`skills/design-and-motion/animejs-motion/`)
+
+Inspirada en la estructura modular y catálogo inteligente de `ui-ux-pro-max`, la agencia debe crear una skill especializada en animación basada en **Anime.js** ([animejs.com](https://animejs.com/)):
+
+* **Propósito**: Proveer a los agentes de un motor de animación de código ligero, altamente eficiente y sin dependencias pesadas para proyectos web (Vanilla JS, React, Vue, Svelte).
+* **Contenido de la skill**:
+  - Catálogo de recetas de animación preconfiguradas: transiciones de entrada/salida (*fade*, *slide*, *scale*), morphing de rutas SVG, stagger secuencial para listas y grids, y animaciones de números/métricas.
+  - Generador de timelines complejos con control de pausas, reversión y sincronización de eventos.
+  - Reglas de integración limpia: exportación de helpers reutilizables y hooks desacoplados (ej. `useAnime`) para mantener el código de interfaz limpio.
+
+### Integración del Catálogo de Componentes Interactivos y Motion con React Bits
+
+Para proyectos basados en React y Tailwind/CSS, la agencia integrará como recurso de referencia la skill de **React Bits** ([reactbits.dev](https://www.reactbits.dev/)):
+
+* **Propósito**: Dotar a los agentes frontend de un catálogo verificado de componentes visuales modernos e interactivos (text animations, backgrounds con shaders/canvas ligeros, cards interactivas con tilt 3D, docks estilo macOS y modales fluidos).
+* **Criterio de adopción**:
+  - Copiar únicamente el código del componente requerido bajo la filosofía **Ponytail** (cero instalación de paquetes monolíticos innecesarios).
+  - Adaptar los componentes importados al sistema de diseño y paleta de tokens del proyecto.
+
+### Adaptación modular de Claude SEO en Skills Especializadas (`skills/seo/`)
+
+Adaptar las 25 sub-skills de [Claude SEO](https://github.com/AgriciDaniel/claude-seo) en un conjunto cohesivo y portable en formato `SKILL.md`:
+
+* **Sub-skills clave**:
+  - `seo-technical`: Verificación de rastreo, sitemaps XML, directivas `robots.txt`, canonización y encabezados HTTP.
+  - `seo-schema`: Validación y generación de marcado JSON-LD Schema.org (Organization, WebSite, Product, Article, LocalBusiness, FAQ).
+  - `seo-geo`: Optimización para motores de búsqueda generativos basados en IA (GEO/AEO, `llms.txt`, citabilidad algorítmica).
+  - `seo-performance`: Diagnóstico y optimización de Core Web Vitals (LCP, INP, CLS) y compresión de activos.
+  - `seo-audit`: Orquestador de auditoría completa con cálculo de puntaje (0-100) y reporte estructurado en `docs/seo/`.
+* **Regla de contención**: Las herramientas de Claude SEO se ejecutan en modo análisis; no modifican el código productivo sin una compuerta de aprobación explícita.
+
+### Adaptación modular de Auto-CRM en Skills Comerciales y Pipeline (`skills/crm/`)
+
+Extraer la inteligencia de negocio de [Auto-CRM](https://github.com/hainrixz/auto-crm) en skills de gestión comercial:
+
+* **Capacidades empaquetadas**:
+  - `crm-setup`: Definición del pipeline comercial adaptado al modelo del negocio (etapas, fuentes de prospectos, motivos de pérdida).
+  - `lead-capture`: Configuración de webhooks locales y mapeo de campos desde formularios web hacia la base de datos de prospectos.
+  - `deal-tracker`: Automatización de alertas para leads sin actividad reciente y sugerencias de próximos pasos comerciales.
+* **Desacoplamiento arquitectónico**: Auto-CRM opera como un módulo opcional o servicio independiente. No se impone su base de datos ni su stack (Next.js/SQLite) en los proyectos desarrollados por la agencia que utilicen PostgreSQL u otras tecnologías.
+
+### Integración de las 17 Skills de Redes Sociales (Social Media Skills) con `voice-builder`
+
+Integrar el kit completo de [Social Media Skills](https://github.com/charlie947/social-media-skills) bajo `skills/social-media/`:
+
+* **Protocolo de Voz y Estilo (`voice-builder`)**:
+  - Antes de redactar cualquier contenido personalizado, el agente debe leer o construir `about-me.md` y `voice.md` dentro de `contexts/brands/<brand-id>/`.
+  - Si no existe un perfil de voz validado, el agente debe solicitar la información base o utilizar el modo neutro de investigación.
+* **Habilidades de redacción y distribución**:
+  - `linkedin-writer`: Publicaciones estructuradas con ganchos (*hooks*), saltos de línea optimizados para lectura en móvil y llamadas a la acción (*CTAs*).
+  - `reels-scripting`: Guiones para video corto con temporización (gancho visual 0-3s, desarrollo conciso, retención y remate).
+  - `post-scorer`: Evaluación algorítmica previa de copys para predecir engagement y legibilidad.
+  - `content-matrix`: Matriz temática para diversificar contenidos entre educación, autoridad, prueba social y conversión.
+
+### Integración de la Skill de Automatización Web y Pruebas con Playwright MCP
+
+* **Propósito**: Proveer a los agentes de capacidades de interacción, pruebas y validación visual en navegadores web.
+* **Regla de precedencia**:
+  - En **Google Antigravity IDE**: uso prioritario del navegador integrado nativo.
+  - En otros editores y entornos de terminal: fallback transparente mediante **Playwright MCP** (`@playwright/mcp@latest`) operando sobre el árbol de accesibilidad de la página.
+
+### Integración de la Skill de Optimización de Contexto con Headroom
+
+* **Propósito**: Ejecutar compresión semántica en tiempo real sobre textos voluminosos antes de inyectarlos al contexto del LLM.
+* **Operación**: Invocación de herramientas `headroom_compress` y `headroom_retrieve`, garantizando que logs extensos de pruebas o salidas de build se reduzcan drásticamente en volumen de tokens conservando la información crítica.
 
 ## Contrato de cada skill
 
@@ -1150,9 +1405,77 @@ La nueva agencia debe registrar, configurar y documentar el uso del servidor **G
   * Configuración estandarizada para clientes MCP compatibles, tanto para Google Antigravity (`mcp_config.json`) como para Claude Desktop (`claude_desktop_config.json`) y otros entornos agénticos.
 * **Plan de contingencia**: Si el servidor MCP de Stitch no está instalado, carece de credenciales o la API no está disponible, los agentes deben recurrir a diseño manual mediante Atomic Design a partir de especificaciones de producto, wireframes locales o componentes estándar sin detener el desarrollo.
 
+## Integración prioritaria: MCP de Headroom para compresión de contexto
+La agencia debe configurar y registrar el servidor MCP de **Headroom** ([github.com/headroomlabs-ai/headroom](https://github.com/headroomlabs-ai/headroom)):
+
+* **Identificador MCP**: `io.github.headroomlabs-ai/headroom` (o paquete `headroom-ai`).
+* **Propósito**: Comprimir en tiempo real textos extensos (salidas de comandos bash, volcados de tests, logs de compilación, diffs de git) antes de que lleguen a la ventana de contexto del LLM.
+* **Herramientas expuestas**:
+  - `headroom_compress`: Comprime mensajes o bloques de texto preservando líneas fatales y errores.
+  - `headroom_retrieve`: Recupera fragmentos específicos no comprimidos cuando sea indispensable.
+  - `headroom_stats`: Informa sobre la tasa de compresión y ahorro acumulado de tokens.
+* **Agentes autorizados**: Todos los agentes de la agencia a través del Asistente Principal.
+
+## Integración prioritaria: Playwright MCP para pruebas web con fallback inteligente
+La nueva agencia debe registrar el servidor oficial de **Playwright MCP** ([github.com/microsoft/playwright-mcp](https://github.com/microsoft/playwright-mcp)):
+
+* **Paquete oficial**: `@playwright/mcp@latest` ejecutado vía `npx`.
+* **Propósito**: Permitir que los agentes naveguen, interactúen y validen páginas web mediante snapshots estructurados del árbol de accesibilidad (rápido, determinista y sin dependencia de modelos de visión pesados).
+* **Regla de precedencia estricta**:
+  - **Prioridad 1**: Si el agente se ejecuta en **Google Antigravity IDE**, se utilizará el control nativo del navegador de Antigravity (navegador Chrome integrado con captura webp).
+  - **Prioridad 2 (Fallback)**: Si se ejecuta en Cursor, Windsurf, Claude Code, VS Code o terminales CLI, se activará automáticamente Playwright MCP.
+* **Configuración en `mcp_config.json`**:
+  ```json
+  {
+    "mcpServers": {
+      "playwright": {
+        "command": "npx",
+        "args": ["@playwright/mcp@latest"]
+      }
+    }
+  }
+  ```
+
+## Integración evaluada: NotebookLM MCP para investigación documental
+La agencia registrará y documentará la conexión con Google NotebookLM ([github.com/PleasePrompto/notebooklm-mcp](https://github.com/PleasePrompto/notebooklm-mcp)):
+
+* **Paquete oficial**: `notebooklm-mcp@latest`.
+* **Propósito**: Conectar agentes con libretas de Google NotebookLM para consultar documentación técnica extensa, PDFs de requisitos o resúmenes de investigación con citas respaldadas.
+* **Advertencia de mantenimiento y contingencia**:
+  - El repositorio oficial fue archivado por su autor en septiembre de 2026.
+  - La agencia documenta su uso mediante `stdio` y Patchright Chromium, pero establece como alternativa directa la extracción estructurada mediante **Scrapling** o la API oficial de Google Gemini si el servicio cambia y el servidor deja de operar.
+
+## Integración opcional: MCP de Auto-CRM para consultas comerciales
+* **Propósito**: Permitir al Asistente Principal y al Agente CRM consultar el estado del pipeline comercial local mediante lenguaje natural (`/pipeline`, `/deals`, `/summary`).
+* **Operación**: Solo se activa en proyectos donde el usuario solicite explícitamente la gestión de CRM local.
+
 No instales, conectes ni autorices un MCP externo sin aprobación.
 
 No incluyas servidores abandonados o de origen dudoso como recomendación principal.
+
+# Autonomía y control humano en el bucle (Human-in-the-Loop)
+
+Para garantizar total seguridad, confiabilidad y control por parte del usuario, la agencia opera bajo una estricta distinción entre tareas autónomas y operaciones que requieren autorización previa:
+
+## Operaciones autónomas permitidas (Bajo riesgo y reversibles)
+Los agentes pueden proceder de forma autónoma en:
+* Lecturas, búsquedas de código y consultas al grafo de Graphify.
+* Consultas a la memoria persistente (`claude-mem`) y compresión con Headroom.
+* Auditorías de código y seguridad en modo solo lectura (`improve`, `security-audit`).
+* Ejecución de pruebas unitarias y linters locales.
+* Redacción de borradores de código, copys para redes y reportes de diagnóstico.
+* Generación de planes de implementación en `plans/`.
+
+## Operaciones que requieren autorización humana obligatoria
+El Asistente Principal debe detenerse y solicitar confirmación explícita del usuario antes de:
+1. **Publicar contenido**: Publicar posts en LinkedIn, redes sociales o blogs.
+2. **Contacto comercial**: Enviar correos, mensajes de WhatsApp o contactar prospectos en el CRM.
+3. **Despliegues y Producción**: Desplegar aplicaciones a entornos de producción o staging público.
+4. **Mutación de Infraestructura y Datos Productivos**: Ejecutar migraciones irreversibles de base de datos, purgar tablas o cambiar registros DNS.
+5. **Finanzas y Compras**: Crear campañas publicitarias pagadas o contratar servicios.
+6. **Seguridad y Credenciales**: Generar, rotar o revocar credenciales de producción o conectar cuentas externas.
+
+Toda acción importante completada debe registrar: agente responsable, herramienta/MCP utilizado, entrada, resultado, archivos afectados, validación y opción de reversión.
 
 # Compatibilidad entre plataformas
 
@@ -1190,61 +1513,97 @@ Como referencia, evalúa una estructura similar a:
 
 ```text
 Agencia_de_Proyectos/
-├── README.md
-├── AGENTS.md
-├── asistente-principal.md
+├── README.md                                # Guía de inicio rápido y visión general
+├── AGENTS.md                                # Reglas operativas universales y fronteras de agentes
+├── asistente-principal.md                   # Orquestador maestro, clasificador de flujos y compuertas HITL
 ├── agentes/
-│   ├── asistente-principal.md
-│   ├── auditor-calidad.md                   # Basado en improve (auditoría integral y planes en plans/)
-│   ├── auditor-seguridad.md                 # Basado en security-audit (Cloudflare threat hunting)
-│   ├── arquitecto.md
-│   ├── frontend.md
-│   ├── backend.md
-│   └── ...
+│   ├── asistente-principal.md               # Lead Orchestrator
+│   ├── arquitecto.md                        # Arquitectura y Monorepo dividido
+│   ├── frontend.md                          # React, TypeScript, Atomic Design
+│   ├── backend.md                           # Clean Architecture, Node.js, Express, Prisma, Ponytail
+│   ├── auditor-calidad.md                   # Codebase Advisor basado en improve (read-only, plans/)
+│   ├── auditor-seguridad.md                 # Threat Hunter basado en security-audit (Cloudflare)
+│   ├── navegacion-web.md                    # Pruebas E2E (Antigravity Browser / Playwright MCP)
+│   ├── devops.md                            # CI/CD, Docker, Vercel, migraciones y rollback
+│   ├── diseno-motion.md                     # Apple Design, Anime.js, React Bits, Google Stitch
+│   ├── agente-seo.md                        # Claude SEO adaptado (técnico, Schema, GEO, Core Web Vitals)
+│   ├── agente-crm.md                        # Auto-CRM adaptado (pipeline, leads, webhooks locales)
+│   ├── agente-redes-sociales.md             # Social Media Skills (voice-builder, LinkedIn, Reels)
+│   └── agente-crecimiento.md                # Growth Lead (analítica cruzada, conversión, retención)
 ├── flujos/
-│   ├── proyecto-nuevo/
-│   ├── proyecto-existente/
-│   └── auditoria-y-seguridad/               # Flujo especializado de auditoría técnica y threat hunting
+│   ├── proyecto-nuevo/                      # Greenfield completo
+│   ├── proyecto-existente/                  # Diagnóstico, Graphify, refactor mínimo Ponytail
+│   ├── proyecto-produccion/                 # Monitoreo, regresiones, optimización continua
+│   ├── auditoria-y-seguridad/               # Cacería determinista, ledger y plans/
+│   ├── optimizacion-seo/                    # Auditoría técnica, Schema.org y visibilidad en IA
+│   ├── gestion-comercial/                   # Captura de leads y pipeline comercial
+│   ├── campana-lanzamiento/                 # Estrategia de marca, guiones y distribución
+│   └── automatizacion-pruebas-web/          # Fallback Antigravity Browser -> Playwright MCP
 ├── arquitectura/
-│   ├── frontend/
-│   └── backend/
+│   ├── frontend/                            # Arquetipo universal Atomic Design + dominios
+│   └── backend/                             # Arquetipo universal Clean Architecture + DTOs Zod
 ├── skills/
-│   ├── graphify/
-│   │   └── SKILL.md
-│   ├── claude-mem/
-│   │   └── SKILL.md
-│   ├── ponytail/
-│   │   └── SKILL.md
-│   ├── improve/
-│   │   └── SKILL.md                         # Auditoría senior read-only de codebase y generación de planes
-│   ├── security-audit/
-│   │   └── SKILL.md                         # Framework de auditoría de seguridad de Cloudflare (6 fases)
-│   ├── react/
-│   ├── node/
-│   ├── clean-architecture/
-│   ├── atomic-design/
-│   └── ...
+│   ├── context-optimization/
+│   │   ├── graphify/SKILL.md
+│   │   ├── claude-mem/SKILL.md
+│   │   └── headroom/SKILL.md
+│   ├── engineering/
+│   │   ├── ponytail/SKILL.md
+│   │   ├── clean-architecture/SKILL.md
+│   │   ├── atomic-design/SKILL.md
+│   │   ├── react/SKILL.md
+│   │   └── node-express/SKILL.md
+│   ├── audit-and-security/
+│   │   ├── improve/SKILL.md
+│   │   └── security-audit/SKILL.md
+│   ├── design-and-motion/
+│   │   ├── apple-design/SKILL.md
+│   │   ├── emil-design-eng/SKILL.md
+│   │   ├── animejs-motion/SKILL.md
+│   │   ├── react-bits/SKILL.md
+│   │   └── ui-ux-pro-max/SKILL.md
+│   ├── web-automation/
+│   │   └── playwright-testing/SKILL.md
+│   ├── seo/
+│   │   ├── technical-seo/SKILL.md
+│   │   ├── schema-markup/SKILL.md
+│   │   └── geo-ai-optimization/SKILL.md
+│   ├── crm/
+│   │   ├── pipeline-setup/SKILL.md
+│   │   └── lead-capture/SKILL.md
+│   └── social-media/
+│       ├── voice-builder/SKILL.md
+│       ├── linkedin-writer/SKILL.md
+│       ├── reels-scripting/SKILL.md
+│       └── post-scorer/SKILL.md
 ├── mcp/
-│   ├── registro-mcp.md
+│   ├── registro-mcp.md                      # Catálogo y permisos de herramientas
 │   ├── claude-mem/
 │   ├── google-stitch/
-│   └── mcp_config.example.json
+│   ├── headroom/
+│   ├── playwright/
+│   ├── notebooklm/
+│   ├── auto-crm/
+│   └── mcp_config.example.json              # Configuración universal para Antigravity/Cursor/Claude
+├── contexts/                                # Aislamiento estricto de contextos
+│   ├── agency/
+│   ├── projects/
+│   ├── clients/
+│   └── brands/
 ├── stacks/
 ├── reglas/
-├── contexto/
-├── decisiones/
-├── guias/
+├── decisiones/                              # Registros ADR
 ├── plantillas/
 ├── scripts/
-├── validaciones/
-├── ejemplos/
+│   ├── validadores/
+│   └── utilidades/
 ├── adaptadores/
 │   ├── antigravity/
 │   ├── claude/
 │   ├── cursor/
 │   └── opencode/
 ├── migracion/
-└── documentacion/
+└── docs/
 ```
 
 Esta estructura es orientativa. Ajusta nombres y niveles con base en los hallazgos reales.
@@ -1419,40 +1778,49 @@ La tarea se considerará terminada cuando:
 11. Los agentes utilicen un contrato consistente, incluyendo al **Asistente Principal como Orquestador Central**, al **Auditor de Calidad (Codebase Advisor con improve)** y al **Auditor de Seguridad (Threat Hunter con Cloudflare security-audit)**.
 12. Los skills hayan sido auditados y unificados, incorporando la skill interna de **Ponytail** (referenciada internamente por todas las skills de desarrollo), la skill de **Graphify** para navegación por grafo y ahorro de tokens, la skill de **claude-mem** para memoria persistente universal, la skill de **improve** para asesoría senior de calidad/arquitectura y la skill de **security-audit** de Cloudflare para cacería y verificación rigurosa de vulnerabilidades.
 13. Exista un mandato y procedimiento activo para la **investigación continua e integración de skills de seguridad adicionales** (SAST, SCA, detección de secretos, seguridad en contenedores y cloud).
-14. Exista un registro seguro de MCP, con soporte e integración documentada para el **MCP de Google Stitch** y el **MCP de claude-mem** (interoperable para cualquier IA).
-15. La estructura sea plenamente compatible con **Google Antigravity** (skills con formato estándar, `.agents/`, reglas y MCPs), **OpenCode** y portable hacia otras plataformas (Claude, Cursor, ChatGPT).
-16. Exista un sistema de **Memoria Persistente Universal (`claude-mem`)** y gestión de contexto con acceso obligatorio previo en cada interacción y control total para el usuario.
-17. Exista un manifiesto de migración.
-18. Los validadores finalicen correctamente.
-19. Los escenarios de prueba hayan sido ejecutados (incluyendo la comprobación de navegación por grafo con Graphify, consulta de memoria y simulación de auditoría de seguridad y calidad).
-20. No existan enlaces rotos ni carpetas vacías.
-21. Las agencias originales permanezcan intactas.
-22. La documentación permita comenzar a utilizar la nueva agencia sin conocimientos previos de su estructura.
+14. Exista una suite de **Optimización de Contexto y Reducción de Tokens** que combine de forma complementaria: **Graphify** (navegación por grafo), **claude-mem** (memoria persistente) y **Headroom** (compresión semántica en tiempo real y servidor MCP).
+15. Exista una suite de **Diseño Visual e Ingeniería de Animación Premium** con: directivas de **Apple Design & Emil Kowalski**, la skill especializada de **Anime.js Motion** (estructurada como `ui-ux-pro-max`) y el catálogo de componentes motion de **React Bits**.
+16. Exista capacidad de **Automatización Web y Testing E2E** con regla de fallback estricta: control nativo prioritario mediante el navegador de Google Antigravity IDE y uso de Playwright MCP como fallback universal.
+17. Existan capacidades de **Negocio, Marketing y Posicionamiento** adaptadas sin acoplamiento forzado:
+    - **Claude SEO** (auditoría técnica, GEO/AEO, Schema.org y Core Web Vitals).
+    - **Auto-CRM** (pipeline comercial local en SQLite y captura de leads sin obligar a su adopción en stacks ajenos).
+    - **Social Media Skills** (17 skills de contenido con protocolo `voice-builder` para aislamiento estricto de tonos de voz).
+18. Exista una política rigurosa de **Aislamiento Multidimensional de Contextos** (`contexts/projects/`, `contexts/clients/`, `contexts/brands/`) que impida la fuga o mezcla de datos comerciales, palabras clave o identidades de marca.
+19. Exista un marco claro de **Control Humano en el Bucle (*Human-in-the-Loop*)**, donde toda acción externa o irreversible (publicación, envío de correos, deploy a producción, migraciones productivas) exija aprobación explícita humana.
+20. Exista un registro seguro de MCP, con soporte e integración documentada para **Google Stitch**, **claude-mem**, **Headroom**, **Playwright** y **NotebookLM** (con nota de contingencia).
+21. La estructura sea plenamente compatible con **Google Antigravity** (skills con formato estándar, `.agents/`, reglas y MCPs), **OpenCode** y portable hacia otras plataformas (Claude, Cursor, ChatGPT).
+22. Exista un manifiesto de migración y trazabilidad.
+23. Los validadores finalicen correctamente.
+24. Los escenarios de prueba hayan sido simulados exitosamente para los 6 dominios.
+25. No existan enlaces rotos ni carpetas vacías.
+26. Las agencias originales permanezcan intactas.
+27. La documentación permita comenzar a utilizar la nueva agencia sin conocimientos previos de su estructura.
 
 # Formato del resultado final
 
 Entrega un informe con:
 
 1. Ruta exacta de la nueva agencia.
-2. Agencias analizadas.
+2. Agencias analizadas y fuentes externas investigadas.
 3. Resolución de la posible tercera agencia.
-4. Resumen de similitudes y diferencias.
-5. Árbol final.
+4. Resumen de similitudes, diferencias y matriz de integración (integrar, adaptar, mantener externo, descartar).
+5. Árbol final detallado.
 6. Archivos creados.
 7. Elementos conservados.
 8. Elementos unificados.
 9. Elementos excluidos y justificación.
-10. Agentes creados (incluyendo Asistente Principal, Auditor de Calidad y Auditor de Seguridad).
-11. Skills creados o adaptados (asegurando compatibilidad nativa con Google Antigravity, e integrando improve, Cloudflare security-audit, Ponytail, Graphify y claude-mem).
-12. Catálogo de skills de seguridad investigados y plan de integración de nuevas herramientas de seguridad.
-13. MCP investigados y registrados (incluyendo documentación y configuración del MCP de Google Stitch y claude-mem).
-14. Flujos implementados (proyecto nuevo, existente y flujo especializado de auditoría técnica y seguridad).
-15. Arquitecturas documentadas.
-16. Validadores ejecutados.
-17. Escenarios de prueba y resultados.
-18. Riesgos o limitaciones.
-19. Decisiones pendientes.
-20. Confirmación de que las agencias originales no fueron modificadas.
-21. Instrucciones para comenzar a utilizar la nueva Agencia de Proyectos.
+10. Agentes creados (incluyendo Director de Proyecto, Frontend, Backend, Calidad, Seguridad, SEO, CRM, Redes Sociales, Growth, Diseño/Motion y Web Testing).
+11. Skills creados o adaptados (formato YAML frontmatter nativo de Google Antigravity, integrando improve, Cloudflare security-audit, Apple Design, Anime.js Motion, React Bits, Claude SEO, Auto-CRM, Social Media, Headroom y Playwright).
+12. Catálogo de skills de seguridad investigados y plan de investigación continua.
+13. Registro de MCP documentados y configuraciones universales (Stitch, claude-mem, Headroom, Playwright, NotebookLM, Auto-CRM).
+14. Flujos de trabajo implementados (proyecto nuevo, existente, producción, auditoría/seguridad, SEO, CRM, redes sociales, testing web y motion design).
+15. Arquitecturas documentadas (Monorepo dividido, Clean Architecture, Atomic Design).
+16. Mecanismos de aislamiento de contextos y reglas de Human-in-the-Loop.
+17. Validadores ejecutados.
+18. Escenarios de prueba y resultados.
+19. Riesgos o limitaciones.
+20. Decisiones pendientes.
+21. Confirmación de que las agencias originales no fueron modificadas.
+22. Instrucciones para comenzar a utilizar la nueva Agencia de Proyectos.
 
 Entrega una estructura completa, funcional, coherente, validada y documentada. No te limites a proponer el diseño: crea la nueva agencia cuando el análisis previo esté completo.

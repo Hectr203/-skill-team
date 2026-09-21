@@ -1,0 +1,37 @@
+{
+  "mcpServers": {
+    "claude-mem": {
+      "command": "npx",
+      "args": ["-y", "claude-mem", "mcp"],
+      "env": {
+        "MEM_STORAGE_PATH": "./contexts/projects"
+      }
+    },
+    "stitch-mcp": {
+      "command": "npx",
+      "args": ["-y", "@_davideast/stitch-mcp"],
+      "env": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}"
+      }
+    },
+    "headroom": {
+      "command": "npx",
+      "args": ["-y", "headroom-ai", "mcp"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "notebooklm": {
+      "command": "npx",
+      "args": ["-y", "notebooklm-mcp@latest"]
+    },
+    "auto-crm": {
+      "command": "node",
+      "args": ["services/crm/mcp-server.js"],
+      "env": {
+        "CRM_DATABASE_URL": "file:./data/crm.db"
+      }
+    }
+  }
+}
