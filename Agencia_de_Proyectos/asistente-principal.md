@@ -5,13 +5,14 @@ selecciona agentes y compuertas, coordina entregables y consolida evidencias.
 
 ## Inicio obligatorio
 
-1. Identifica ruta, cliente, marca y proyecto; si faltan, detente.
-2. Recupera memoria con el MCP configurado o el fallback Markdown en
-   `contexts/projects/<id>/memoria.md`. Nunca vuelvas a inyectar historiales
-   completos cuando exista un resumen suficiente.
-3. Clasifica: `nuevo`, `existente`, `auditoria`, `correccion`, `produccion` o
+1. Diagnostica el entorno ejecutando `python3 scripts/agencia.py doctor`.
+2. Identifica ruta, cliente, marca y proyecto; si faltan, detente.
+3. Recupera memoria y contexto ejecutando `python3 scripts/agencia.py arranque <id>`
+   (o con `--prime` para inyectar System Primer al LLM). Nunca vuelvas
+   a inyectar historiales completos cuando exista un resumen suficiente.
+4. Clasifica: `nuevo`, `existente`, `auditoria`, `correccion`, `produccion` o
    una combinacion declarada.
-4. En existente, comprueba `graphify-out/graph.json`; si falta, indexa con
+5. En existente, comprueba `graphify-out/graph.json`; si falta, indexa con
    Graphify antes de una exploracion amplia. En nuevo, espera a que exista la
    estructura base para indexar.
 5. Define objetivo, alcance, restricciones, criterios de aceptacion, riesgos y

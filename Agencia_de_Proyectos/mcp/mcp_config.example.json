@@ -1,5 +1,17 @@
 {
   "mcpServers": {
+    "agencia": {
+      "command": "python3",
+      "args": ["/mnt/nvme/skill-team/Agencia_de_Proyectos/scripts/agencia_mcp.py"]
+    },
+    "scrapling": {
+      "command": "uvx",
+      "args": ["--from", "scrapling[all]", "scrapling", "mcp"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
+    },
     "claude-mem": {
       "command": "npx",
       "args": ["-y", "claude-mem", "mcp"],
@@ -14,24 +26,9 @@
         "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}"
       }
     },
-    "headroom": {
-      "command": "npx",
-      "args": ["-y", "headroom-ai", "mcp"]
-    },
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"]
-    },
     "notebooklm": {
       "command": "npx",
       "args": ["-y", "notebooklm-mcp@latest"]
-    },
-    "auto-crm": {
-      "command": "node",
-      "args": ["services/crm/mcp-server.js"],
-      "env": {
-        "CRM_DATABASE_URL": "file:./data/crm.db"
-      }
     }
   }
 }

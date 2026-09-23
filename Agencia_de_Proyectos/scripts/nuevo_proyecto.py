@@ -1,105 +1,161 @@
+#!/usr/bin/env python3
 """
-Crea un nuevo proyecto a partir de la plantilla base e inicializa su memoria independiente.
+Crea un nuevo proyecto en contexts/projects/ a partir de las plantillas oficiales
+e inicializa su memoria estructurada independiente.
 
 Uso:
-    python3 scripts/nuevo_proyecto.py <nombre-proyecto>
+    python3 scripts/nuevo_proyecto.py <nombre-proyecto> [--cliente CLIENTE] [--tipo TIPO]
 
 Ejemplo:
-    python3 scripts/nuevo_proyecto.py vtptransportes
-    python3 scripts/nuevo_proyecto.py mi-api-clientes
-
-El script:
-    1. Verifica que el nombre no exista en proyectos/.
-    2. Copia proyectos/_plantilla_proyecto -> proyectos/<nombre>.
-    3. Ejecuta memoria_proyecto.py init para generar .memoria/ independiente.
-    4. Imprime los siguientes pasos recomendados.
+    python3 scripts/nuevo_proyecto.py vtptransportes --cliente "Transportes del Norte" --tipo "existente"
+    python3 scripts/nuevo_proyecto.py mi-api-clientes --tipo "nuevo"
 """
+from __future__ import annotations
 
 import argparse
-import shutil
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
+# Agregar directorio scripts al sys.path
+SCRIPT_DIR = Path(__file__).parent.resolve()
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
 
-def _agregar_ruta_scripts() -> None:
-    directorio = Path(__file__).parent.resolve()
-    ruta = str(directorio)
-    if ruta not in sys.path:
-        sys.path.insert(0, ruta)
+from memoria_proyecto import ahora_iso, inicializar, resolver_proyecto
 
 
-def crear_proyecto(nombre: str) -> None:
-    raiz_agencia = Path(__file__).parent.parent.resolve()
-    raiz_proyectos = raiz_agencia / "proyectos"
-    plantilla = raiz_proyectos / "_plantilla_proyecto"
-    destino = raiz_proyectos / nombre
+def crear_proyecto(nombre: str, cliente: str = "", tipo: str = "nuevo") -> Path:
+    raiz_agencia = Path(__file__).resolve().parents[1]
+    raiz_proyectos = raiz_agencia / "contexts" / "projects"
+    plantillas_dir = raiz_agencia / "plantillas"
 
-    # Validaciones
-    if not plantilla.exists():
-        print(f"[!] Plantilla no encontrada: {plantilla}")
+    # Validar caracteres del nombre
+    caracteres_invalidos = set(' /\\:*?"<>|')
+    if caracteres_invalidos.intersection(set(nombre)):
+        print(f"[!] Error: El nombre '{nombre}' contiene caracteres no permitidos.")
         sys.exit(1)
+
+    destino = raiz_proyectos / nombre
 
     if destino.exists():
         print(f"[!] El proyecto '{nombre}' ya existe en: {destino}")
-        print("    Elige un nombre diferente o trabaja en el proyecto existente.")
+        print("    Elige un nombre diferente o consulta el proyecto con:")
+        print(f"    python3 scripts/arranque.py --proyecto contexts/projects/{nombre}")
         sys.exit(1)
 
-    # Caracteres no permitidos en nombres de proyecto
-    caracteres_invalidos = set(' /\\:*?"<>|')
-    invalidos_encontrados = caracteres_invalidos.intersection(set(nombre))
-    if invalidos_encontrados:
-        print(f"[!] Nombre inválido. Caracteres no permitidos: {invalidos_encontrados}")
-        sys.exit(1)
+    print("=== AGENCIA DE PROYECTOS — NUEVO PROYECTO ===")
+    print(f"\n[+] ID del Proyecto: {nombre}")
+    print(f"    Ubicación:       {destino}")
+    print(f"    Tipo:            {tipo}")
+    if cliente:
+        print(f"    Cliente:         {cliente}")
 
-    print(f"=== AGENCIA PROYECTOS EXISTENTES — NUEVO PROYECTO ===")
-    print(f"\n[+] Nombre: {nombre}")
-    print(f"    Origen:  {plantilla}")
-    print(f"    Destino: {destino}")
+    destino.mkdir(parents=True, exist_ok=True)
 
-    # Paso 1: Copiar plantilla
-    print("\n[1/2] Copiando plantilla...")
-    shutil.copytree(str(plantilla), str(destino))
-    print(f"      ✓ Carpeta creada: proyectos/{nombre}/")
+    # 1. Crear Manifiesto del proyecto
+    manifiesto_path = destino / "manifiesto.md"
+    plantilla_manifiesto = plantillas_dir / "manifiesto-proyecto.md"
+    contenido_manifiesto = ""
+    if plantilla_manifiesto.exists():
+        contenido_manifiesto = plantilla_manifiesto.read_text(encoding="utf-8")
+        # Personalizar cabecera
+        contenido_manifiesto = contenido_manifiesto.replace("- ID:", f"- ID: {nombre}")
+        contenido_manifiesto = contenido_manifiesto.replace("- Cliente y marca:", f"- Cliente y marca: {cliente or 'Por definir'}")
+        contenido_manifiesto = contenido_manifiesto.replace("- Tipo: nuevo | existente | auditoria | correccion | produccion", f"- Tipo: {tipo}")
+    else:
+        contenido_manifiesto = f"""# Manifiesto del proyecto: {nombre}
 
-    # Paso 2: Inicializar memoria independiente
-    print("\n[2/2] Inicializando memoria independiente...")
-    _agregar_ruta_scripts()
-    try:
-        from memoria_proyecto import inicializar, resolver_proyecto  # type: ignore[import]
+- ID: {nombre}
+- Cliente y marca: {cliente or 'Por definir'}
+- Tipo: {tipo}
+- Objetivo y problema:
+- Alcance / fuera de alcance:
+- Usuarios:
+- Requisitos funcionales y no funcionales:
+- Restricciones y aprobaciones:
+- Arquitectura y stack detectado:
+- Frontend / backend / datos:
+- Memoria y grafo:
+- Criterios de aceptacion:
+- Pruebas y evidencias:
+- Riesgos, decisiones y pendientes:
+- Proximo paso:
+"""
+    manifiesto_path.write_text(contenido_manifiesto, encoding="utf-8")
+    print("      ✓ Manifiesto creado: manifiesto.md")
 
-        rutas = inicializar(destino)
-        print(f"      ✓ Memoria creada: proyectos/{nombre}/.memoria/")
-        print(f"        - {rutas['mem_palace'].name}")
-        print(f"        - {rutas['clave'].name}")
-        print(f"        - {rutas['cloudmem'].name}")
-        print(f"        - {rutas['manifiesto'].name}")
-    except Exception as exc:
-        print(f"[!] Error al inicializar memoria: {exc}")
-        print("    Intenta manualmente:")
-        print(f"    python3 scripts/memoria_proyecto.py --proyecto proyectos/{nombre} init")
-        sys.exit(1)
+    # 2. Inicializar memoria estructurada (memoria.md + .memoria/)
+    rutas_mem = inicializar(destino)
+    print("      ✓ Memoria inicializada: memoria.md y .memoria/")
 
-    print(f"\n✅ Proyecto '{nombre}' creado con éxito.\n")
-    print("── Siguientes pasos ──────────────────────────────────────────")
+    # 3. Crear directorio de ADRs con plantilla de referencia
+    adrs_dir = destino / "adrs"
+    adrs_dir.mkdir(parents=True, exist_ok=True)
+    plantilla_adr = plantillas_dir / "adr.md"
+    plantilla_adr_contenido = plantilla_adr.read_text(encoding="utf-8") if plantilla_adr.exists() else "# Plantilla ADR\n"
+    (adrs_dir / "README.md").write_text(
+        f"""# Decisiones de Arquitectura (ADRs) - {nombre}
+
+Guarda aquí cada Architectural Decision Record con el formato `ADR-001-<slug>.md`.
+
+---
+## Plantilla de Referencia:
+{plantilla_adr_contenido}
+""",
+        encoding="utf-8",
+    )
+    print("      ✓ Directorio de ADRs creado: adrs/")
+
+    # 4. Crear directorio de evidencias
+    evidencias_dir = destino / "evidencias"
+    evidencias_dir.mkdir(parents=True, exist_ok=True)
+    (evidencias_dir / "README.md").write_text(
+        f"""# Evidencias de Validación - {nombre}
+
+Almacena aquí logs de pruebas, capturas de pantalla, reportes de linter y recibos de auditoría.
+""",
+        encoding="utf-8",
+    )
+    print("      ✓ Directorio de evidencias creado: evidencias/")
+
+    print(f"\n✅ Proyecto '{nombre}' creado con éxito en contexts/projects/{nombre}.\n")
+    print("── Siguientes pasos recomendados ────────────────────────────────")
     print(f"  1. Completa el manifiesto del proyecto:")
-    print(f"       proyectos/{nombre}/context/manifiesto-proyecto.md")
+    print(f"       {manifiesto_path}")
     print(f"  2. Consulta la memoria al inicio de cada sesión:")
-    print(f"       python3 scripts/arranque.py --proyecto proyectos/{nombre}")
-    print(f"  3. Registra el cierre después de cada cambio importante:")
-    print(f"       python3 scripts/cierre.py --proyecto proyectos/{nombre} \\")
-    print(f'           --tareas "Primera sesion de contexto" \\')
-    print(f'           --cloud-resumen "Proyecto inicializado desde plantilla"')
-    print("──────────────────────────────────────────────────────────────")
+    print(f"       python3 scripts/arranque.py --proyecto {nombre}")
+    print(f"  3. Registra el cierre de sesión o tarea tras cada cambio:")
+    print(f"       python3 scripts/cierre.py --proyecto {nombre} \\")
+    print(f'           --tareas "Definición inicial de alcance" \\')
+    print(f'           --decisiones "Arquitectura inicial acordada"')
+    print("────────────────────────────────────────────────────────────────\n")
+
+    return destino
 
 
-if __name__ == "__main__":
+def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Crea un nuevo proyecto desde la plantilla e inicializa su memoria."
+        description="Crea un nuevo proyecto en contexts/projects/ e inicializa su memoria."
     )
     parser.add_argument(
         "nombre",
-        help="Nombre del proyecto (sin espacios ni caracteres especiales). "
-             "Ejemplo: vtptransportes, mi-api-clientes",
+        help="Nombre/ID del proyecto (ej: mi-sistema, vtptransportes).",
+    )
+    parser.add_argument(
+        "--cliente",
+        default="",
+        help="Nombre del cliente o marca asociada.",
+    )
+    parser.add_argument(
+        "--tipo",
+        default="nuevo",
+        choices=["nuevo", "existente", "auditoria", "correccion", "produccion"],
+        help="Tipo de proyecto (default: nuevo).",
     )
     args = parser.parse_args()
-    crear_proyecto(args.nombre)
+    crear_proyecto(args.nombre, args.cliente, args.tipo)
+
+
+if __name__ == "__main__":
+    main()

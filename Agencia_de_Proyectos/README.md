@@ -3,17 +3,34 @@
 Agencia unificada para crear software nuevo y evolucionar software existente.
 La ruta es `/mnt/nvme/skill-team/Agencia_de_Proyectos`.
 
-## Inicio rapido
+## CLI Unificado de la Agencia (`scripts/agencia.py`)
 
-1. Lee `AGENTS.md` y `asistente-principal.md`.
-2. Copia `plantillas/manifiesto-proyecto.md` al contexto aislado del proyecto.
-3. Identifica tipo, objetivo, stack, cliente y aprobaciones necesarias.
-4. Usa el flujo correspondiente en `flujos/`.
-5. Consulta memoria y Graphify antes de explorar o responder sobre estructura.
-6. Ejecuta `python3 scripts/validar_agencia.py` para validar esta agencia.
+La agencia cuenta con un punto de entrada centralizado para todo el ciclo de vida:
 
-La agencia no instala ni conecta MCP externos automaticamente. `mcp/registro-mcp.md`
-separa capacidades documentadas, configuraciones de ejemplo y estado real.
+```bash
+# 1. Diagnóstico integral preflight del entorno
+python3 scripts/agencia.py doctor
+
+# 2. Inicializar un nuevo proyecto (manifiesto, memoria, ADRs, evidencias)
+python3 scripts/agencia.py nuevo <nombre-proyecto> --tipo nuevo|existente --cliente "Nombre"
+
+# 3. Context Engine: carga de contexto, memoria, ADRs y FinOps de tokens
+python3 scripts/agencia.py arranque <nombre-proyecto>          # Modo visual humano
+python3 scripts/agencia.py arranque <nombre-proyecto> --prime  # System Primer para LLMs
+python3 scripts/agencia.py arranque <nombre-proyecto> --json   # Modo máquina para subagentes
+
+# 4. Registrar avance y cerrar sesión con alertas de escritorio
+python3 scripts/agencia.py cierre <nombre-proyecto> --tareas "Descripción" --agente "Backend" --notificar
+
+# 5. Dashboard resumen de todos los proyectos activos
+python3 scripts/agencia.py estado
+
+# 6. Validar integridad de la agencia (estándar 11/10)
+python3 scripts/agencia.py validar
+```
+
+La persistencia opera de forma nativa en Markdown transparente (`contexts/projects/<id>/memoria.md`), con soporte opcional para `claude-mem` y un proyecto modelo de referencia en `contexts/projects/_ejemplo_golden/`.
+
 
 ## Principios
 

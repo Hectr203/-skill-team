@@ -1,124 +1,169 @@
+#!/usr/bin/env python3
 """
-Cierre de memoria persistente — Agencia Universal para Proyectos Existentes.
+Cierre de sesión o tarea — Agencia de Proyectos.
+
+Registra las tareas completadas, archivos afectados, decisiones técnicas y
+riesgos en contexts/projects/<id>/memoria.md y en el timeline estructurado.
+Opcionalmente emite notificación sonora y de escritorio.
 
 Uso:
-    python3 scripts/cierre.py --proyecto proyectos/<nombre> \\
-        --tareas "Resumen de tareas" \\
-        --pendientes "Pendientes" \\
-        --decisiones "Decisiones tecnicas" \\
-        --riesgos "Riesgos" \\
-        --cloud-resumen "Resumen operativo no sensible" \\
-        --archivos "archivo1.md,archivo2.md" \\
-        --tipo "operativo"
+    python3 scripts/cierre.py --proyecto <nombre> \\
+        --tareas "Implementación del endpoint de autenticación" \\
+        --archivos "src/auth.ts,src/user.ts" \\
+        --decisiones "Uso de tokens JWT con rotación" \\
+        --pendientes "Pruebas de estrés y rate-limiting" \\
+        --agente "Backend" \\
+        --notificar
 """
+from __future__ import annotations
 
 import argparse
 import sys
 from pathlib import Path
 
+# Agregar directorio scripts al sys.path
+SCRIPT_DIR = Path(__file__).parent.resolve()
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
 
-def _agregar_ruta_scripts() -> None:
-    """Asegura que scripts/ esté en sys.path para importar memoria_proyecto."""
-    directorio = Path(__file__).parent.resolve()
-    ruta = str(directorio)
-    if ruta not in sys.path:
-        sys.path.insert(0, ruta)
+from memoria_proyecto import (
+    agregar_cloudmem,
+    guardar_mem_palace,
+    informe,
+    inicializar,
+    lista_archivos,
+    resolver_proyecto,
+    rutas_memoria,
+)
 
 
 def ejecutar_cierre(args: argparse.Namespace) -> None:
-    print("=== AGENCIA PROYECTOS EXISTENTES — MEMORIA (CIERRE) ===")
+    print("=== AGENCIA DE PROYECTOS — REGISTRO DE CIERRE ===")
 
     if not args.proyecto:
-        print("[!] Debes especificar el proyecto con --proyecto.")
-        print("    Ejemplo: python3 scripts/cierre.py --proyecto proyectos/mi-proyecto --tareas '...'")
+        print("[!] Error: Debes especificar el proyecto con --proyecto.")
+        print("    Ejemplo: python3 scripts/cierre.py --proyecto mi-proyecto --tareas '...'")
         sys.exit(1)
 
-    _agregar_ruta_scripts()
-
-    try:
-        from memoria_proyecto import (  # type: ignore[import]
-            agregar_cloudmem,
-            guardar_mem_palace,
-            informe,
-            inicializar,
-            lista_archivos,
-            resolver_proyecto,
-        )
-    except ImportError as exc:
-        print(f"[!] No se pudo importar memoria_proyecto: {exc}")
-        sys.exit(1)
-
-    raiz_agencia = Path(__file__).parent.parent.resolve()
-    ruta_proyecto = Path(args.proyecto)
-    if not ruta_proyecto.is_absolute():
-        ruta_proyecto = raiz_agencia / ruta_proyecto
-    ruta_proyecto = ruta_proyecto.resolve()
+    raiz_agencia = Path(__file__).resolve().parents[1]
+    ruta_proyecto = resolver_proyecto(args.proyecto, raiz_agencia)
 
     if not ruta_proyecto.exists():
-        print(f"[!] Proyecto no encontrado: {ruta_proyecto}")
+        print(f"[!] Error: Proyecto no encontrado en: {ruta_proyecto}")
         sys.exit(1)
 
-    tiene_memoria = (ruta_proyecto / ".memoria" / "mem_palace.enc").exists()
-    if not tiene_memoria:
-        print(f"[!] La memoria del proyecto no está inicializada: {ruta_proyecto}")
-        print(f"    Inicialízala con: python3 scripts/memoria_proyecto.py --proyecto {args.proyecto} init")
-        sys.exit(1)
+    inicializar(ruta_proyecto)
+    archs = lista_archivos(args.archivos)
 
-    tareas = args.tareas or ""
-    pendientes = args.pendientes or ""
-    decisiones = args.decisiones or ""
-    riesgos = args.riesgos or ""
+    # 1. Generar bloque de informe e inyectar en memoria.md
+    bloque_informe = informe(
+        tareas=args.tareas,
+        pendientes=args.pendientes,
+        decisiones=args.decisiones,
+        riesgos=args.riesgos,
+        agente=args.agente,
+        archivos=archs,
+    )
+    guardar_mem_palace(ruta_proyecto, bloque_informe, acumular=True)
 
-    if not tareas:
-        print("[!] El argumento --tareas es obligatorio.")
-        sys.exit(1)
+    # 2. Registrar en timeline estructurado
+    resumen_linea = args.cloud_resumen or args.tareas
+    agregar_cloudmem(
+        proyecto=ruta_proyecto,
+        resumen=resumen_linea,
+        archivos=archs,
+        tipo=args.tipo,
+        decisiones=args.decisiones,
+        pendientes=args.pendientes,
+        riesgos=args.riesgos,
+        agente=args.agente,
+    )
 
-    guardar_mem_palace(ruta_proyecto, informe(tareas, pendientes, decisiones, riesgos))
-    print(f"[+] Mem Palace actualizado: {ruta_proyecto / '.memoria' / 'mem_palace.enc'}")
+    print(f"\n[✓] Cierre registrado con éxito:")
+    print(f"    - Proyecto:           {ruta_proyecto.name}")
+    print(f"    - Agente:             {args.agente}")
+    print(f"    - Tareas:             {args.tareas}")
+    if archs:
+        print(f"    - Archivos ({len(archs)}):     {', '.join(archs)}")
+    if args.decisiones:
+        print(f"    - Decisiones:         {args.decisiones}")
+    print(f"    - Memoria actualizada: {ruta_proyecto / 'memoria.md'}")
 
-    if args.cloud_resumen:
-        agregar_cloudmem(
-            ruta_proyecto,
-            args.cloud_resumen,
-            lista_archivos(args.archivos),
-            args.tipo,
-            decisiones,
-            pendientes,
-            riesgos,
-        )
-        print(f"[+] CloudMem actualizado: {ruta_proyecto / '.memoria' / 'cloudmem.jsonl'}")
+    # 3. Notificación interactiva opcional
+    if args.notificar:
+        try:
+            from notificar_tarea import enviar_notificacion_escritorio, reproducir_sonido_sistema
+            reproducir_sonido_sistema(1)
+            enviar_notificacion_escritorio(
+                titulo=f"Agencia: Tarea completada en {ruta_proyecto.name}",
+                mensaje=f"[{args.agente}] {args.tareas[:100]}",
+            )
+            print("    - Notificación:       Emitida (audio y escritorio)")
+        except Exception as exc:
+            print(f"    - Notificación:       Aviso (no disponible en este entorno: {exc})")
 
-    print(f"\n[+] Cierre registrado para: {ruta_proyecto.name}")
-    print(f"    Memoria en: {ruta_proyecto / '.memoria'}")
+    print("\n[✓] Sesión cerrada correctamente.\n")
 
 
-if __name__ == "__main__":
+def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Cierre de memoria persistente por proyecto."
+        description="Registra cierre de tarea o sesión en la memoria del proyecto."
     )
     parser.add_argument(
         "--proyecto",
         required=True,
-        help="Ruta del proyecto (relativa a la agencia o absoluta). "
-             "Ejemplo: proyectos/mi-proyecto",
+        help="Nombre o ruta del proyecto (ej: mi-proyecto o contexts/projects/mi-proyecto).",
     )
-    parser.add_argument("--tareas", required=True, help="Resumen de tareas completadas.")
-    parser.add_argument("--pendientes", default="", help="Tareas pendientes.")
-    parser.add_argument("--decisiones", default="", help="Decisiones técnicas tomadas.")
-    parser.add_argument("--riesgos", default="", help="Riesgos identificados.")
     parser.add_argument(
-        "--cloud-resumen",
-        default="",
-        help="Resumen operativo no sensible para CloudMem (opcional).",
+        "--tareas",
+        required=True,
+        help="Descripción de las tareas completadas.",
+    )
+    parser.add_argument(
+        "--agente",
+        default="Asistente Principal",
+        help="Agente que ejecutó la tarea (ej: Backend, Frontend, DevOps, Director).",
     )
     parser.add_argument(
         "--archivos",
         default="",
-        help="Archivos modificados, separados por comas (opcional).",
+        help="Lista de archivos afectados separados por comas.",
+    )
+    parser.add_argument(
+        "--decisiones",
+        default="",
+        help="Decisiones técnicas o arquitectónicas tomadas.",
+    )
+    parser.add_argument(
+        "--pendientes",
+        default="",
+        help="Tareas pendientes o siguientes pasos.",
+    )
+    parser.add_argument(
+        "--riesgos",
+        default="",
+        help="Riesgos detectados o mitigaciones requeridas.",
+    )
+    parser.add_argument(
+        "--cloud-resumen",
+        default="",
+        help="Resumen corto para el timeline (opcional).",
     )
     parser.add_argument(
         "--tipo",
         default="operativo",
-        help="Tipo de entrada CloudMem: operativo, documental, critico (default: operativo).",
+        choices=["operativo", "feature", "bugfix", "auditoria", "arquitectura", "despliegue"],
+        help="Tipo de actividad.",
     )
-    ejecutar_cierre(parser.parse_args())
+    parser.add_argument(
+        "--notificar",
+        action="store_true",
+        help="Emite sonido y notificación de escritorio al finalizar.",
+    )
+
+    args = parser.parse_args()
+    ejecutar_cierre(args)
+
+
+if __name__ == "__main__":
+    main()

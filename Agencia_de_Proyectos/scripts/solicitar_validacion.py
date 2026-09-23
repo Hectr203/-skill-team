@@ -12,9 +12,12 @@ from __future__ import annotations
 
 import argparse
 import html
+import json
 import sys
 import textwrap
 import webbrowser
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Importar funciones de notificar_tarea.py
@@ -127,19 +130,21 @@ def crear_html_validacion(preguntas: str) -> Path:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Notifica que el agente necesita validacion en el chat.")
+    parser = argparse.ArgumentParser(description="Notifica y solicita validación interactiva.")
     parser.add_argument("--preguntas", required=True, help="Las preguntas o contexto a validar por el usuario.")
     parser.add_argument("--sin-navegador", action="store_true", help="No abre una pestana visual.")
     parser.add_argument("--sin-sonido", action="store_true", help="No emite sonido audible.")
     parser.add_argument("--sin-escritorio", action="store_true", help="No intenta notificacion de escritorio.")
     parser.add_argument("--sin-interfaz", action="store_true",
                         help="Compatibilidad: se ignora para no desactivar navegador ni audio en avisos.")
+    parser.add_argument("--esperar", action="store_true", help="Espera confirmación interactiva en terminal [s/N].")
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
     titulo = "Agente: Necesito Validacion"
+    solicitud_id = str(uuid.uuid4())
 
     if args.sin_interfaz or args.sin_navegador or args.sin_sonido:
         print("  [solicitar_validacion] Flags de silencio ignorados: los avisos deben abrir navegador y reproducir audio.", file=sys.stderr)
@@ -160,8 +165,48 @@ def main() -> int:
     if not args.sin_sonido:
         reproducir_sonido_sistema(2, audio_filename=AUDIO_VALIDACION)
 
-    print(f"  [solicitar_validacion] Notificacion enviada. Esperando respuesta del humano.")
-    return 0
+    print(f"  [solicitar_validacion] Notificación emitida. Pregunta: {args.preguntas}")
+
+    # Registro de auditoría HITL
+    audit_file = Path(__file__).resolve().parents[1] / ".hitl_audit.jsonl"
+    try:
+        entry = {
+            "id": solicitud_id,
+            "fecha": datetime.now(timezone.utc).isoformat(),
+            "tipo": "validacion",
+            "preguntas": args.preguntas,
+            "esperar": args.esperar,
+            "resultado": "pendiente",
+        }
+        with audit_file.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
+
+    # Modo interactivo si se pasa --esperar o si es TTY interactivo
+    resultado = "pendiente"
+    if args.esperar or sys.stdin.isatty():
+        try:
+            resp = input(f"\n[HITL] ¿Confirmas la validación sobre: '{args.preguntas}'? [s/N]: ").strip().lower()
+            if resp in ("s", "si", "y", "yes"):
+                resultado = "aprobada"
+                print("  [solicitar_validacion] [✓] Validación aprobada por el operador.")
+            else:
+                resultado = "rechazada"
+                print("  [solicitar_validacion] [✗] Validación no aprobada por el operador.")
+        except (KeyboardInterrupt, EOFError):
+            resultado = "cancelada"
+            print("\n  [solicitar_validacion] [✗] Validación cancelada.")
+    if resultado != "pendiente":
+        try:
+            with audit_file.open("a", encoding="utf-8") as f:
+                f.write(json.dumps({"id": solicitud_id, "tipo": "validacion_resultado",
+                                    "fecha": datetime.now(timezone.utc).isoformat(),
+                                    "resultado": resultado}, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+
+    return 0 if resultado in ("pendiente", "aprobada") else 1
 
 
 if __name__ == "__main__":
