@@ -1,0 +1,214 @@
+# Stitch Design Skills
+
+A collection of agent skills and plugins for [Google Stitch](https://stitch.withgoogle.com), following the [Agent Skills](https://agentskills.io) open standard. Compatible with coding agents such as Codex, Antigravity, Gemini CLI, Claude Code, Cursor, and OpenCode (manual install).
+
+## Quick Start
+
+### 1. Install Plugins (Recommended)
+The fastest way to set up the full Stitch plugin suite globally.
+
+#### Codex
+
+Add the Stitch Skills marketplace, then install the plugins you need.
+
+<details open>
+<summary><strong>Via CLI</strong> (recommended)</summary>
+
+```bash
+codex plugin marketplace add google-labs-code/stitch-skills --ref main \
+  --sparse .agents/plugins \
+  --sparse plugins/stitch-design \
+  --sparse plugins/stitch-build \
+  --sparse plugins/stitch-utilities
+```
+
+> [!TIP]
+> The `--sparse` flags are optional — they limit the checkout to only the
+> listed paths for a faster clone. Omit them to pull the entire repository.
+
+</details>
+
+<details>
+<summary><strong>Via the Codex UI</strong></summary>
+
+Navigate to **Settings → Plugin Marketplaces → Add** and fill in:
+
+| Field | Value |
+|---|---|
+| **Source** | `https://github.com/google-labs-code/stitch-skills` |
+| **Git ref** | `main` |
+| **Sparse paths** | *(optional)* `.agents/plugins`, `plugins/stitch-design`, `plugins/stitch-build`, `plugins/stitch-utilities` |
+
+</details>
+
+Once the marketplace is registered, install any combination of:
+
+- **`stitch-design`** — design-focused skills
+- **`stitch-build`** — build and component skills
+- **`stitch-utilities`** — utility and helper skills
+
+#### Claude Code & Cursor
+
+```bash
+# Claude Code — installs into the current project
+npx plugins add google-labs-code/stitch-skills --scope project --target claude-code
+```
+
+```bash
+# Cursor — installs into the current workspace
+npx plugins add google-labs-code/stitch-skills --scope workspace --target cursor
+```
+
+#### OpenCode
+
+OpenCode does **not** use `npx plugins` / `npx skills` or the Codex/Claude marketplace layout.
+Install skills and the Stitch MCP server manually:
+
+**1. Skills** — copy the skill folders you need into a discoverable path:
+
+```bash
+# Project-local (recommended)
+mkdir -p .opencode/skills
+cp -R plugins/stitch-design/skills/generate-design .opencode/skills/generate-design
+# repeat for other skills under plugins/*/skills/
+```
+
+OpenCode also discovers `.claude/skills/` and `.agents/skills/` (see [OpenCode skills docs](https://opencode.ai/docs/skills/)).
+
+> **Naming:** OpenCode requires skill `name` frontmatter to be lowercase kebab-case and match the directory name. Skills that use `stitch::…` names (or other non-kebab forms) need the `name` field and folder renamed before OpenCode will load them. Extra frontmatter such as `allowed-tools` is ignored.
+
+**2. Stitch MCP** — add a remote MCP entry in project `opencode.json` or `~/.config/opencode/opencode.json` after completing the [Stitch MCP setup](https://stitch.withgoogle.com/docs/mcp/setup/):
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "stitch": {
+      "type": "remote",
+      "url": "YOUR_STITCH_MCP_URL",
+      "enabled": true
+    }
+  }
+}
+```
+
+Replace `YOUR_STITCH_MCP_URL` with the endpoint from the Stitch MCP setup flow (credentials/env vars from that guide still apply).
+
+Tool names inside skill instructions may differ from OpenCode builtins (`webfetch` / `bash` instead of `web_fetch` / `run_command`). Prefer the OpenCode tool names when adapting a skill for OpenCode.
+
+### 2. Install Skills Selectively
+Choose only the specific skills you need.
+
+> [!IMPORTANT]
+> Stitch Design Skills often have inter-dependencies. If you choose to install skills selectively, ensure you include all required dependencies.
+
+```bash
+npx skills add google-labs-code/stitch-skills
+```
+
+You can run the following commands to see the help documentation for plugins and skills:
+
+```bash
+npx plugins --help
+
+npx skills --help
+```
+
+## Prerequisites
+
+These skills require the **Stitch MCP** server to be configured and running in your agent's environment. Make sure you have followed the [Stitch MCP Setup Instructions](https://stitch.withgoogle.com/docs/mcp/setup/) to register the server and set up appropriate environment variables and credentials.
+
+> **Docs navigation:** If a link on [stitch.withgoogle.com/docs](https://stitch.withgoogle.com/docs/) redirects incorrectly, open the target path under the same host (e.g. `https://stitch.withgoogle.com/docs/learn/device-types/`).
+
+## Available Plugins & Skills
+
+### Design (`stitch-design`)
+
+Core design workflows for creating, managing, and optimizing designs within Stitch.
+
+| Skill | Description | Prompt Example |
+|---|---|---|
+| [stitch-code-to-design](skills/stitch-code-to-design/) | Convert frontend code (React, Vue, etc.) to a Stitch Design via HTML extraction + design system + upload | *"Upload the frontend code at `/path/to/dashboard` into a Stitch project named 'Dashboard-Migration-2026'."* |
+| [stitch-generate-design](skills/stitch-generate-design/) | Generate new screens from text or images, edit existing screens, and create design variants | · *"Make a browse tab for a mobile app for romance and date night ideas."*<br>· *"Edit the login screen to add a 'Remember Me' checkbox and change the button color to blue."*<br>· *"Generate 3 design variants of the home screen with dark mode and high-density layouts."* |
+| [stitch-manage-design-system](skills/stitch-manage-design-system/) | Manage design systems in Stitch — upload DESIGN.md and apply themes to screens | *"Upload our design system from `.stitch/DESIGN.md` and apply it to all screens."* |
+| [stitch-extract-design-md](skills/stitch-extract-design-md/) | Extract a comprehensive DESIGN.md directly from frontend source code | *"Scan `/src` and extract the design system into `.stitch/DESIGN.md`."* |
+| [stitch-extract-static-html](skills/stitch-extract-static-html/) | Extract self-contained static HTML from running web apps, inlining CSS and images | *"Extract a static HTML snapshot of `https://localhost:3000/profile`."* |
+| [stitch-upload-to-stitch](skills/stitch-upload-to-stitch/) | Upload local assets (images, mockups, HTML) to a Stitch project | *"Upload `.stitch/landing_page.html` to Stitch project `projects/987654321`."* |
+
+---
+
+### Build (`stitch-build`)
+
+Code generation, framework integration, and asset compilation from Stitch designs.
+
+| Skill | Description | Prompt Example |
+|---|---|---|
+| [stitch-react-components](skills/stitch-react-components/) | Convert Stitch screens to React component systems with automated validation and design token consistency | · *"Convert all screens in Stitch project `projects/123` to React components."*<br>· *"Sync the app to the last updates of the Stitch project `13039335308618232534`."* |
+| [stitch-react-native](skills/stitch-react-native/) | Convert Stitch HTML designs to production-ready React Native components with StyleSheet and platform-specific code | · *"Convert the Stitch design to React Native components with proper theme and navigation."*<br>· *"Sync the app to the last updates of the Stitch project `13039335308618232534`."* |
+| [stitch-remotion](skills/stitch-remotion/) | Generate walkthrough videos from Stitch projects using Remotion with smooth transitions and zooming | *"Generate a walkthrough video of the Stitch project `projects/456`."* |
+| [stitch-react-vite-dashboard](skills/stitch-react-vite-dashboard/) | Convert Stitch screens to React + Vite dashboards with TanStack Query, DESIGN.md tokens, and Web3 read patterns | *"Build a DeFi portfolio dashboard from this Stitch screen using our DESIGN.md."* |
+
+---
+
+### Utilities (`stitch-utilities`)
+
+Supporting tools for enhancing prompts, generating design specs, and enforcing design standards.
+
+| Skill | Description | Prompt Example |
+|---|---|---|
+| [stitch-design-md](skills/stitch-design-md/) | Analyze Stitch projects and generate comprehensive DESIGN.md files in semantic language | *"Analyze Stitch project `projects/123` and generate a DESIGN.md."* |
+| [stitch-enhance-prompt](skills/stitch-enhance-prompt/) | Transform vague UI ideas into polished, Stitch-optimized prompts with UI/UX keywords | *"Enhance this prompt: 'make a settings page'."* |
+| [stitch-loop](skills/stitch-loop/) | Generate complete multi-page websites from a single prompt with automated validation | *"Build a 5-page portfolio website with Stitch."* |
+| [stitch-taste-design](skills/stitch-taste-design/) | Generate DESIGN.md files enforcing premium, anti-generic UI standards | *"Generate a premium DESIGN.md with strict typography and calibrated colors."* |
+| [stitch-site-md](skills/stitch-site-md/) | Analyze a project description or site requirements and synthesize a project constitution into SITE.md | *"Create a SITE.md roadmap for the Stitch Build Loop."* |
+
+## Repository Structure
+
+```text
+plugins/
+├── stitch-design/          — Core design workflow plugin
+│   ├── plugin.json
+│   └── skills/
+│       ├── code-to-design/
+│       ├── generate-design/
+│       ├── manage-design-system/
+│       ├── extract-design-md/
+│       ├── extract-static-html/
+│       └── upload-to-stitch/
+├── stitch-build/           — Code generation & build plugin
+│   ├── plugin.json
+│   └── skills/
+│       ├── react-components/    — stitch::react-components
+│       ├── react-native/
+│       ├── react-vite-dashboard/
+│       ├── remotion/
+│       └── shadcn-ui/
+└── stitch-utilities/       — Design utilities & assistants plugin
+    ├── plugin.json
+    └── skills/
+        ├── design-md/
+        ├── enhance-prompt/
+        ├── stitch-loop/
+        └── taste-design/
+```
+
+Each skill follows the Agent Skills standard:
+
+```text
+skills/<skill-name>/
+├── SKILL.md           — The "Mission Control" for the agent
+├── scripts/           — Executable enforcers (Validation & Networking)
+├── resources/         — The knowledge base (Checklists & Style Guides)
+└── examples/          — The "Gold Standard" syntactically valid references
+```
+
+## Adding New Skills
+
+All new skills need to follow the file structure above to implement the Agent Skills open standard.
+
+### Great candidates for new skills
+* **Validation**: Skills that convert Stitch HTML to other UI frameworks and validate the syntax.
+* **Decoupling Data**: Skills that convert static design content into external mock data files.
+* **Generate Designs**: Skills that generate new design screens in Stitch from a given set of data.
+
+This is not an officially supported Google product. This project is not eligible for the [Google Open Source Software Vulnerability Rewards Program](https://bughunters.google.com/open-source-security).

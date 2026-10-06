@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "agencia": {
+      "command": "python3",
+      "args": ["/mnt/nvme/skill-team/Agencia_de_Proyectos/scripts/agencia_mcp.py"]
+    },
+    "scrapling": {
+      "command": "uvx",
+      "args": ["--from", "scrapling[all]", "scrapling", "mcp"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
+    },
+    "claude-mem": {
+      "command": "npx",
+      "args": ["-y", "claude-mem", "mcp"],
+      "env": {
+        "MEM_STORAGE_PATH": "./contexts/projects"
+      }
+    },
+    "stitch-mcp": {
+      "command": "npx",
+      "args": ["-y", "@_davideast/stitch-mcp"],
+      "env": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}"
+      }
+    },
+    "notebooklm": {
+      "command": "npx",
+      "args": ["-y", "notebooklm-mcp@latest"]
+    }
+  }
+}

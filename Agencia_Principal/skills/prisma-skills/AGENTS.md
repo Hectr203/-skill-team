@@ -1,0 +1,192 @@
+# AGENTS.md
+
+This file provides guidance to AI coding agents (Claude Code, OpenCode, Cursor, Copilot, etc.) when working with code in this repository.
+
+## Repository Overview
+
+A collection of skills for AI coding agents working with Prisma ORM. Skills are packaged instructions and rules that extend agent capabilities for database development, query optimization, and best practices.
+
+## Creating a New Skill
+
+### Directory Structure
+
+```
+skills/
+  {skill-name}/           # kebab-case directory name
+    SKILL.md              # Required: skill definition with frontmatter
+    references/           # Optional: individual reference files
+      {category}-{rule}.md # Individual references
+```
+
+### Naming Conventions
+
+- **Skill directory**: `kebab-case`, prefixed with `prisma-` (e.g., `prisma-schema-best-practices`)
+- **SKILL.md**: Always uppercase, always this exact filename
+- **Reference files**: `{category}-{rule-name}.md` in kebab-case (e.g., `relations-explicit-names.md`)
+- **Categories**: Use consistent prefixes matching the skill's category table
+
+### SKILL.md Format
+
+```markdown
+---
+name: prisma-{skill-name}
+description: {One sentence describing when to use this skill. Include trigger phrases.}
+license: MIT
+metadata:
+  author: prisma
+  version: "1.0.0"
+---
+
+# Prisma {Skill Title}
+
+{Brief description of what the skill covers.}
+
+## When to Apply
+
+{Bullet list of scenarios when this skill should be used}
+
+## Rule Categories by Priority
+
+| Priority | Category | Impact | Prefix |
+|----------|----------|--------|--------|
+| 1 | {Category} | CRITICAL | `{prefix}-` |
+| 2 | {Category} | HIGH | `{prefix}-` |
+...
+
+## Quick Reference
+
+### 1. {Category} (CRITICAL)
+
+- `{prefix}-{rule}` - Brief description
+- `{prefix}-{rule}` - Brief description
+
+### 2. {Category} (HIGH)
+...
+
+## How to Use (Optional)
+
+If the skill includes references, read individual reference files for detailed explanations and code examples:
+
+```
+references/{prefix}-{rule}.md
+```
+
+Each reference file contains:
+- Brief explanation of why it matters
+- Incorrect code example with explanation
+- Correct code example with explanation
+- Additional context and references
+```
+
+### Individual Reference File Format
+
+```markdown
+# {category}-{rule-name}
+
+{One sentence summary of the rule.}
+
+## Priority
+
+{CRITICAL | HIGH | MEDIUM | LOW}
+
+## Why It Matters
+
+{2-3 sentences explaining the impact of this rule.}
+
+## Bad
+
+```prisma
+{Incorrect code example}
+```
+
+{Brief explanation of why this is problematic}
+
+## Good
+
+```prisma
+{Correct code example}
+```
+
+{Brief explanation of why this is better}
+
+## References
+
+- [Prisma Documentation Link](https://prisma.io/docs/...)
+```
+
+## Best Practices for Context Efficiency
+
+Skills are loaded on-demand — only the skill name and description are loaded at startup. The full `SKILL.md` loads into context only when the agent decides the skill is relevant. To minimize context usage:
+
+- **Keep SKILL.md under 500 lines** — put detailed explanations in reference files
+- **Write specific descriptions** — helps the agent know exactly when to activate the skill
+- **Use progressive disclosure** — reference files get read only when needed
+- **Include trigger phrases** — explicit phrases like "review my schema" in the description
+
+## Reference File Guidelines
+
+### Code Examples
+
+- Use realistic, production-like code examples
+- Show the minimum code needed to illustrate the point
+- Use TypeScript for Prisma Client examples
+- Use Prisma Schema Language for schema examples
+- Include proper syntax highlighting (```prisma, ```typescript)
+
+### Prisma-Specific Conventions
+
+- Always use the latest Prisma syntax and features
+- Reference official Prisma documentation
+- Consider both PostgreSQL and MySQL where behavior differs
+- Note when a rule is database-specific
+
+### Priority Levels
+
+- **CRITICAL**: Can cause data loss, security issues, or severe performance problems
+- **HIGH**: Significant impact on maintainability, performance, or developer experience
+- **MEDIUM**: Improves code quality but not essential
+- **LOW**: Nice-to-have optimizations or style preferences
+
+## Testing Skills Locally
+
+To test a skill before committing:
+
+1. Install the skill locally:
+   ```bash
+   cp -r skills/prisma-{skill-name} ~/.claude/skills/
+   # or for OpenCode
+   cp -r skills/prisma-{skill-name} ~/.config/opencode/skill/
+   ```
+
+2. Start a new agent session and trigger the skill
+
+3. Verify the agent applies rules correctly
+
+## Skill Versions
+
+- A skill scoped to one Prisma ORM release sets `metadata.version` to the release its examples were verified against, for example `"7.9.1"` for `prisma-cli`.
+- Every other skill uses its own semantic version, starting at `"1.0.0"`.
+- Never lower a published version. Skill installers compare versions to find updates. When a skill becomes a compatibility redirect, bump its major version.
+
+## Marketplace Distribution
+
+Publishers must include the Postgres references and the ORM setup handoff, including the Prisma 6/7 references in `prisma-orm-setup` for existing applications. Verify that v0 can load these and the package-owned `prisma-8` skill before releasing updated Marketplace content. A GitHub update alone does not prove that v0 refreshed its registered skill or can resolve sibling skills.
+
+## End-User Installation
+
+Document these installation methods for users:
+
+**Via skills CLI:**
+```bash
+npx skills add prisma/skills
+```
+
+**Manual (Claude Code):**
+```bash
+cp -r skills/prisma-{skill-name} ~/.claude/skills/
+```
+
+**Manual (OpenCode):**
+```bash
+cp -r skills/prisma-{skill-name} ~/.config/opencode/skill/
+```

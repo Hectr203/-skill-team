@@ -1,0 +1,4 @@
+interface:
+  display_name: "Azure para proyectos nuevos"
+  short_description: "Integra Azure al ciclo de proyectos nuevos"
+  default_prompt: "Usa $despliegue-azure-proyecto-nuevo para preparar y desplegar este proyecto nuevo en Azure según su arquitectura aprobada."

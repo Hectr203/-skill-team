@@ -65,7 +65,7 @@ Determinar un único propietario efectivo de CORS: aplicación, gateway/reverse 
 
 Validar:
 
-- origen exacto, sin confundir URL con ruta;
+- origen exacto, sin confundir URL con ruta;[github.com/Luis237-pixel/agua.git](https://github.com/Luis237-pixel/agua.git)[github.com/Luis237-pixel/agua.git](https://github.com/Luis237-pixel/agua.git)[github.com/Luis237-pixel/agua.git](https://github.com/Luis237-pixel/agua.git)
 - métodos, cabeceras y credenciales;
 - respuesta preflight `OPTIONS`;
 - `Vary: Origin` cuando el origen sea dinámico;

@@ -1,0 +1,16 @@
+# Secretos del proyecto y memoria cifrada
+.memoria/*.key
+.memoria/*.enc
+.mem_palace.key
+.mem_palace_key
+.env
+.env.*
+!.env.example
+
+# Cachés y temporales
+__pycache__/
+*.py[cod]
+node_modules/
+dist/
+build/
+*.log
