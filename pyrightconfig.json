@@ -1,0 +1,8 @@
+{
+  "include": [
+    "Agencia_Principal"
+  ],
+  "extraPaths": [
+    "Agencia_Principal/scripts"
+  ]
+}

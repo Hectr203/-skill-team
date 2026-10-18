@@ -30,6 +30,7 @@ from pathlib import Path
 
 # Agregar directorio scripts al sys.path
 SCRIPT_DIR = Path(__file__).parent.resolve()
+RAIZ = SCRIPT_DIR.parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
@@ -278,7 +279,7 @@ def ejecutar_herramienta(name: str, args: dict) -> tuple[str, bool]:
                     formato_prime=(formato == "primer"),
                     modo_completo=args.get("completo", False),
                     presupuesto=args.get("presupuesto", 4000),
-                    raiz_agencia=args.get("raiz_agencia"),
+                    raiz_agencia=RAIZ,
                 )
 
             elif name == "agencia_cierre":
@@ -298,12 +299,11 @@ def ejecutar_herramienta(name: str, args: dict) -> tuple[str, bool]:
                     resolver_pendientes=args.get("resolver_pendientes", ""),
                     max_sesiones=args.get("max_sesiones", 5),
                 )
-                ejecutar_cierre(ns, raiz_agencia=args.get("raiz_agencia"))
+                ejecutar_cierre(ns, raiz_agencia=RAIZ)
 
             elif name == "agencia_historia":
                 from memoria_proyecto import recuperar_historia, resolver_proyecto
-                raiz_base = args.get("raiz_agencia") or SCRIPT_DIR.parent
-                ruta_proy = resolver_proyecto(args["proyecto"], raiz_base)
+                ruta_proy = resolver_proyecto(args["proyecto"], RAIZ)
                 evs = recuperar_historia(
                     proyecto=ruta_proy,
                     query=args.get("query", ""),

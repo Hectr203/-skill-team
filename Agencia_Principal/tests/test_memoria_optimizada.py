@@ -12,28 +12,59 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-# Agregar directorio scripts al sys.path
+# Asegurar que tanto 'scripts/' como la raíz de la agencia estén en sys.path
 AGENCIA_ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS_DIR = AGENCIA_ROOT / "scripts"
-if str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
+for ruta in (str(SCRIPTS_DIR), str(AGENCIA_ROOT)):
+    if ruta not in sys.path:
+        sys.path.insert(0, ruta)
 
-from memoria_proyecto import (
-    analizar_memoria,
-    compactar_sesion_a_hito,
-    consolidar_estado_activo,
-    guardar_mem_palace,
-    informe,
-    inicializar,
-    leer_cloudmem,
-    leer_mem_palace,
-    leer_memoria_enfocada,
-    recuperar_historia,
-    reconstruir_memoria,
-    rotar_memoria,
-    rutas_memoria,
-)
+try:
+    from scripts.memoria_proyecto import (
+        _obtener_fernet_opcional,
+        agregar_cloudmem,
+        analizar_memoria,
+        compactar_sesion_a_hito,
+        consolidar_estado_activo,
+        guardar_mem_palace,
+        informe,
+        inicializar,
+        leer_cloudmem,
+        leer_mem_palace,
+        leer_memoria_enfocada,
+        recuperar_historia,
+        reconstruir_memoria,
+        rotar_memoria,
+        rutas_memoria,
+    )
+    from scripts.arranque import generar_primer_prompt, obtener_paquete_contexto
+    from scripts.cierre import ejecutar_cierre
+    import scripts.agencia_mcp as agencia_mcp
+    from scripts.agencia_mcp import ejecutar_herramienta
+except ImportError:
+    from memoria_proyecto import (  # type: ignore
+        _obtener_fernet_opcional,
+        agregar_cloudmem,
+        analizar_memoria,
+        compactar_sesion_a_hito,
+        consolidar_estado_activo,
+        guardar_mem_palace,
+        informe,
+        inicializar,
+        leer_cloudmem,
+        leer_mem_palace,
+        leer_memoria_enfocada,
+        recuperar_historia,
+        reconstruir_memoria,
+        rotar_memoria,
+        rutas_memoria,
+    )
+    from arranque import generar_primer_prompt, obtener_paquete_contexto  # type: ignore
+    from cierre import ejecutar_cierre  # type: ignore
+    import agencia_mcp  # type: ignore
+    from agencia_mcp import ejecutar_herramienta  # type: ignore
 
 
 class TestMemoriaOptimizada(unittest.TestCase):
@@ -114,7 +145,6 @@ class TestMemoriaOptimizada(unittest.TestCase):
 
     def test_recuperabilidad_historial_completo_timeline(self):
         """Todo el detalle de sesiones compactadas debe existir en timeline.jsonl y ser recuperable."""
-        from memoria_proyecto import agregar_cloudmem
         for i in range(1, 8):
             agregar_cloudmem(
                 proyecto=self.proyecto_dir,
@@ -234,8 +264,6 @@ class TestMemoriaOptimizada(unittest.TestCase):
 
     def test_arranque_primer_prompt_finops_honesto(self):
         """El arranque debe comparar contextos equivalentes y reportar ahorro honesto y modo --completo."""
-        from arranque import generar_primer_prompt, obtener_paquete_contexto
-
         for i in range(1, 8):
             bloque = informe(
                 tareas=f"Implementar módulo financiero crítico y reglas contables detalladas #{i}: " + ("código y validaciones " * 30),
@@ -272,8 +300,6 @@ class TestMemoriaOptimizada(unittest.TestCase):
 
     def test_cierre_ejecuta_rotacion_y_transaccion_segura(self):
         """cierre.py debe disparar rotación automática, registrar en timeline y resolver pendientes explícitos."""
-        from cierre import ejecutar_cierre
-
         # Cierre 1 genera un pendiente específico
         args1 = argparse.Namespace(
             proyecto=self.proyecto_dir.name,
@@ -323,8 +349,6 @@ class TestMemoriaOptimizada(unittest.TestCase):
 
     def test_reconstruccion_memoria_desde_timeline(self):
         """reconstruir_memoria debe recuperar estado activo, decisiones y sesiones recientes a partir de timeline."""
-        from memoria_proyecto import agregar_cloudmem, reconstruir_memoria
-        
         # Eliminar memoria.md y registrar 2 eventos en timeline
         rutas = rutas_memoria(self.proyecto_dir)
         rutas["memoria_md"].unlink()
@@ -341,7 +365,6 @@ class TestMemoriaOptimizada(unittest.TestCase):
 
     def test_compatibilidad_fernet_cifrado(self):
         """El soporte opcional de Fernet debe mantenerse sincronizado."""
-        from memoria_proyecto import _obtener_fernet_opcional
         rutas = rutas_memoria(self.proyecto_dir)
         fernet = _obtener_fernet_opcional(rutas, crear=True)
         if fernet:
@@ -353,48 +376,43 @@ class TestMemoriaOptimizada(unittest.TestCase):
 
     def test_mcp_arranque_cierre_historia(self):
         """Las herramientas MCP agencia_arranque, agencia_cierre y agencia_historia deben responder limpiamente."""
-        from agencia_mcp import ejecutar_herramienta
-        
-        # 1. Cierre vía MCP en proyecto aislado de pruebas
-        res_cierre, err = ejecutar_herramienta("agencia_cierre", {
-            "proyecto": "proyecto-test",
-            "tareas": "Prueba de cierre vía MCP",
-            "agente": "MCP Tester",
-            "raiz_agencia": self.tmp_dir,
-        })
-        self.assertFalse(err)
-        self.assertIn("Cierre registrado con éxito", res_cierre)
-        
-        # 2. Arranque modo primer vía MCP
-        res_arranque, err = ejecutar_herramienta("agencia_arranque", {
-            "proyecto": "proyecto-test",
-            "formato": "primer",
-            "raiz_agencia": self.tmp_dir,
-        })
-        self.assertFalse(err)
-        self.assertIn("CONTEXTO DEL PROYECTO: proyecto-test", res_arranque)
-        self.assertIn("Métrica FinOps (enfocado)", res_arranque)
+        with patch.object(agencia_mcp, "RAIZ", self.tmp_dir):
+            # 1. Cierre vía MCP en proyecto aislado de pruebas
+            res_cierre, err = ejecutar_herramienta("agencia_cierre", {
+                "proyecto": "proyecto-test",
+                "tareas": "Prueba de cierre vía MCP",
+                "agente": "MCP Tester",
+            })
+            self.assertFalse(err)
+            self.assertIn("Cierre registrado con éxito", res_cierre)
+            
+            # 2. Arranque modo primer vía MCP
+            res_arranque, err = ejecutar_herramienta("agencia_arranque", {
+                "proyecto": "proyecto-test",
+                "formato": "primer",
+            })
+            self.assertFalse(err)
+            self.assertIn("CONTEXTO DEL PROYECTO: proyecto-test", res_arranque)
+            self.assertIn("Métrica FinOps (enfocado)", res_arranque)
 
-        # 3. Arranque modo completo vía MCP
-        res_arranque_comp, err = ejecutar_herramienta("agencia_arranque", {
-            "proyecto": "proyecto-test",
-            "formato": "primer",
-            "completo": True,
-            "raiz_agencia": self.tmp_dir,
-        })
-        self.assertFalse(err)
-        self.assertIn("Métrica FinOps (completo)", res_arranque_comp)
+            # 3. Arranque modo completo vía MCP
+            res_arranque_comp, err = ejecutar_herramienta("agencia_arranque", {
+                "proyecto": "proyecto-test",
+                "formato": "primer",
+                "completo": True,
+            })
+            self.assertFalse(err)
+            self.assertIn("Métrica FinOps (completo)", res_arranque_comp)
 
-        # 4. Historia vía MCP
-        res_hist, err = ejecutar_herramienta("agencia_historia", {
-            "proyecto": "proyecto-test",
-            "query": "MCP Tester",
-            "raiz_agencia": self.tmp_dir,
-        })
-        self.assertFalse(err)
-        data = json.loads(res_hist)
-        self.assertTrue(len(data) >= 1)
-        self.assertEqual(data[-1]["agente"], "MCP Tester")
+            # 4. Historia vía MCP
+            res_hist, err = ejecutar_herramienta("agencia_historia", {
+                "proyecto": "proyecto-test",
+                "query": "MCP Tester",
+            })
+            self.assertFalse(err)
+            data = json.loads(res_hist)
+            self.assertTrue(len(data) >= 1)
+            self.assertEqual(data[-1]["agente"], "MCP Tester")
 
 
 if __name__ == "__main__":
