@@ -57,6 +57,7 @@ def cmd_arranque(args: argparse.Namespace) -> int:
         formato_json=args.json,
         formato_prime=args.prime,
         modo_completo=getattr(args, "completo", False),
+        presupuesto=getattr(args, "presupuesto", 4000),
     )
     return 0
 
@@ -64,6 +65,32 @@ def cmd_arranque(args: argparse.Namespace) -> int:
 def cmd_cierre(args: argparse.Namespace) -> int:
     from cierre import ejecutar_cierre
     ejecutar_cierre(args)
+    return 0
+
+
+def cmd_historia(args: argparse.Namespace) -> int:
+    import json
+    from memoria_proyecto import recuperar_historia, resolver_proyecto
+    proyecto = resolver_proyecto(args.proyecto, SCRIPT_DIR.parent)
+    eventos = recuperar_historia(
+        proyecto=proyecto,
+        query=getattr(args, "query", ""),
+        evento_id=getattr(args, "evento", ""),
+        archivo=getattr(args, "archivo", ""),
+        limite=getattr(args, "limite", 10),
+    )
+    print(json.dumps(eventos, ensure_ascii=False, indent=2))
+    return 0
+
+
+def cmd_reconstruir(args: argparse.Namespace) -> int:
+    from memoria_proyecto import reconstruir_memoria, resolver_proyecto
+    proyecto = resolver_proyecto(args.proyecto, SCRIPT_DIR.parent)
+    res = reconstruir_memoria(proyecto, reparar_archivo=getattr(args, "reparar", False))
+    if getattr(args, "reparar", False):
+        print(f"[✓] Memoria reconstruida y reparada en: {proyecto / 'memoria.md'}")
+    else:
+        print(res)
     return 0
 
 
@@ -216,7 +243,8 @@ def main() -> None:
     p_arranque.add_argument("proyecto", nargs="?", default="", help="ID exacto del proyecto.")
     p_arranque.add_argument("--json", action="store_true", help="Salida en formato JSON estructurado.")
     p_arranque.add_argument("--prime", "--prompt", action="store_true", dest="prime", help="Genera System Primer para LLMs.")
-    p_arranque.add_argument("--completo", action="store_true", help="Carga el historial completo omitiendo la ventana deslizante.")
+    p_arranque.add_argument("--completo", action="store_true", help="Carga el historial completo sin recortar a ventana deslizante.")
+    p_arranque.add_argument("--presupuesto", type=int, default=4000, help="Presupuesto máximo de tokens para contexto enfocado (default: 4000).")
     p_arranque.set_defaults(func=cmd_arranque)
 
     # 4. Cierre
@@ -231,7 +259,24 @@ def main() -> None:
     p_cierre.add_argument("--cloud-resumen", default="", help="Resumen para timeline estructurado.")
     p_cierre.add_argument("--tipo", default="operativo", help="Tipo de actividad.")
     p_cierre.add_argument("--notificar", action="store_true", help="Emite alertas sonoras y de escritorio.")
+    p_cierre.add_argument("--resolver-pendientes", default="", help="Lista de pendientes resueltos en esta sesión separados por comas.")
+    p_cierre.add_argument("--max-sesiones", type=int, default=5, help="Límite de sesiones en ventana deslizante (default: 5).")
     p_cierre.set_defaults(func=cmd_cierre)
+
+    # 4.1 Historia
+    p_historia = subparsers.add_parser("historia", help="Consulta el historial completo estructurado por filtros.")
+    p_historia.add_argument("proyecto", help="Nombre o ID del proyecto.")
+    p_historia.add_argument("--query", default="", help="Búsqueda por texto o palabra clave.")
+    p_historia.add_argument("--evento", default="", help="Filtro por ID de evento exacto.")
+    p_historia.add_argument("--archivo", default="", help="Filtro por ruta de archivo afectado.")
+    p_historia.add_argument("--limite", type=int, default=10, help="Cantidad máxima de eventos a recuperar (default: 10).")
+    p_historia.set_defaults(func=cmd_historia)
+
+    # 4.2 Reconstruir
+    p_reconstruir = subparsers.add_parser("reconstruir", help="Reconstruye memoria.md a partir de timeline.jsonl.")
+    p_reconstruir.add_argument("proyecto", help="Nombre o ID del proyecto.")
+    p_reconstruir.add_argument("--reparar", action="store_true", help="Sobrescribe memoria.md con la vista reconstruida.")
+    p_reconstruir.set_defaults(func=cmd_reconstruir)
 
     # 5. Estado
     p_estado = subparsers.add_parser("estado", help="Dashboard con el estado y FinOps de todos los proyectos.")

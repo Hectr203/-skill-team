@@ -51,6 +51,16 @@ TOOLS_DEFINITIONS = [
                     "default": "primer",
                     "description": "Formato de salida: 'primer' (contexto de referencia para el modelo), 'json' (objeto estructurado), 'visual' (dashboard texto).",
                 },
+                "completo": {
+                    "type": "boolean",
+                    "default": False,
+                    "description": "Si es True, devuelve el historial completo sin recortar a ventana deslizante.",
+                },
+                "presupuesto": {
+                    "type": "integer",
+                    "default": 4000,
+                    "description": "Presupuesto máximo de tokens para contexto enfocado (default: 4000).",
+                },
             },
             "required": ["proyecto"],
         },
@@ -100,8 +110,52 @@ TOOLS_DEFINITIONS = [
                     "default": "operativo",
                     "description": "Tipo de actividad.",
                 },
+                "resolver_pendientes": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Lista de pendientes resueltos en esta sesión separados por comas.",
+                },
+                "max_sesiones": {
+                    "type": "integer",
+                    "default": 5,
+                    "description": "Límite de sesiones detalladas en la ventana deslizante.",
+                },
             },
             "required": ["proyecto", "tareas"],
+        },
+    },
+    {
+        "name": "agencia_historia",
+        "description": "Recupera eventos específicos del historial completo (timeline.jsonl) de un proyecto mediante filtros sin cargar la memoria entera.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "proyecto": {
+                    "type": "string",
+                    "description": "ID exacto del proyecto.",
+                },
+                "query": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Búsqueda textual en tareas, decisiones o pendientes.",
+                },
+                "evento": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Filtro por ID de evento específico.",
+                },
+                "archivo": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Filtro por nombre o ruta de archivo afectado.",
+                },
+                "limite": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Límite de eventos a retornar.",
+                },
+            },
+            "required": ["proyecto"],
         },
     },
     {
@@ -222,6 +276,9 @@ def ejecutar_herramienta(name: str, args: dict) -> tuple[str, bool]:
                     proyecto_arg=args.get("proyecto"),
                     formato_json=(formato == "json"),
                     formato_prime=(formato == "primer"),
+                    modo_completo=args.get("completo", False),
+                    presupuesto=args.get("presupuesto", 4000),
+                    raiz_agencia=args.get("raiz_agencia"),
                 )
 
             elif name == "agencia_cierre":
@@ -238,8 +295,23 @@ def ejecutar_herramienta(name: str, args: dict) -> tuple[str, bool]:
                     cloud_resumen=args.get("cloud_resumen", ""),
                     tipo=args.get("tipo", "operativo"),
                     notificar=False,
+                    resolver_pendientes=args.get("resolver_pendientes", ""),
+                    max_sesiones=args.get("max_sesiones", 5),
                 )
-                ejecutar_cierre(ns)
+                ejecutar_cierre(ns, raiz_agencia=args.get("raiz_agencia"))
+
+            elif name == "agencia_historia":
+                from memoria_proyecto import recuperar_historia, resolver_proyecto
+                raiz_base = args.get("raiz_agencia") or SCRIPT_DIR.parent
+                ruta_proy = resolver_proyecto(args["proyecto"], raiz_base)
+                evs = recuperar_historia(
+                    proyecto=ruta_proy,
+                    query=args.get("query", ""),
+                    evento_id=args.get("evento", ""),
+                    archivo=args.get("archivo", ""),
+                    limite=args.get("limite", 10),
+                )
+                print(json.dumps(evs, ensure_ascii=False, indent=2))
 
             elif name == "agencia_doctor":
                 from doctor import Doctor

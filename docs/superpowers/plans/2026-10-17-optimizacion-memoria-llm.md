@@ -1,317 +1,105 @@
-# Plan de Implementación: Optimización Jerárquica y Ventana Deslizante de Memoria para LLMs
+# Plan de Implementación: Optimización Jerárquica y Gestión de Memoria para LLMs
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Guía de Ejecución:** Tareas verificables e incrementales en `Agencia_Principal`. Cada tarea incluye pruebas específicas y verificación de retrocompatibilidad.
 
-**Goal:** Reducir entre 70% y 85% el consumo de tokens y evitar la degradación de contexto ("lost in the middle") en los LLMs mediante memoria jerárquica con ventana deslizante y compactación progresiva en `Agencia_Principal`.
+**Objetivo:** Reducir el contexto innecesario que reciben los LLMs, conservar la continuidad del trabajo y permitir recuperar información histórica relevante sin cargarla completa en cada arranque. Medir honestamente el ahorro (meta 70%-85%) sin comprometer decisiones vigentes ni pendientes abiertos.
 
-**Architecture:** Se divide la memoria Markdown de cada proyecto en 4 zonas (Estado Activo, ADRs vigentes, Ventana Deslizante de últimas 5 sesiones y Bitácora Compactada de hitos pasados). El Context Engine (`arranque.py --prime`) inyecta solo las zonas activas y recientes, manteniendo el 100% de los datos inmutables en `.memoria/timeline.jsonl`.
-
-**Tech Stack:** Python 3.12 (standard library: `re`, `pathlib`, `json`, `datetime`, `fcntl`, `tempfile`), unittest.
+**Ubicación Base:** `/mnt/nvme/PROYECTO GILBERTO/Agencia_Principal`
 
 ---
 
-### Task 1: Parsing y rotación de ventana deslizante en `memoria_proyecto.py`
+### Task 1: Parser Robusto, Consolidación de Estado Activo y Rotación Idempotente en `memoria_proyecto.py`
 
-**Files:**
-- Create: `/mnt/nvme/skill-team/Agencia_Principal/tests/test_memoria_optimizada.py`
-- Modify: `/mnt/nvme/skill-team/Agencia_Principal/scripts/memoria_proyecto.py`
+**Archivos:**
+- Crear: `Agencia_Principal/tests/test_memoria_optimizada.py`
+- Modificar: `Agencia_Principal/scripts/memoria_proyecto.py`
 
-- [ ] **Step 1: Escribir el test fallido para análisis y rotación de memoria**
+- [ ] **Step 1: Escribir suite de pruebas unitarias para análisis, consolidación y rotación segura**
+  - Probar parsing de 4 secciones respetando bloques de código (evitar falsos positivos dentro de ```markdown).
+  - Probar rotación idempotente (ejecutar 5 veces sin eventos nuevos no altera el contenido ni duplica hitos).
+  - Probar preservación de pendientes abiertos y decisiones de sesiones antiguas (que no desaparezcan al compactar).
+  - Probar backfill de seguridad: si un cierre antiguo en `memoria.md` no está en `timeline.jsonl`, archivarlo antes de compactar.
 
-Crear el archivo `/mnt/nvme/skill-team/Agencia_Principal/tests/test_memoria_optimizada.py`:
+- [ ] **Step 2: Ejecutar test y verificar fallos iniciales (TDD Red)**
+  ```bash
+  python3 -m unittest Agencia_Principal/tests/test_memoria_optimizada.py
+  ```
 
-```python
-import json
-import shutil
-import tempfile
-import unittest
-from pathlib import Path
-import sys
+- [ ] **Step 3: Implementar en `memoria_proyecto.py`:**
+  - `analizar_memoria(contenido: str) -> dict`: parser tolerante con estado activo, ADRs, sesiones e hitos.
+  - `consolidar_estado_activo(sesiones: list[dict], estado_previo: dict, nuevos_pendientes: str, nuevas_decisiones: str, pendientes_resueltos: list[str]) -> dict`: preserva pendientes no resueltos y decisiones vigentes.
+  - `compactar_sesion_a_hito(bloque_sesion: str, evento_id: str) -> str`: genera hito de 1 línea con referencia al evento.
+  - `rotar_memoria(proyecto: Path, max_sesiones: int = 5, presupuesto_tokens: int | None = None) -> None`: compactación idempotente con respaldo previo en timeline.
+  - `leer_memoria_enfocada(proyecto: Path, presupuesto_tokens: int = 4000) -> str`: selecciona secciones activas y ventana reciente respetando presupuesto.
+  - `recuperar_historia(proyecto: Path, query: str = "", evento_id: str = "", archivo: str = "", limite: int = 10) -> list[dict]`: consulta específica de timeline.
+  - `reconstruir_memoria(proyecto: Path, reparar_archivo: bool = False) -> str`: reconstruye `memoria.md` desde timeline preservando estado activo.
 
-# Agregar scripts al path
-AGENCIA_ROOT = Path(__file__).resolve().parents[1]
-SCRIPTS_DIR = AGENCIA_ROOT / "scripts"
-if str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
-
-from memoria_proyecto import (
-    inicializar,
-    guardar_mem_palace,
-    analizar_memoria,
-    rotar_memoria,
-    leer_memoria_enfocada,
-    informe,
-)
-
-class TestMemoriaOptimizada(unittest.TestCase):
-    def setUp(self):
-        self.tmp_dir = Path(tempfile.mkdtemp())
-        self.proyecto_dir = self.tmp_dir / "contexts" / "projects" / "proyecto-test"
-        inicializar(self.proyecto_dir)
-
-    def tearDown(self):
-        shutil.rmtree(self.tmp_dir, ignore_errors=True)
-
-    def test_rotacion_ventana_deslizante(self):
-        """Al registrar más de 5 sesiones, las más antiguas deben compactarse en hitos de 1 línea."""
-        for i in range(1, 8):
-            bloque = informe(
-                tareas=f"Tarea completada #{i}",
-                pendientes=f"Pendiente #{i}",
-                decisiones=f"Decision #{i}",
-                riesgos="Ninguno",
-                agente="Backend",
-                archivos=[f"archivo_{i}.py"],
-            )
-            guardar_mem_palace(self.proyecto_dir, bloque, acumular=True)
-            rotar_memoria(self.proyecto_dir, max_sesiones=5)
-
-        contenido = (self.proyecto_dir / "memoria.md").read_text(encoding="utf-8")
-        parsed = analizar_memoria(contenido)
-        
-        # Deben quedar exactamente 5 sesiones detalladas en la ventana
-        self.assertEqual(len(parsed["sesiones_recientes"]), 5)
-        # La primera sesión en la ventana debe ser la #3 o posterior
-        self.assertIn("Tarea completada #7", parsed["sesiones_recientes"][-1])
-        # Deben haber 2 hitos compactados en la bitácora anterior
-        self.assertEqual(len(parsed["hitos_anteriores"]), 2)
-        self.assertTrue(any("Tarea completada #1" in hito for hito in parsed["hitos_anteriores"]))
-        self.assertTrue(any("Tarea completada #2" in hito for hito in parsed["hitos_anteriores"]))
-
-    def test_lectura_memoria_enfocada(self):
-        """leer_memoria_enfocada solo debe devolver estado activo y sesiones recientes, omitiendo hitos históricos."""
-        for i in range(1, 8):
-            bloque = informe(
-                tareas=f"Tarea #{i}",
-                agente="Backend",
-            )
-            guardar_mem_palace(self.proyecto_dir, bloque, acumular=True)
-            rotar_memoria(self.proyecto_dir, max_sesiones=5)
-
-        enfocada = leer_memoria_enfocada(self.proyecto_dir)
-        self.assertIn("Tarea #7", enfocada)
-        self.assertIn("Tarea #3", enfocada)
-        # Tarea #1 y #2 están compactadas en el archivo pero no deben estar en la memoria enfocada
-        self.assertNotIn("### [", enfocada.split("Tarea #1")[0] if "Tarea #1" in enfocada else "")
-        self.assertNotIn("Hitos Anteriores", enfocada)
-
-if __name__ == "__main__":
-    unittest.main()
-```
-
-- [ ] **Step 2: Ejecutar test para verificar que falla**
-
-Ejecutar:
-```bash
-python3 -m unittest Agencia_Principal/tests/test_memoria_optimizada.py
-```
-Resultado esperado: `FAIL` o `ImportError` indicando que `analizar_memoria`, `rotar_memoria`, o `leer_memoria_enfocada` no existen.
-
-- [ ] **Step 3: Implementar `analizar_memoria`, `rotar_memoria` y `leer_memoria_enfocada` en `memoria_proyecto.py`**
-
-Modificar `/mnt/nvme/skill-team/Agencia_Principal/scripts/memoria_proyecto.py`:
-- Implementar la función `analizar_memoria(contenido: str) -> dict` para parsear cabecera, estado activo, ADRs, sesiones detalladas (`### [...] Sesión`) e hitos compactados.
-- Implementar la función `rotar_memoria(proyecto: Path, max_sesiones: int = 5) -> None` que compacta sesiones que excedan el límite a hitos sintéticos (`- [YYYY-MM-DD] (<Agente>) <Tareas> (<N> archivos)`).
-- Implementar `leer_memoria_enfocada(proyecto: Path) -> str` que compone la vista optimizada para el prompt LLM.
-
-- [ ] **Step 4: Ejecutar test para verificar que pasa**
-
-Ejecutar:
-```bash
-python3 -m unittest Agencia_Principal/tests/test_memoria_optimizada.py
-```
-Resultado esperado: `Ran 2 tests ... OK`.
-
-- [ ] **Step 5: Commit de la Tarea 1**
-
-```bash
-git add Agencia_Principal/scripts/memoria_proyecto.py Agencia_Principal/tests/test_memoria_optimizada.py
-git commit -m "feat(memoria): implementar parsing y rotacion con ventana deslizante"
-```
+- [ ] **Step 4: Ejecutar test y confirmar éxito (TDD Green)**
+  ```bash
+  python3 -m unittest Agencia_Principal/tests/test_memoria_optimizada.py
+  ```
 
 ---
 
-### Task 2: Extracción enfocada y soporte `--completo` en `arranque.py`
+### Task 2: Extracción Enfocada, Presupuesto y Métricas FinOps Honestas en `arranque.py`
 
-**Files:**
-- Modify: `/mnt/nvme/skill-team/Agencia_Principal/scripts/arranque.py`
-- Modify: `/mnt/nvme/skill-team/Agencia_Principal/scripts/agencia.py`
-- Test: `/mnt/nvme/skill-team/Agencia_Principal/tests/test_memoria_optimizada.py`
+**Archivos:**
+- Modificar: `Agencia_Principal/scripts/arranque.py`
+- Pruebas en: `Agencia_Principal/tests/test_memoria_optimizada.py`
 
-- [ ] **Step 1: Escribir test fallido para `--prime` enfocado vs `--completo`**
+- [ ] **Step 1: Escribir pruebas para `--prime` enfocado vs `--completo` y presupuesto de tokens**
+  - Probar que `--prime` inyecta Estado Activo, ADRs y sesiones recientes, omitiendo la bitácora extensa.
+  - Probar que `--completo` devuelve el historial íntegro.
+  - Probar cálculo honesto de FinOps: comparación entre prompt enfocado y prompt de referencia completo.
+  - Probar que ante sesiones muy extensas que superan el presupuesto, se comprime el detalle secundario sin mutilar requisitos ni identificadores.
 
-Agregar a `/mnt/nvme/skill-team/Agencia_Principal/tests/test_memoria_optimizada.py`:
+- [ ] **Step 2: Ejecutar test y verificar fallos esperados**
 
-```python
-    def test_primer_prompt_ahorro_tokens(self):
-        """El primer prompt debe incluir métrica de tokens y ahorro."""
-        from arranque import obtener_paquete_contexto, generar_primer_prompt
-        for i in range(1, 8):
-            bloque = informe(
-                tareas=f"Implementar funcionalidad grande con mucho texto y detalles de código #{i}",
-                pendientes=f"Control de calidad #{i}",
-                agente="Fullstack",
-            )
-            guardar_mem_palace(self.proyecto_dir, bloque, acumular=True)
-            rotar_memoria(self.proyecto_dir, max_sesiones=3)
+- [ ] **Step 3: Implementar cambios en `arranque.py`:**
+  - `obtener_paquete_contexto(ruta_proyecto: Path, modo_completo: bool = False, presupuesto_tokens: int = 4000) -> dict`.
+  - Calcular métricas de FinOps reales: `tokens_prompt_enfocado`, `tokens_prompt_referencia`, `ahorro_pct`.
+  - Generar primer prompt enfocado y documentar mecanismo de recuperación en el header.
+  - Actualizar CLI con `--completo` y `--presupuesto`.
 
-        ctx_enfocado = obtener_paquete_contexto(self.proyecto_dir, modo_completo=False)
-        prompt_enfocado = generar_primer_prompt(ctx_enfocado)
-        
-        ctx_completo = obtener_paquete_contexto(self.proyecto_dir, modo_completo=True)
-        prompt_completo = generar_primer_prompt(ctx_completo)
-
-        # El prompt enfocado debe ser notablemente más corto que el completo
-        self.assertLess(len(prompt_enfocado), len(prompt_completo))
-        self.assertIn("Ahorro estimado:", prompt_enfocado)
-        self.assertIn("Hitos Anteriores", prompt_completo)
-```
-
-- [ ] **Step 2: Ejecutar test para verificar que falla**
-
-Ejecutar:
-```bash
-python3 -m unittest Agencia_Principal/tests/test_memoria_optimizada.py
-```
-Resultado esperado: `FAIL` con error de argumentos en `obtener_paquete_contexto(..., modo_completo=...)`.
-
-- [ ] **Step 3: Implementar soporte `--completo` y cálculo FinOps en `arranque.py` y `agencia.py`**
-
-Modificar `/mnt/nvme/skill-team/Agencia_Principal/scripts/arranque.py`:
-- Actualizar `obtener_paquete_contexto(ruta_proyecto: Path, modo_completo: bool = False) -> dict`:
-  - Si `modo_completo=False`, usa `leer_memoria_enfocada`.
-  - Calcula `tokens_estimados_prompt` y `tokens_estimados_disco`, junto al porcentaje de ahorro:
-    `ahorro_pct = round((1 - tokens_prompt / tokens_disco) * 100)` si `tokens_disco > tokens_prompt`.
-- Actualizar `generar_primer_prompt(ctx: dict)` para mostrar el porcentaje de ahorro y no inyectar ruido histórico.
-- Actualizar argumentos CLI en `arranque.py` y `agencia.py` agregando `--completo`.
-
-- [ ] **Step 4: Ejecutar test para verificar que pasa**
-
-Ejecutar:
-```bash
-python3 -m unittest Agencia_Principal/tests/test_memoria_optimizada.py
-```
-Resultado esperado: `Ran 3 tests ... OK`.
-
-- [ ] **Step 5: Commit de la Tarea 2**
-
-```bash
-git add Agencia_Principal/scripts/arranque.py Agencia_Principal/scripts/agencia.py Agencia_Principal/tests/test_memoria_optimizada.py
-git commit -m "feat(arranque): integrar extraccion enfocada con FinOps y flag --completo"
-```
+- [ ] **Step 4: Ejecutar test y confirmar éxito**
 
 ---
 
-### Task 3: Integración automática de rotación en `cierre.py`
+### Task 3: Cierre Transaccional y Seguro en `cierre.py`
 
-**Files:**
-- Modify: `/mnt/nvme/skill-team/Agencia_Principal/scripts/cierre.py`
-- Test: `/mnt/nvme/skill-team/Agencia_Principal/tests/test_memoria_optimizada.py`
+**Archivos:**
+- Modificar: `Agencia_Principal/scripts/cierre.py`
+- Pruebas en: `Agencia_Principal/tests/test_memoria_optimizada.py`
 
-- [ ] **Step 1: Escribir test fallido para rotación automática al ejecutar cierre**
+- [ ] **Step 1: Escribir pruebas para cierre atómico y actualización de estado activo**
+  - Probar que cada cierre genera un ID de evento único (`evento_id`).
+  - Probar que se escribe en `timeline.jsonl` antes de publicar `memoria.md`.
+  - Probar soporte para resolver pendientes explícitamente (`--resolver-pendientes`).
+  - Probar que toda la operación ocurre bajo un único bloqueo para evitar condiciones de carrera.
 
-Agregar a `/mnt/nvme/skill-team/Agencia_Principal/tests/test_memoria_optimizada.py`:
+- [ ] **Step 2: Ejecutar test y verificar fallos esperados**
 
-```python
-    def test_cierre_ejecuta_rotacion_automatica(self):
-        """cierre.py debe disparar rotar_memoria automáticamente tras guardar."""
-        from cierre import ejecutar_cierre
-        import argparse
+- [ ] **Step 3: Implementar en `cierre.py`:**
+  - Generación de `evento_id` determinista o UUID corto.
+  - Bloqueo unificado `with bloqueo_proyecto(ruta_proyecto / ".memoria"):`.
+  - Anexado durable a timeline, actualización de estado activo, rotación automática y reemplazo atómico de `memoria.md`.
 
-        for i in range(1, 7):
-            args = argparse.Namespace(
-                proyecto=self.proyecto_dir.name,
-                tareas=f"Cierre de tarea #{i}",
-                archivos=f"mod_{i}.py",
-                decisiones="",
-                pendientes="",
-                riesgos="",
-                agente="Backend",
-                cloud_resumen="",
-                tipo="operativo",
-                notificar=False,
-            )
-            # Pasamos raíz temporal para resolver el proyecto
-            ejecutar_cierre(args, raiz_agencia=self.tmp_dir)
-
-        contenido = (self.proyecto_dir / "memoria.md").read_text(encoding="utf-8")
-        parsed = analizar_memoria(contenido)
-        self.assertEqual(len(parsed["sesiones_recientes"]), 5)
-        self.assertEqual(len(parsed["hitos_anteriores"]), 1)
-```
-
-- [ ] **Step 2: Ejecutar test para verificar que falla**
-
-Ejecutar:
-```bash
-python3 -m unittest Agencia_Principal/tests/test_memoria_optimizada.py
-```
-Resultado esperado: `FAIL` porque `ejecutar_cierre` aún no compacta automáticamente a 5 sesiones.
-
-- [ ] **Step 3: Implementar invocación de `rotar_memoria` en `cierre.py`**
-
-Modificar `/mnt/nvme/skill-team/Agencia_Principal/scripts/cierre.py`:
-- Tras escribir el bloque informe y registrar en `cloudmem`, invocar `rotar_memoria(ruta_proyecto, max_sesiones=5)`.
-- Imprimir en el resumen del cierre si se compactaron sesiones históricas.
-
-- [ ] **Step 4: Ejecutar test para verificar que pasa**
-
-Ejecutar:
-```bash
-python3 -m unittest Agencia_Principal/tests/test_memoria_optimizada.py
-```
-Resultado esperado: `Ran 4 tests ... OK`.
-
-- [ ] **Step 5: Commit de la Tarea 3**
-
-```bash
-git add Agencia_Principal/scripts/cierre.py Agencia_Principal/tests/test_memoria_optimizada.py
-git commit -m "feat(cierre): compactar sesiones excedentes automaticamente al cerrar tarea"
-```
+- [ ] **Step 4: Ejecutar test y confirmar éxito**
 
 ---
 
-### Task 4: Verificación Integral y Suite Completa de la Agencia
+### Task 4: Integración en CLI Central (`agencia.py`) y Servidor MCP (`agencia_mcp.py`)
 
-**Files:**
-- Audit & Verify: Toda la suite de `Agencia_Principal`
+**Archivos:**
+- Modificar: `Agencia_Principal/scripts/agencia.py`
+- Modificar: `Agencia_Principal/scripts/agencia_mcp.py`
+- Pruebas en: `Agencia_Principal/tests/test_memoria_optimizada.py`
 
-- [ ] **Step 1: Ejecutar validador estructural de la agencia**
+- [ ] **Step 1: Escribir pruebas para comandos CLI y herramientas MCP actualizadas**
+  - Probar comando `agencia.py arranque <id> --completo`.
+  - Probar comando `agencia.py historia <id> --query ...`.
+  - Probar que las respuestas MCP de `agencia_arranque`, `agencia_cierre` y `agencia_estado` mantienen sus contratos JSON/texto sin contaminación.
 
-Ejecutar:
-```bash
-python3 scripts/agencia.py validar
-```
-Resultado esperado: Código 0, `VALIDACION OK`.
+- [ ] **Step 2: Implementar subcomandos en `agencia.py` y tools en `agencia_mcp.py`**
 
-- [ ] **Step 2: Ejecutar la suite completa de tests de la agencia**
-
-Ejecutar:
-```bash
-python3 -m unittest discover tests/
-```
-Resultado esperado: Todos los tests pasan (71 tests OK, incluidos los 4 nuevos).
-
-- [ ] **Step 3: Ejecutar verificación y actualizar evidencia local**
-
-Ejecutar:
-```bash
-python3 scripts/agencia.py verificar
-python3 scripts/agencia.py comprobar
-```
-Resultado esperado: `VERIFICACIÓN LOCAL APROBADA` y `EVIDENCIA LOCAL VIGENTE`.
-
-- [ ] **Step 4: Ejecutar diagnóstico general de la agencia**
-
-Ejecutar:
-```bash
-python3 scripts/agencia.py doctor
-```
-Resultado esperado: 23/23 comprobaciones aprobadas.
-
-- [ ] **Step 5: Commit de la verificación final**
-
-```bash
-git add Agencia_Principal/.agencia/verificacion-local.json
-git commit -m "chore(verificacion): actualizar evidencia local con memoria optimizada"
-```
+- [ ] **Step 3: Ejecutar suite de pruebas completa y validar integridad**

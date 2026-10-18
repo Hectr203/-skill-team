@@ -28,6 +28,8 @@ if str(SCRIPT_DIR) not in sys.path:
 
 from memoria_proyecto import (
     agregar_cloudmem,
+    bloqueo_proyecto,
+    generar_evento_id,
     guardar_mem_palace,
     informe,
     inicializar,
@@ -46,42 +48,54 @@ def ejecutar_cierre(args: argparse.Namespace, raiz_agencia: Path | None = None) 
         print("    Ejemplo: python3 scripts/cierre.py --proyecto mi-proyecto --tareas '...'")
         sys.exit(1)
 
-    raiz = (raiz_agencia or Path(__file__).resolve().parents[1]).resolve()
+    raiz = raiz_agencia or Path(__file__).resolve().parents[1]
     ruta_proyecto = resolver_proyecto(args.proyecto, raiz)
 
     if not ruta_proyecto.exists():
         print(f"[!] Error: Proyecto no encontrado en: {ruta_proyecto}")
         sys.exit(1)
 
-    inicializar(ruta_proyecto)
+    rutas = inicializar(ruta_proyecto)
     archs = lista_archivos(args.archivos)
+    resueltos = lista_archivos(getattr(args, "resolver_pendientes", ""))
+    max_ses = getattr(args, "max_sesiones", 5)
 
-    # 1. Generar bloque de informe e inyectar en memoria.md
-    bloque_informe = informe(
-        tareas=args.tareas,
-        pendientes=args.pendientes,
-        decisiones=args.decisiones,
-        riesgos=args.riesgos,
-        agente=args.agente,
-        archivos=archs,
-    )
-    guardar_mem_palace(ruta_proyecto, bloque_informe, acumular=True)
-    rotar_memoria(ruta_proyecto, max_sesiones=5)
+    ev_id = generar_evento_id(agente=args.agente, tareas=args.tareas)
 
-    # 2. Registrar en timeline estructurado
-    resumen_linea = args.cloud_resumen or args.tareas
-    agregar_cloudmem(
-        proyecto=ruta_proyecto,
-        resumen=resumen_linea,
-        archivos=archs,
-        tipo=args.tipo,
-        decisiones=args.decisiones,
-        pendientes=args.pendientes,
-        riesgos=args.riesgos,
-        agente=args.agente,
-    )
+    # Transacción atómica unificada bajo bloqueo exclusivo
+    with bloqueo_proyecto(rutas["base"]):
+        # 1. Registrar primero de forma durable en el timeline estructurado
+        resumen_linea = getattr(args, "cloud_resumen", "") or args.tareas
+        agregar_cloudmem(
+            proyecto=ruta_proyecto,
+            resumen=resumen_linea,
+            archivos=archs,
+            tipo=getattr(args, "tipo", "operativo"),
+            decisiones=args.decisiones,
+            pendientes=args.pendientes,
+            riesgos=args.riesgos,
+            agente=args.agente,
+            evento_id=ev_id,
+            pendientes_resueltos=resueltos,
+        )
+
+        # 2. Generar bloque de informe e inyectar en memoria.md
+        bloque_informe = informe(
+            tareas=args.tareas,
+            pendientes=args.pendientes,
+            decisiones=args.decisiones,
+            riesgos=args.riesgos,
+            agente=args.agente,
+            archivos=archs,
+            evento_id=ev_id,
+        )
+        guardar_mem_palace(ruta_proyecto, bloque_informe, acumular=True)
+
+        # 3. Compactar sesiones excedentes manteniendo ventana deslizante
+        rotar_memoria(ruta_proyecto, max_sesiones=max_ses, pendientes_resueltos=resueltos)
 
     print(f"\n[✓] Cierre registrado con éxito:")
+    print(f"    - ID Evento:          {ev_id}")
     print(f"    - Proyecto:           {ruta_proyecto.name}")
     print(f"    - Agente:             {args.agente}")
     print(f"    - Tareas:             {args.tareas}")
@@ -89,10 +103,12 @@ def ejecutar_cierre(args: argparse.Namespace, raiz_agencia: Path | None = None) 
         print(f"    - Archivos ({len(archs)}):     {', '.join(archs)}")
     if args.decisiones:
         print(f"    - Decisiones:         {args.decisiones}")
+    if resueltos:
+        print(f"    - Pendientes resueltos: {', '.join(resueltos)}")
     print(f"    - Memoria actualizada: {ruta_proyecto / 'memoria.md'}")
 
-    # 3. Notificación interactiva opcional
-    if args.notificar:
+    # 4. Notificación interactiva opcional
+    if getattr(args, "notificar", False):
         try:
             from notificar_tarea import enviar_notificacion_escritorio, reproducir_sonido_sistema
             reproducir_sonido_sistema(1)
@@ -161,6 +177,17 @@ def main() -> None:
         "--notificar",
         action="store_true",
         help="Emite sonido y notificación de escritorio al finalizar.",
+    )
+    parser.add_argument(
+        "--resolver-pendientes",
+        default="",
+        help="Lista de pendientes resueltos en esta sesión separados por comas.",
+    )
+    parser.add_argument(
+        "--max-sesiones",
+        type=int,
+        default=5,
+        help="Límite de sesiones detalladas en la ventana deslizante (default: 5).",
     )
 
     args = parser.parse_args()

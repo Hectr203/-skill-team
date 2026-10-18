@@ -2,13 +2,15 @@
 """
 Memoria de Proyecto unificada — Agencia de Proyectos.
 
-Combina persistencia transparente en Markdown (contexts/projects/<id>/memoria.md),
-registro local de eventos estructurado en JSONL,
-y compatibilidad retroactiva con proyectos existentes.
+Combina persistencia transparente en Markdown (contexts/projects/<id>/memoria.md)
+estructurada en 4 zonas (Estado Activo, Decisiones Vigentes, Ventana Deslizante
+e Hitos Compactados), registro append-only de eventos en JSONL (.memoria/timeline.jsonl),
+recuperación histórica puntual y compatibilidad retroactiva con proyectos existentes.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -16,6 +18,7 @@ import tempfile
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
+import threading
 
 try:
     import fcntl
@@ -25,6 +28,22 @@ except ImportError:  # pragma: no cover - Windows fallback
 
 def ahora_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def generar_evento_id(fecha_iso: str | None = None, agente: str = "", tareas: str = "") -> str:
+    """Genera un identificador de evento único y reproducible."""
+    dt_str = fecha_iso or ahora_iso()
+    clean_dt = re.sub(r"[^0-9]", "", dt_str)[:14]
+    semilla = f"{dt_str}:{agente}:{tareas}"
+    digest = hashlib.sha256(semilla.encode("utf-8")).hexdigest()[:6]
+    return f"ev_{clean_dt}_{digest}"
+
+
+def estimar_tokens(texto: str) -> int:
+    """Aproximación de ~3.8 caracteres por token."""
+    if not texto:
+        return 0
+    return max(1, int(len(texto) / 3.8))
 
 
 def validar_identificador(valor: str) -> str:
@@ -99,34 +118,44 @@ def _obtener_fernet_opcional(rutas: dict[str, Path], crear: bool = False):
 
 
 def inicializar(proyecto: Path) -> dict[str, Path]:
-    """Inicializa la estructura de memoria de un proyecto."""
+    """Inicializa la estructura de memoria de un proyecto con las 4 secciones estándar."""
     proyecto.mkdir(parents=True, exist_ok=True)
     rutas = rutas_memoria(proyecto)
     rutas["base"].mkdir(parents=True, exist_ok=True)
     rutas["adrs"].mkdir(parents=True, exist_ok=True)
+    if not any(rutas["adrs"].iterdir()):
+        (rutas["adrs"] / ".gitkeep").touch()
     rutas["evidencias"].mkdir(parents=True, exist_ok=True)
+    if not any(rutas["evidencias"].iterdir()):
+        (rutas["evidencias"] / ".gitkeep").touch()
     if rutas["mem_palace"].exists():
         fernet_existente = _obtener_fernet_opcional(rutas)
         if not rutas["memoria_md"].exists():
             if fernet_existente is None:
                 raise ValueError("No se puede recuperar la memoria cifrada sin soporte cryptography.")
-            # No sustituir el historial anterior por una plantilla vacía.
             texto_existente = fernet_existente.decrypt(rutas["mem_palace"].read_bytes()).decode("utf-8")
             rutas["memoria_md"].write_text(texto_existente, encoding="utf-8")
 
-    # 1. Memoria Markdown principal (visible y versionable)
+    # 1. Memoria Markdown principal (visible y versionable con estructura formal)
     if not rutas["memoria_md"].exists():
-        rutas["memoria_md"].write_text(
-            f"""# Memoria del Proyecto: {proyecto.name}
+        ahora = ahora_iso()
+        ev_init = generar_evento_id(ahora, "Asistente Principal", "Inicialización")
+        contenido_inicial = f"""# Memoria del Proyecto: {proyecto.name}
 
 - **ID de Proyecto:** `{proyecto.name}`
-- **Fecha de creación:** {ahora_iso()}
+- **Fecha de creación:** {ahora}
 - **Estado general:** Inicializado
 
 ---
 
-## 1. Resumen Ejecutivo
-Proyecto administrado bajo la Agencia de Proyectos. Memoria estructurada en Markdown con trazabilidad de decisiones, estado y handoffs.
+## 1. Estado Activo y Criterios Vigentes
+- **Objetivo actual:** Estructura de proyecto y memoria inicializadas con éxito.
+- **Hito/Sprint:** Inicialización
+- **Tarea en curso:** Ninguna
+- **Restricciones y bloqueos:** Ninguno
+- **Pendientes consolidados:**
+  - [ ] Completar `manifiesto.md` y definir requerimientos iniciales.
+- **Siguiente acción:** Completar manifiesto del proyecto.
 
 ---
 
@@ -135,16 +164,22 @@ Proyecto administrado bajo la Agencia de Proyectos. Memoria estructurada en Mark
 
 ---
 
-## 3. Historial de Sesiones y Tareas
+## 3. Historial Reciente (Ventana Deslizante: Últimas 5 Sesiones)
 
-### [{ahora_iso()}] Inicialización
+### [{ahora}] Inicialización
+- **ID Evento:** `{ev_init}`
 - **Agente:** Director de Proyecto / Asistente Principal
-- **Tareas:** Estructura de proyecto y memoria inicializadas con éxito.
+- **Tareas completadas:** Estructura de proyecto y memoria inicializadas con éxito.
+- **Archivos afectados:** Ninguno
+- **Decisiones técnicas:** Ninguna
+- **Pendientes:** Completar `manifiesto.md` y definir requerimientos iniciales.
 - **Riesgos:** Ninguno.
-- **Siguiente paso:** Completar `manifiesto.md` y definir requerimientos iniciales.
-""",
-            encoding="utf-8",
-        )
+
+---
+
+## 4. Hitos Anteriores (Bitácora Compactada)
+"""
+        rutas["memoria_md"].write_text(contenido_inicial, encoding="utf-8")
 
     # 2. Timeline JSONL estructurado
     if not rutas["cloudmem"].exists():
@@ -155,12 +190,12 @@ Proyecto administrado bajo la Agencia de Proyectos. Memoria estructurada en Mark
     # 3. Soporte legacy opcional (si cryptography está disponible)
     fernet = _obtener_fernet_opcional(rutas, crear=True)
     if fernet and not rutas["mem_palace"].exists():
-        contenido_inicial = f"""[MEMORIA DE PROYECTO: {proyecto.name}]
+        contenido_legacy = f"""[MEMORIA DE PROYECTO: {proyecto.name}]
 - Fecha: {ahora_iso()}
 - Tareas completadas: Inicialización de memoria del proyecto.
 - Pendientes: Completar manifiesto del proyecto.
 """
-        rutas["mem_palace"].write_bytes(fernet.encrypt(contenido_inicial.encode("utf-8")))
+        rutas["mem_palace"].write_bytes(fernet.encrypt(contenido_legacy.encode("utf-8")))
 
     return rutas
 
@@ -176,13 +211,11 @@ def leer_memoria_markdown(proyecto: Path) -> str:
 def leer_mem_palace(proyecto: Path) -> str:
     """Lee memoria legacy o hace fallback a memoria.md."""
     rutas = rutas_memoria(proyecto)
-    # No inicializar durante una lectura: podría ocultar un historial legacy.
     if rutas["memoria_md"].exists():
         texto = rutas["memoria_md"].read_text(encoding="utf-8")
         if texto.strip():
             return texto
 
-    # Si hay mem_palace.enc cifrado legacy
     if rutas["mem_palace"].exists():
         fernet = _obtener_fernet_opcional(rutas)
         if fernet:
@@ -193,40 +226,145 @@ def leer_mem_palace(proyecto: Path) -> str:
     return ""
 
 
-def guardar_mem_palace(proyecto: Path, informe_texto: str, acumular: bool = True) -> None:
-    """Actualiza memoria.md y mantiene compatibilidad con mem_palace si aplica."""
-    rutas = inicializar(proyecto)
-    with bloqueo_proyecto(rutas["base"]):
-        if rutas["memoria_md"].exists() and acumular:
-            previo = rutas["memoria_md"].read_text(encoding="utf-8")
-            parsed = analizar_memoria(previo)
-            if parsed["sesiones_recientes"]:
-                parsed["sesiones_recientes"].append(informe_texto.strip())
-                nuevo = f"{parsed['cabecera']}\n\n---\n\n## 3. Historial Reciente (Últimas sesiones)\n\n"
-                nuevo += "\n\n---\n\n".join(parsed["sesiones_recientes"])
-                if parsed["hitos_anteriores"]:
-                    nuevo += "\n\n---\n\n## 4. Hitos Anteriores (Bitácora compacta)\n"
-                    nuevo += "\n".join(parsed["hitos_anteriores"])
-                nuevo += "\n"
-            else:
-                nuevo = f"{previo.rstrip()}\n\n---\n\n{informe_texto}\n"
-        else:
-            nuevo = informe_texto
-        _escritura_atomica(rutas["memoria_md"], nuevo)
+# ─────────────────────────────────────────────────────────────────────────────
+# PARSER ROBUSTO Y GESTIÓN DE SECCIONES
+# ─────────────────────────────────────────────────────────────────────────────
 
-    # Actualizar legacy si fernet disponible
-    fernet = _obtener_fernet_opcional(rutas)
-    if fernet:
-        try:
-            rutas["mem_palace"].write_bytes(fernet.encrypt(nuevo.encode("utf-8")))
-        except Exception:
-            pass
+def analizar_memoria(contenido: str) -> dict:
+    """
+    Parsea memoria.md respetando bloques de código (```).
+    Separa cabecera, Estado Activo (Sección 1), Decisiones (Sección 2),
+    Sesiones recientes (Sección 3) e Hitos compactados (Sección 4).
+    """
+    if not contenido or not contenido.strip():
+        return {
+            "cabecera": "",
+            "estado_activo": "",
+            "decisiones": "",
+            "sesiones_recientes": [],
+            "hitos_anteriores": [],
+            "es_legacy": False,
+        }
+
+    lineas = contenido.splitlines()
+    in_code_block = False
+
+    # Estructura de secciones
+    idx_s1 = -1
+    idx_s2 = -1
+    idx_s3 = -1
+    idx_s4 = -1
+
+    for i, linea in enumerate(lineas):
+        strip_l = linea.strip()
+        if strip_l.startswith("```") or strip_l.startswith("~~~"):
+            in_code_block = not in_code_block
+            continue
+        if in_code_block:
+            continue
+
+        # Detectar encabezados de nivel 2 fuera de bloques de código
+        if re.match(r"^##\s+1\.\s+", strip_l):
+            idx_s1 = i
+        elif re.match(r"^##\s+2\.\s+", strip_l):
+            idx_s2 = i
+        elif re.match(r"^##\s+3\.\s+", strip_l):
+            idx_s3 = i
+        elif re.match(r"^##\s+4\.\s+", strip_l):
+            idx_s4 = i
+
+    # Si no se detectan secciones estándar, tratar como memoria plana / legacy
+    if idx_s1 == -1 and idx_s3 == -1:
+        # Buscar si al menos hay sesiones ### [
+        matches_sesion = []
+        in_code_block = False
+        for i, linea in enumerate(lineas):
+            strip_l = linea.strip()
+            if strip_l.startswith("```") or strip_l.startswith("~~~"):
+                in_code_block = not in_code_block
+                continue
+            if not in_code_block and re.match(r"^###\s+\[", strip_l):
+                matches_sesion.append(i)
+
+        if not matches_sesion:
+            return {
+                "cabecera": contenido.strip(),
+                "estado_activo": "",
+                "decisiones": "",
+                "sesiones_recientes": [],
+                "hitos_anteriores": [],
+                "es_legacy": True,
+            }
+
+    # Delimitar cabecera
+    primer_corte = min([idx for idx in (idx_s1, idx_s2, idx_s3, idx_s4) if idx != -1] or [len(lineas)])
+    cabecera = "\n".join(lineas[:primer_corte]).strip()
+    cabecera = re.sub(r"\n+---\s*$", "", cabecera).strip()
+
+    # Extraer secciones intermedias
+    def _slice_clean(start: int, end: int) -> str:
+        if start == -1 or start >= len(lineas):
+            return ""
+        s = "\n".join(lineas[start:end]).strip()
+        return re.sub(r"\n+---\s*$", "", s).strip()
+
+    fin_s1 = min([x for x in (idx_s2, idx_s3, idx_s4) if x > idx_s1] or [len(lineas)]) if idx_s1 != -1 else -1
+    estado_activo = _slice_clean(idx_s1, fin_s1) if idx_s1 != -1 else ""
+
+    fin_s2 = min([x for x in (idx_s3, idx_s4) if x > idx_s2] or [len(lineas)]) if idx_s2 != -1 else -1
+    decisiones = _slice_clean(idx_s2, fin_s2) if idx_s2 != -1 else ""
+
+    # Extraer Hitos Anteriores (Sección 4)
+    hitos: list[str] = []
+    if idx_s4 != -1:
+        in_code_block = False
+        for linea in lineas[idx_s4 + 1:]:
+            strip_l = linea.strip()
+            if strip_l.startswith("```") or strip_l.startswith("~~~"):
+                in_code_block = not in_code_block
+                continue
+            if not in_code_block and strip_l.startswith("- ["):
+                hitos.append(strip_l)
+
+    # Extraer Sesiones Recientes (Sección 3)
+    sesiones: list[str] = []
+    rango_s3_inicio = idx_s3 + 1 if idx_s3 != -1 else primer_corte
+    rango_s3_fin = idx_s4 if idx_s4 != -1 else len(lineas)
+
+    in_code_block = False
+    puntos_corte_sesiones = []
+    for i in range(rango_s3_inicio, rango_s3_fin):
+        strip_l = lineas[i].strip()
+        if strip_l.startswith("```") or strip_l.startswith("~~~"):
+            in_code_block = not in_code_block
+            continue
+        if not in_code_block and re.match(r"^###\s+\[", strip_l):
+            puntos_corte_sesiones.append(i)
+
+    for idx_match, pos in enumerate(puntos_corte_sesiones):
+        pos_sig = puntos_corte_sesiones[idx_match + 1] if idx_match + 1 < len(puntos_corte_sesiones) else rango_s3_fin
+        bloque = "\n".join(lineas[pos:pos_sig]).strip()
+        bloque = re.sub(r"\n+---\s*$", "", bloque).strip()
+        if bloque:
+            sesiones.append(bloque)
+
+    return {
+        "cabecera": cabecera,
+        "estado_activo": estado_activo,
+        "decisiones": decisiones,
+        "sesiones_recientes": sesiones,
+        "hitos_anteriores": hitos,
+        "es_legacy": False,
+    }
 
 
-def compactar_sesion_a_hito(bloque_sesion: str) -> str:
-    """Convierte un bloque de sesión detallada en un hito sintético de una línea."""
+def compactar_sesion_a_hito(bloque_sesion: str, evento_id: str = "") -> str:
+    """Convierte un bloque de sesión detallada en un hito sintético de una línea con referencia."""
     m_fecha = re.search(r"###\s+\[([^\]]+)\]", bloque_sesion)
     fecha = m_fecha.group(1) if m_fecha else ahora_iso()
+
+    m_ev = re.search(r"-\s+\*\*ID Evento:\*\*\s*`?([a-zA-Z0-9_-]+)`?", bloque_sesion)
+    ev_id = evento_id or (m_ev.group(1).strip() if m_ev else generar_evento_id(fecha))
 
     m_agente = re.search(r"-\s+\*\*Agente:\*\*\s*(.*)", bloque_sesion)
     agente = m_agente.group(1).strip() if m_agente else "Agente"
@@ -244,92 +382,363 @@ def compactar_sesion_a_hito(bloque_sesion: str) -> str:
     else:
         arch_info = ""
 
-    return f"- [{fecha}] ({agente}) {tareas}{arch_info}"
+    return f"- [{fecha}] [{ev_id}] ({agente}) {tareas}{arch_info} — Ref: timeline#{ev_id}"
 
 
-def analizar_memoria(contenido: str) -> dict:
-    """Parsea memoria.md separando cabecera, sesiones detalladas e hitos compactados."""
-    if not contenido:
-        return {"cabecera": "", "sesiones_recientes": [], "hitos_anteriores": []}
+def _extraer_campos_sesion(bloque_sesion: str) -> dict:
+    """Extrae campos estructurados de un bloque Markdown de sesión."""
+    m_fecha = re.search(r"###\s+\[([^\]]+)\]", bloque_sesion)
+    fecha = m_fecha.group(1) if m_fecha else ahora_iso()
 
-    partes_hitos = re.split(r"(?m)^## 4\.\s+Hitos Anteriores.*$", contenido, maxsplit=1)
-    cuerpo_principal = partes_hitos[0]
-    bloque_hitos = partes_hitos[1] if len(partes_hitos) > 1 else ""
+    m_ev = re.search(r"-\s+\*\*ID Evento:\*\*\s*`?([a-zA-Z0-9_-]+)`?", bloque_sesion)
+    ev_id = m_ev.group(1).strip() if m_ev else generar_evento_id(fecha)
 
-    hitos = []
-    if bloque_hitos:
-        for linea in bloque_hitos.splitlines():
-            linea_limpia = linea.strip()
-            if linea_limpia.startswith("- ["):
-                hitos.append(linea_limpia)
+    m_agente = re.search(r"-\s+\*\*Agente:\*\*\s*(.*)", bloque_sesion)
+    agente = m_agente.group(1).strip() if m_agente else "Agente"
 
-    # Buscar sesiones detalladas que comienzan con ### [
-    matches = list(re.finditer(r"(?m)^###\s+\[([^\]]+)\].*$", cuerpo_principal))
-    if not matches:
-        return {"cabecera": cuerpo_principal.strip(), "sesiones_recientes": [], "hitos_anteriores": hitos}
+    m_tareas = re.search(r"-\s+\*\*Tareas(?: completadas)?:\*\*\s*(.*)", bloque_sesion)
+    tareas = m_tareas.group(1).strip() if m_tareas else ""
 
-    primera_sesion_idx = matches[0].start()
-    cabecera = cuerpo_principal[:primera_sesion_idx].strip()
-    cabecera = re.sub(r"(?m)^---\s*\n*## 3\.\s+Historial.*$", "", cabecera).strip()
+    m_archivos = re.search(r"-\s+\*\*Archivos afectados:\*\*\s*(.*)", bloque_sesion)
+    archivos_raw = m_archivos.group(1).strip() if m_archivos else ""
+    archivos = [a.strip(" `") for a in archivos_raw.split(",") if a.strip() and a.lower() != "ninguno"]
 
-    sesiones = []
-    for i, m in enumerate(matches):
-        inicio = m.start()
-        fin = matches[i + 1].start() if i + 1 < len(matches) else len(cuerpo_principal)
-        bloque_sesion = cuerpo_principal[inicio:fin].strip()
-        bloque_sesion = re.sub(r"\n+---\s*$", "", bloque_sesion).strip()
-        sesiones.append(bloque_sesion)
+    m_dec = re.search(r"-\s+\*\*Decisiones(?: técnicas)?:\*\*\s*(.*)", bloque_sesion)
+    decisiones = m_dec.group(1).strip() if m_dec else ""
+    if decisiones.lower() in ("ninguna", "ninguno"):
+        decisiones = ""
+
+    m_pend = re.search(r"-\s+\*\*Pendientes(?:\s+generados)?:\*\*\s*(.*)", bloque_sesion)
+    pendientes = m_pend.group(1).strip() if m_pend else ""
+    if pendientes.lower() in ("ninguno", "ninguna"):
+        pendientes = ""
+
+    m_riesgos = re.search(r"-\s+\*\*Riesgos(?: identificados)?:\*\*\s*(.*)", bloque_sesion)
+    riesgos = m_riesgos.group(1).strip() if m_riesgos else ""
+    if riesgos.lower() in ("ninguno", "ninguna"):
+        riesgos = ""
 
     return {
-        "cabecera": cabecera,
-        "sesiones_recientes": sesiones,
-        "hitos_anteriores": hitos,
+        "evento_id": ev_id,
+        "fecha": fecha,
+        "agente": agente,
+        "resumen": tareas,
+        "archivos": archivos,
+        "decisiones": decisiones,
+        "pendientes": pendientes,
+        "riesgos": riesgos,
     }
 
 
-def rotar_memoria(proyecto: Path, max_sesiones: int = 5) -> None:
-    """Mantiene la ventana deslizante compactando sesiones excedentes a hitos de 1 línea."""
+def consolidar_estado_activo(
+    estado_previo: str,
+    nuevas_sesiones: list[str],
+    pendientes_resueltos: list[str] | None = None,
+) -> str:
+    """
+    Consolida el bloque de Estado Activo garantizando que los pendientes
+    abiertos y restricciones no se pierdan, marcando los resueltos.
+    """
+    pendientes_resueltos_set = {p.strip().lower() for p in (pendientes_resueltos or []) if p.strip()}
+    
+    # Extraer pendientes existentes
+    pendientes_abiertos: list[str] = []
+    if estado_previo:
+        for linea in estado_previo.splitlines():
+            m_pend = re.match(r"^\s*-\s*\[([ xX])\]\s*(.*)", linea)
+            if m_pend:
+                marcado = m_pend.group(1).strip().lower() == "x"
+                texto_p = m_pend.group(2).strip()
+                if not marcado and texto_p.lower() not in pendientes_resueltos_set:
+                    if texto_p not in pendientes_abiertos:
+                        pendientes_abiertos.append(texto_p)
+
+    # Extraer nuevos pendientes de las sesiones
+    for s in nuevas_sesiones:
+        datos = _extraer_campos_sesion(s)
+        if datos["pendientes"]:
+            for item in re.split(r"[;\n]", datos["pendientes"]):
+                item_limpio = item.strip().lstrip("-* ").strip()
+                if item_limpio and item_limpio.lower() not in ("ninguno", "ninguna"):
+                    if item_limpio.lower() not in pendientes_resueltos_set and item_limpio not in pendientes_abiertos:
+                        pendientes_abiertos.append(item_limpio)
+
+    # Reconstruir bloque de Estado Activo
+    lineas_salida = ["## 1. Estado Activo y Criterios Vigentes"]
+    m_obj = re.search(r"-\s+\*\*Objetivo actual:\*\*\s*(.*)", estado_previo) if estado_previo else None
+    obj = m_obj.group(1).strip() if m_obj else "Alcance activo en progreso."
+    lineas_salida.append(f"- **Objetivo actual:** {obj}")
+
+    m_hito = re.search(r"-\s+\*\*Hito/Sprint:\*\*\s*(.*)", estado_previo) if estado_previo else None
+    hito = m_hito.group(1).strip() if m_hito else "En curso"
+    lineas_salida.append(f"- **Hito/Sprint:** {hito}")
+
+    m_tarea = re.search(r"-\s+\*\*Tarea en curso:\*\*\s*(.*)", estado_previo) if estado_previo else None
+    tarea = m_tarea.group(1).strip() if m_tarea else "Ninguna"
+    lineas_salida.append(f"- **Tarea en curso:** {tarea}")
+
+    m_restr = re.search(r"-\s+\*\*Restricciones y bloqueos:\*\*\s*(.*)", estado_previo) if estado_previo else None
+    restr = m_restr.group(1).strip() if m_restr else "Ninguno"
+    lineas_salida.append(f"- **Restricciones y bloqueos:** {restr}")
+
+    lineas_salida.append("- **Pendientes consolidados:**")
+    if pendientes_abiertos:
+        for p in pendientes_abiertos:
+            lineas_salida.append(f"  - [ ] {p}")
+    else:
+        lineas_salida.append("  - Ninguno")
+
+    m_sig = re.search(r"-\s+\*\*Siguiente acción:\*\*\s*(.*)", estado_previo) if estado_previo else None
+    sig = m_sig.group(1).strip() if m_sig else (pendientes_abiertos[0] if pendientes_abiertos else "Continuar según plan.")
+    lineas_salida.append(f"- **Siguiente acción:** {sig}")
+
+    return "\n".join(lineas_salida)
+
+
+def consolidar_decisiones(decisiones_previas: str, nuevas_sesiones: list[str]) -> str:
+    """Consolida las decisiones vigentes para que no desaparezcan al rotar sesiones."""
+    lineas_existentes = []
+    if decisiones_previas:
+        for l in decisiones_previas.splitlines():
+            s = l.strip()
+            if s and not s.startswith("##") and s.lower() != "- ninguna decisión arquitectónica registrada aún.":
+                lineas_existentes.append(s)
+
+    for s in nuevas_sesiones:
+        datos = _extraer_campos_sesion(s)
+        if datos["decisiones"]:
+            for item in re.split(r"[;\n]", datos["decisiones"]):
+                item_limpio = item.strip()
+                if item_limpio and item_limpio.lower() not in ("ninguna", "ninguno"):
+                    formateado = f"- {item_limpio}" if not item_limpio.startswith("-") else item_limpio
+                    if formateado not in lineas_existentes:
+                        lineas_existentes.append(formateado)
+
+    lineas_salida = ["## 2. Decisiones Técnicas y ADRs"]
+    if lineas_existentes:
+        lineas_salida.extend(lineas_existentes)
+    else:
+        lineas_salida.append("- Ninguna decisión arquitectónica registrada aún.")
+    return "\n".join(lineas_salida)
+
+
+def _respaldar_sesion_en_timeline(proyecto: Path, datos_sesion: dict) -> None:
+    """Comprueba si la sesión existe en timeline.jsonl; si no, la archiva de forma durable."""
+    rutas = rutas_memoria(proyecto)
+    ev_id = datos_sesion["evento_id"]
+    
+    # Comprobar presencia en timeline
+    encontrado = False
+    if rutas["timeline"].exists():
+        for linea in rutas["timeline"].read_text(encoding="utf-8").splitlines():
+            if not linea.strip():
+                continue
+            try:
+                e = json.loads(linea)
+                if e.get("evento_id") == ev_id or (e.get("fecha") == datos_sesion["fecha"] and e.get("resumen") == datos_sesion["resumen"]):
+                    encontrado = True
+                    break
+            except json.JSONDecodeError:
+                continue
+
+    if not encontrado:
+        entrada = {
+            "evento_id": ev_id,
+            "version": 2,
+            "fecha": datos_sesion["fecha"],
+            "agente": datos_sesion["agente"],
+            "tipo": "historico_respaldado",
+            "resumen": datos_sesion["resumen"],
+            "archivos": datos_sesion["archivos"],
+            "decisiones": datos_sesion["decisiones"],
+            "pendientes": datos_sesion["pendientes"],
+            "riesgos": datos_sesion["riesgos"],
+        }
+        linea_json = json.dumps(entrada, ensure_ascii=False) + "\n"
+        with rutas["timeline"].open("a", encoding="utf-8") as f:
+            f.write(linea_json)
+            f.flush()
+            os.fsync(f.fileno())
+        if rutas["cloudmem"].exists():
+            with rutas["cloudmem"].open("a", encoding="utf-8") as f:
+                f.write(linea_json)
+                f.flush()
+                os.fsync(f.fileno())
+
+
+def rotar_memoria(
+    proyecto: Path,
+    max_sesiones: int = 5,
+    presupuesto_tokens: int | None = None,
+    pendientes_resueltos: list[str] | None = None,
+) -> None:
+    """
+    Mantiene la ventana deslizante compactando sesiones excedentes a hitos de 1 línea.
+    Garantiza:
+    1. Respaldo previo íntegro en timeline.jsonl antes de compactar (cero pérdida de datos).
+    2. Idempotencia total: ejecuciones repetidas producen exactamente el mismo contenido.
+    3. Preservación del Estado Activo y Decisiones vigentes.
+    """
     rutas = inicializar(proyecto)
     with bloqueo_proyecto(rutas["base"]):
         if not rutas["memoria_md"].exists():
             return
         contenido = rutas["memoria_md"].read_text(encoding="utf-8")
         parsed = analizar_memoria(contenido)
+
         sesiones = parsed["sesiones_recientes"]
         hitos = parsed["hitos_anteriores"]
 
-        if len(sesiones) <= max_sesiones:
-            return
+        # Recopilar todos los pendientes resueltos de timeline.jsonl y del argumento
+        resueltos_acumulados = set()
+        if pendientes_resueltos:
+            resueltos_acumulados.update(p.strip().lower() for p in pendientes_resueltos if p.strip())
+        if rutas["timeline"].exists():
+            try:
+                for linea in rutas["timeline"].read_text(encoding="utf-8").splitlines():
+                    if not linea.strip():
+                        continue
+                    try:
+                        obj = json.loads(linea)
+                        for pr in obj.get("pendientes_resueltos", []):
+                            if pr and pr.strip():
+                                resueltos_acumulados.add(pr.strip().lower())
+                    except Exception:
+                        continue
+            except Exception:
+                pass
 
-        exceso = len(sesiones) - max_sesiones
-        nuevos_hitos = [compactar_sesion_a_hito(s) for s in sesiones[:exceso]]
-        hitos.extend(nuevos_hitos)
-        sesiones_conservadas = sesiones[exceso:]
+        if len(sesiones) <= max_sesiones:
+            for s in sesiones:
+                d = _extraer_campos_sesion(s)
+                _respaldar_sesion_en_timeline(proyecto, d)
+            sesiones_conservadas = sesiones
+            hitos_finales = hitos
+        else:
+            exceso = len(sesiones) - max_sesiones
+            sesiones_a_compactar = sesiones[:exceso]
+            sesiones_conservadas = sesiones[exceso:]
+
+            nuevos_hitos = []
+            for s in sesiones_a_compactar:
+                d = _extraer_campos_sesion(s)
+                _respaldar_sesion_en_timeline(proyecto, d)
+                hito = compactar_sesion_a_hito(s, evento_id=d["evento_id"])
+                if hito not in hitos and not any(f"[{d['evento_id']}]" in h for h in hitos):
+                    nuevos_hitos.append(hito)
+            hitos_finales = hitos + nuevos_hitos
+
+        # Consolidar estado activo y decisiones con el historial completo
+        estado_activo = consolidar_estado_activo(
+            parsed["estado_activo"], sesiones, pendientes_resueltos=list(resueltos_acumulados)
+        )
+        decisiones = consolidar_decisiones(parsed["decisiones"], sesiones)
 
         cabecera = parsed["cabecera"]
-        nuevo_texto = f"{cabecera}\n\n---\n\n## 3. Historial Reciente (Últimas sesiones)\n\n"
+        if not cabecera:
+            cabecera = f"# Memoria del Proyecto: {proyecto.name}\n\n- **ID de Proyecto:** `{proyecto.name}`\n- **Estado general:** Activo"
+
+        nuevo_texto = f"{cabecera}\n\n---\n\n{estado_activo}\n\n---\n\n{decisiones}\n\n---\n\n"
+        nuevo_texto += f"## 3. Historial Reciente (Ventana Deslizante: Últimas {max_sesiones} Sesiones)\n\n"
         nuevo_texto += "\n\n---\n\n".join(sesiones_conservadas)
-        if hitos:
-            nuevo_texto += "\n\n---\n\n## 4. Hitos Anteriores (Bitácora compacta)\n"
-            nuevo_texto += "\n".join(hitos)
-        nuevo_texto += "\n"
+        nuevo_texto += "\n\n---\n\n## 4. Hitos Anteriores (Bitácora Compactada)\n"
+        if hitos_finales:
+            nuevo_texto += "\n".join(hitos_finales) + "\n"
 
-        _escritura_atomica(rutas["memoria_md"], nuevo_texto)
+        if nuevo_texto.strip() != contenido.strip():
+            _escritura_atomica(rutas["memoria_md"], nuevo_texto)
+
+            # Actualizar legacy Fernet si aplica
+            fernet = _obtener_fernet_opcional(rutas)
+            if fernet:
+                try:
+                    rutas["mem_palace"].write_bytes(fernet.encrypt(nuevo_texto.encode("utf-8")))
+                except Exception:
+                    pass
 
 
-def leer_memoria_enfocada(proyecto: Path) -> str:
-    """Devuelve la memoria optimizada para LLM (omitiendo la bitácora histórica extensa)."""
+
+def leer_memoria_enfocada(proyecto: Path, presupuesto_tokens: int = 4000) -> str:
+    """
+    Devuelve la memoria optimizada para LLM (omitiendo la bitácora histórica extensa).
+    Aplica política de selección y acota el contenido al presupuesto configurado sin truncar requisitos críticos.
+    """
     rutas = rutas_memoria(proyecto)
     if not rutas["memoria_md"].exists():
         return ""
     contenido = rutas["memoria_md"].read_text(encoding="utf-8")
     parsed = analizar_memoria(contenido)
-    if not parsed["sesiones_recientes"]:
+
+    # Si es formato legacy plano o sin sesiones, devolver contenido completo
+    if parsed["es_legacy"] or not parsed["sesiones_recientes"]:
         return contenido
+
+    cabecera = parsed["cabecera"]
+    estado = parsed["estado_activo"] or "## 1. Estado Activo\n- **Objetivo actual:** Trabajo en curso."
+    decs = parsed["decisiones"] or "## 2. Decisiones Técnicas\n- Ninguna decisión registrada aún."
+    sesiones = list(parsed["sesiones_recientes"])
+
+    base_texto = f"{cabecera}\n\n---\n\n{estado}\n\n---\n\n{decs}\n\n---\n\n## 3. Historial Reciente (Últimas sesiones)\n\n"
     
-    res = f"{parsed['cabecera']}\n\n---\n\n## 3. Historial Reciente (Últimas sesiones)\n\n"
-    res += "\n\n---\n\n".join(parsed["sesiones_recientes"])
-    return res.strip()
+    texto_completo = base_texto + "\n\n---\n\n".join(sesiones)
+    if estimar_tokens(texto_completo) <= presupuesto_tokens:
+        return texto_completo.strip()
+
+    # Si excede el presupuesto, comprimir las sesiones más antiguas dentro de la ventana
+    # manteniendo la más reciente completa
+    for i in range(len(sesiones) - 1):
+        d = _extraer_campos_sesion(sesiones[i])
+        resumen_comprimido = (
+            f"### [{d['fecha']}] Sesión: `{d['evento_id']}` | Agente: {d['agente']}\n"
+            f"- **ID Evento:** `{d['evento_id']}`\n"
+            f"- **Tareas:** {d['resumen'][:80]}...\n"
+            f"- **Ref:** timeline#{d['evento_id']}"
+        )
+        sesiones[i] = resumen_comprimido
+        candidato = base_texto + "\n\n---\n\n".join(sesiones)
+        if estimar_tokens(candidato) <= presupuesto_tokens:
+            return candidato.strip()
+
+    return (base_texto + "\n\n---\n\n".join(sesiones)).strip()
+
+
+def guardar_mem_palace(proyecto: Path, informe_texto: str, acumular: bool = True) -> None:
+    """Actualiza memoria.md integrando la sesión en la estructura jerárquica."""
+    rutas = inicializar(proyecto)
+    with bloqueo_proyecto(rutas["base"]):
+        if rutas["memoria_md"].exists() and acumular:
+            previo = rutas["memoria_md"].read_text(encoding="utf-8")
+            parsed = analizar_memoria(previo)
+            if not parsed["es_legacy"] and (parsed["sesiones_recientes"] or parsed["estado_activo"]):
+                # Integrar nueva sesión en Sección 3
+                parsed["sesiones_recientes"].append(informe_texto.strip())
+                # Consolidar estado activo y decisiones
+                estado_activo = consolidar_estado_activo(parsed["estado_activo"], [informe_texto])
+                decisiones = consolidar_decisiones(parsed["decisiones"], [informe_texto])
+
+                cabecera = parsed["cabecera"]
+                if not cabecera:
+                    cabecera = f"# Memoria del Proyecto: {proyecto.name}\n\n- **ID de Proyecto:** `{proyecto.name}`\n- **Estado general:** Activo"
+
+                nuevo = f"{cabecera}\n\n---\n\n{estado_activo}\n\n---\n\n{decisiones}\n\n---\n\n"
+                nuevo += "## 3. Historial Reciente (Ventana Deslizante: Últimas sesiones)\n\n"
+                nuevo += "\n\n---\n\n".join(parsed["sesiones_recientes"])
+                if parsed["hitos_anteriores"]:
+                    nuevo += "\n\n---\n\n## 4. Hitos Anteriores (Bitácora Compactada)\n"
+                    nuevo += "\n".join(parsed["hitos_anteriores"])
+                nuevo += "\n"
+            else:
+                nuevo = f"{previo.rstrip()}\n\n---\n\n{informe_texto}\n"
+        else:
+            nuevo = informe_texto
+        _escritura_atomica(rutas["memoria_md"], nuevo)
+
+    fernet = _obtener_fernet_opcional(rutas)
+    if fernet:
+        try:
+            rutas["mem_palace"].write_bytes(fernet.encrypt(nuevo.encode("utf-8")))
+        except Exception:
+            pass
 
 
 def agregar_cloudmem(
@@ -341,31 +750,43 @@ def agregar_cloudmem(
     pendientes: str = "",
     riesgos: str = "",
     agente: str = "agente",
-) -> None:
+    evento_id: str = "",
+    pendientes_resueltos: list[str] | None = None,
+) -> str:
     """Registra una entrada estructurada en cloudmem.jsonl y timeline.jsonl."""
     rutas = inicializar(proyecto)
+    fecha = ahora_iso()
+    ev_id = evento_id or generar_evento_id(fecha, agente, resumen)
+
     entrada = {
-        "fecha": ahora_iso(),
+        "evento_id": ev_id,
+        "version": 2,
+        "fecha": fecha,
         "agente": agente,
         "tipo": tipo,
         "resumen": resumen,
         "archivos": archivos,
         "decisiones": decisiones,
         "pendientes": pendientes,
+        "pendientes_resueltos": pendientes_resueltos or [],
         "riesgos": riesgos,
     }
     linea = json.dumps(entrada, ensure_ascii=False) + "\n"
     with bloqueo_proyecto(rutas["base"]):
-        with rutas["cloudmem"].open("a", encoding="utf-8") as f:
-            f.write(linea)
         with rutas["timeline"].open("a", encoding="utf-8") as f:
             f.write(linea)
+            f.flush()
+            os.fsync(f.fileno())
+        with rutas["cloudmem"].open("a", encoding="utf-8") as f:
+            f.write(linea)
+            f.flush()
+            os.fsync(f.fileno())
 
-    # La memoria local no envía datos a herramientas externas automáticamente.
+    return ev_id
 
 
 def leer_cloudmem(proyecto: Path, limite: int = 8, filtro: str = "") -> list[dict]:
-    """Lee las últimas entradas de cloudmem/timeline."""
+    """Lee las últimas entradas de cloudmem/timeline tolerando líneas incompletas o corruptas."""
     rutas = rutas_memoria(proyecto)
     entradas: list[dict] = []
     fuente = rutas["timeline"] if rutas["timeline"].exists() and rutas["timeline"].stat().st_size else rutas["cloudmem"]
@@ -386,25 +807,172 @@ def leer_cloudmem(proyecto: Path, limite: int = 8, filtro: str = "") -> list[dic
     return entradas[-limite:]
 
 
+def recuperar_historia(
+    proyecto: Path,
+    query: str = "",
+    evento_id: str = "",
+    archivo: str = "",
+    desde: str = "",
+    hasta: str = "",
+    limite: int = 10,
+) -> list[dict]:
+    """
+    Recupera eventos específicos del historial completo sin cargar la memoria entera.
+    Filtra por ID de evento, palabra clave, archivo o rango de fechas.
+    """
+    rutas = rutas_memoria(proyecto)
+    fuente = rutas["timeline"] if rutas["timeline"].exists() and rutas["timeline"].stat().st_size else rutas["cloudmem"]
+    if not fuente.exists():
+        return []
+
+    resultados: list[dict] = []
+    query_lower = query.lower().strip()
+    archivo_lower = archivo.lower().strip()
+
+    for linea in fuente.read_text(encoding="utf-8").splitlines():
+        if not linea.strip():
+            continue
+        try:
+            e = json.loads(linea)
+        except json.JSONDecodeError:
+            continue
+
+        if evento_id and e.get("evento_id") != evento_id:
+            continue
+
+        if archivo_lower:
+            archivos_e = [str(a).lower() for a in e.get("archivos", [])]
+            if not any(archivo_lower in a for a in archivos_e):
+                continue
+
+        if query_lower:
+            dump_e = json.dumps(e, ensure_ascii=False).lower()
+            if query_lower not in dump_e:
+                continue
+
+        if desde and e.get("fecha", "") < desde:
+            continue
+        if hasta and e.get("fecha", "") > hasta:
+            continue
+
+        resultados.append(e)
+
+    return resultados[-limite:]
+
+
+def reconstruir_memoria(proyecto: Path, reparar_archivo: bool = False) -> str:
+    """
+    Reconstruye memoria.md desde timeline.jsonl garantizando la continuidad de
+    decisiones vigentes, pendientes abiertos y las últimas sesiones detalladas.
+    """
+    rutas = rutas_memoria(proyecto)
+    if not rutas["timeline"].exists():
+        return ""
+
+    entradas = []
+    for l in rutas["timeline"].read_text(encoding="utf-8").splitlines():
+        if not l.strip():
+            continue
+        try:
+            entradas.append(json.loads(l))
+        except json.JSONDecodeError:
+            continue
+
+    if not entradas:
+        return ""
+
+    # Reconstruir estado activo y decisiones
+    sesiones_markdown = []
+    for e in entradas:
+        ev_id = e.get("evento_id") or generar_evento_id(e.get("fecha"))
+        archs_str = ", ".join(f"`{a}`" for a in e.get("archivos", [])) if e.get("archivos") else "Ninguno"
+        bloque = f"""### [{e.get('fecha', ahora_iso())}] {e.get('tipo', 'operativo').capitalize()}: `{ev_id}`
+- **ID Evento:** `{ev_id}`
+- **Agente:** {e.get('agente', 'Asistente Principal')}
+- **Tareas completadas:** {e.get('resumen', '')}
+- **Archivos afectados:** {archs_str}
+- **Decisiones técnicas:** {e.get('decisiones') or 'Ninguna'}
+- **Pendientes:** {e.get('pendientes') or 'Ninguno'}
+- **Riesgos:** {e.get('riesgos') or 'Ninguno'}
+"""
+        sesiones_markdown.append(bloque.strip())
+
+    estado_activo = consolidar_estado_activo("", sesiones_markdown)
+    decisiones = consolidar_decisiones("", sesiones_markdown)
+
+    max_sesiones = 5
+    if len(sesiones_markdown) > max_sesiones:
+        sesiones_recientes = sesiones_markdown[-max_sesiones:]
+        hitos = [compactar_sesion_a_hito(s) for s in sesiones_markdown[:-max_sesiones]]
+    else:
+        sesiones_recientes = sesiones_markdown
+        hitos = []
+
+    cabecera = f"""# Memoria del Proyecto: {proyecto.name}
+
+- **ID de Proyecto:** `{proyecto.name}`
+- **Fecha de creación:** {entradas[0].get('fecha', ahora_iso())}
+- **Estado general:** Activo (Reconstruido)
+"""
+    nuevo_texto = f"{cabecera}\n\n---\n\n{estado_activo}\n\n---\n\n{decisiones}\n\n---\n\n"
+    nuevo_texto += f"## 3. Historial Reciente (Ventana Deslizante: Últimas {max_sesiones} Sesiones)\n\n"
+    nuevo_texto += "\n\n---\n\n".join(sesiones_recientes)
+    if hitos:
+        nuevo_texto += "\n\n---\n\n## 4. Hitos Anteriores (Bitácora Compactada)\n"
+        nuevo_texto += "\n".join(hitos) + "\n"
+
+    if reparar_archivo:
+        with bloqueo_proyecto(rutas["base"]):
+            _escritura_atomica(rutas["memoria_md"], nuevo_texto)
+
+    return nuevo_texto
+
+
+_LOCKS_HELD = threading.local()
+
+
 @contextmanager
 def bloqueo_proyecto(base: Path):
-    """Serializa cierres por proyecto sin añadir dependencias externas."""
+    """Serializa operaciones de lectura/escritura por proyecto sin dependencias externas.
+    Soporta reentrancia dentro del mismo proceso/hilo para evitar interbloqueos anidados."""
     base.mkdir(parents=True, exist_ok=True)
-    lock_path = base / ".lock"
+    lock_path = (base / ".lock").resolve()
     if lock_path.is_symlink():
         raise ValueError("El bloqueo de memoria no puede redirigirse.")
-    with lock_path.open("a+", encoding="utf-8") as lock:
-        if fcntl is not None:
-            fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+
+    if not hasattr(_LOCKS_HELD, "paths"):
+        _LOCKS_HELD.paths = {}
+
+    lock_key = str(lock_path)
+    count = _LOCKS_HELD.paths.get(lock_key, 0)
+    if count > 0:
+        _LOCKS_HELD.paths[lock_key] = count + 1
         try:
             yield
         finally:
-            if fcntl is not None:
-                fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+            _LOCKS_HELD.paths[lock_key] -= 1
+            if _LOCKS_HELD.paths[lock_key] <= 0:
+                del _LOCKS_HELD.paths[lock_key]
+        return
+
+    with lock_path.open("a+", encoding="utf-8") as lock:
+        if fcntl is not None:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+        _LOCKS_HELD.paths[lock_key] = 1
+        try:
+            yield
+        finally:
+            try:
+                if fcntl is not None:
+                    fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+            finally:
+                _LOCKS_HELD.paths[lock_key] -= 1
+                if _LOCKS_HELD.paths[lock_key] <= 0:
+                    del _LOCKS_HELD.paths[lock_key]
 
 
 def _escritura_atomica(path: Path, contenido: str) -> None:
-    """Escribe un archivo mediante reemplazo atómico en el mismo directorio."""
+    """Escribe un archivo mediante reemplazo atómico en el mismo directorio con fsync."""
     fd, tmp_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as tmp:
@@ -423,7 +991,8 @@ def imprimir_cloudmem(entradas: list[dict]) -> None:
         return
     print("--- TIMELINE ESTRUCTURADO DEL PROYECTO ---")
     for entrada in entradas:
-        print(f"- [{entrada.get('fecha', 'sin fecha')}] ({entrada.get('agente', 'agente')}) {entrada.get('tipo', 'operativo')}")
+        ev_info = f" [{entrada.get('evento_id')}]" if entrada.get("evento_id") else ""
+        print(f"- [{entrada.get('fecha', 'sin fecha')}]{ev_info} ({entrada.get('agente', 'agente')}) {entrada.get('tipo', 'operativo')}")
         print(f"  Resumen:    {entrada.get('resumen', '')}")
         archivos = entrada.get("archivos") or []
         if archivos:
@@ -444,10 +1013,14 @@ def informe(
     riesgos: str = "",
     agente: str = "agente",
     archivos: list[str] | None = None,
+    evento_id: str = "",
 ) -> str:
-    """Genera un bloque de informe Markdown para memoria.md."""
+    """Genera un bloque de informe Markdown para memoria.md con ID de evento."""
+    fecha = ahora_iso()
+    ev_id = evento_id or generar_evento_id(fecha, agente, tareas)
     archivos_str = ", ".join(f"`{a}`" for a in (archivos or [])) if archivos else "Ninguno"
-    return f"""### [{ahora_iso()}] Sesión / Tarea
+    return f"""### [{fecha}] Sesión: `{ev_id}` | Agente: {agente}
+- **ID Evento:** `{ev_id}`
 - **Agente:** {agente}
 - **Tareas completadas:** {tareas}
 - **Archivos afectados:** {archivos_str}
@@ -471,6 +1044,7 @@ def main() -> None:
     consultar = subparsers.add_parser("start", help="Consulta memoria del proyecto.")
     consultar.add_argument("--limite", type=int, default=8)
     consultar.add_argument("--filtro", default="")
+    consultar.add_argument("--completo", action="store_true", help="Muestra memoria completa sin recortar.")
 
     cerrar = subparsers.add_parser("close", help="Registra cierre en memoria del proyecto.")
     cerrar.add_argument("--tareas", required=True)
@@ -481,15 +1055,19 @@ def main() -> None:
     cerrar.add_argument("--archivos", default="")
     cerrar.add_argument("--tipo", default="operativo")
     cerrar.add_argument("--agente", default="agente")
+    cerrar.add_argument("--resolver-pendientes", default="", help="Pendientes resueltos separados por comas.")
 
-    agregar = subparsers.add_parser("add", help="Agrega una entrada estructurada al timeline.")
-    agregar.add_argument("--resumen", required=True)
-    agregar.add_argument("--archivos", default="")
-    agregar.add_argument("--tipo", default="operativo")
-    agregar.add_argument("--decisiones", default="")
-    agregar.add_argument("--pendientes", default="")
-    agregar.add_argument("--riesgos", default="")
-    agregar.add_argument("--agente", default="agente")
+    rotar = subparsers.add_parser("rotate", help="Ejecuta rotación de ventana deslizante.")
+    rotar.add_argument("--max-sesiones", type=int, default=5)
+
+    hist = subparsers.add_parser("historia", help="Consulta el historial completo por filtros.")
+    hist.add_argument("--query", default="")
+    hist.add_argument("--evento", default="")
+    hist.add_argument("--archivo", default="")
+    hist.add_argument("--limite", type=int, default=10)
+
+    reconst = subparsers.add_parser("reconstruir", help="Reconstruye memoria.md a partir de timeline.jsonl.")
+    reconst.add_argument("--reparar", action="store_true", help="Sobrescribe memoria.md con la reconstrucción.")
 
     args = parser.parse_args()
     proyecto = resolver_proyecto(args.proyecto)
@@ -504,7 +1082,7 @@ def main() -> None:
     if args.comando == "start":
         inicializar(proyecto)
         print(f"=== MEMORIA DEL PROYECTO: {proyecto.name} ===")
-        contexto = leer_mem_palace(proyecto)
+        contexto = leer_mem_palace(proyecto) if args.completo else leer_memoria_enfocada(proyecto)
         if contexto:
             print("--- MEMORIA (Markdown) ---")
             print(contexto)
@@ -515,17 +1093,11 @@ def main() -> None:
     if args.comando == "close":
         inicializar(proyecto)
         archs = lista_archivos(args.archivos)
-        inf = informe(
-            tareas=args.tareas,
-            pendientes=args.pendientes,
-            decisiones=args.decisiones,
-            riesgos=args.riesgos,
-            agente=args.agente,
-            archivos=archs,
-        )
-        guardar_mem_palace(proyecto, inf, acumular=True)
+        resueltos = lista_archivos(args.resolver_pendientes) if hasattr(args, "resolver_pendientes") else []
         resumen_linea = args.cloud_resumen or args.tareas
-        agregar_cloudmem(
+        
+        # Anexar a timeline estructurado primero (orden transaccional seguro)
+        ev_id = agregar_cloudmem(
             proyecto=proyecto,
             resumen=resumen_linea,
             archivos=archs,
@@ -534,23 +1106,46 @@ def main() -> None:
             pendientes=args.pendientes,
             riesgos=args.riesgos,
             agente=args.agente,
+            pendientes_resueltos=resueltos,
         )
-        print(f"[+] Memoria del proyecto actualizada: {proyecto / 'memoria.md'}")
-        return
 
-    if args.comando == "add":
-        archs = lista_archivos(args.archivos)
-        agregar_cloudmem(
-            proyecto=proyecto,
-            resumen=args.resumen,
-            archivos=archs,
-            tipo=args.tipo,
-            decisiones=args.decisiones,
+        inf = informe(
+            tareas=args.tareas,
             pendientes=args.pendientes,
+            decisiones=args.decisiones,
             riesgos=args.riesgos,
             agente=args.agente,
+            archivos=archs,
+            evento_id=ev_id,
         )
-        print(f"[+] Entrada registrada en el timeline: {proyecto / '.memoria/timeline.jsonl'}")
+        guardar_mem_palace(proyecto, inf, acumular=True)
+        rotar_memoria(proyecto, max_sesiones=5)
+        print(f"[✓] Cierre registrado ({ev_id}): {proyecto / 'memoria.md'}")
+        return
+
+    if args.comando == "rotate":
+        rotar_memoria(proyecto, max_sesiones=args.max_sesiones)
+        print(f"[✓] Ventana deslizante rotada a {args.max_sesiones} sesiones.")
+        return
+
+    if args.comando == "historia":
+        eventos = recuperar_historia(
+            proyecto=proyecto,
+            query=args.query,
+            evento_id=args.evento,
+            archivo=args.archivo,
+            limite=args.limite,
+        )
+        print(json.dumps(eventos, ensure_ascii=False, indent=2))
+        return
+
+    if args.comando == "reconstruir":
+        res = reconstruir_memoria(proyecto, reparar_archivo=args.reparar)
+        if args.reparar:
+            print(f"[✓] Memoria reparada y reescrita en {proyecto / 'memoria.md'}")
+        else:
+            print(res)
+        return
 
 
 if __name__ == "__main__":
