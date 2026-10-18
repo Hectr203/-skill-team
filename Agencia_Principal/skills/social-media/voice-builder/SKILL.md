@@ -3,6 +3,10 @@ name: voice-builder
 description: Extracción, definición y blindaje del tono de voz de marca. Construye about-me.md y voice.md en contexts/brands/<brand-id>/ para garantizar cero contaminación cruzada de estilos.
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Extracción y Blindaje de Voz de Marca (Voice Builder)
 
 Basado en el protocolo de identidad de **Social Media Skills** ([github.com/charlie947/social-media-skills](https://github.com/charlie947/social-media-skills)). Define el ADN comunicativo de una marca o fundador para que todos los contenidos generados mantengan autenticidad inquebrantable.

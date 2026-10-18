@@ -3,6 +3,10 @@ name: lead-capture
 description: Ingestión, mapeo y calificación automática de prospectos a través de webhooks locales, endpoints HTTP y formularios de contacto en SQLite.
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Captura y Calificación de Leads
 
 Basado en el subsistema de ingestión de **Auto-CRM** ([github.com/hainrixz/auto-crm](https://github.com/hainrixz/auto-crm)). Automatiza la recepción y almacenamiento estructurado de prospectos comerciales.

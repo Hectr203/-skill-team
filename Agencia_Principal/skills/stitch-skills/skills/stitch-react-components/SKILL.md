@@ -12,6 +12,12 @@ allowed-tools:
   - "web_fetch"
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
+> Agency integration: obey the selected project profile and frontend arquitectura modular por dominio boundaries. Process only requested screens. Existing approved local assets may be reused; external downloads require an available service and relevant authorization. Examples of TypeScript or libraries do not override a JavaScript profile. Resolve bundled scripts relative to this skill directory.
+
 # Stitch to React Components
 
 You are a frontend engineer focused on transforming designs into clean React code or syncing/updating existing React components to align with the latest Stitch designs. You follow a modular approach and use automated tools to ensure code quality.
@@ -20,12 +26,12 @@ You are a frontend engineer focused on transforming designs into clean React cod
 
 ## Phase 1: Retrieval and networking
 
-> **GATE: Phase 1 is complete ONLY when all screens have been downloaded via `scripts/fetch-stitch.sh` AND visually audited. Reading local files directly without going through this phase is PROHIBITED.**
+> **GATE: Phase 1 is complete ONLY when requested source designs are available via `scripts/fetch-stitch.sh` AND visually audited. Approved local sources may be reused and their origin documented.**
 
 1. **Namespace discovery**: Run `list_tools` to find the Stitch MCP prefix. Use this prefix (e.g., `stitch:`) for all subsequent calls.
-2. **Metadata fetch**: Call `[prefix]:get_screen` for **EVERY screen** in the project to retrieve the design JSON with download URLs. Do NOT skip any screen.
+2. **Metadata fetch**: Call `[prefix]:get_screen` for each screen in the authorized scope to retrieve the design JSON with download URLs. Do NOT skip any screen.
 3. **Check for existing designs**: Before downloading, check if `.stitch/designs/{page}.html` and `.stitch/designs/{page}.png` already exist:
-   - **If files exist**: Ask the user whether to refresh the designs from the Stitch project using the MCP, or reuse the existing local files. **You MUST ask — do not assume.**  Only re-download if the user confirms.
+   - **If files exist**: Ask the user whether to refresh the designs from the Stitch project using the MCP, or reuse the existing local files. Honor an existing instruction to reuse or refresh; ask only when that choice is unresolved.  Only re-download if the user confirms.
    - **If files do not exist**: Proceed to step 4.
 4. **High-reliability download**: Internal AI fetch tools can fail on Google Cloud Storage domains. You MUST use the provided script.
    - **HTML**: `bash scripts/fetch-stitch.sh "[htmlCode.downloadUrl]" ".stitch/designs/{page}.html"`
@@ -63,9 +69,9 @@ You are a frontend engineer focused on transforming designs into clean React cod
 
 ## Phase 3: Architectural rules
 
-> **GATE: Every component MUST satisfy ALL of the following rules. Violations will cause `npm run validate` to fail.**
+> **GATE: Every component MUST satisfy ALL of the following rules. Review these rules manually and execute available project checks; do not assume a syntax validator enforces every architectural rule.**
 
-* **Modular components**: Break the design into independent files. **Each reusable UI pattern** (cards, badges, pagination, search bars) MUST be extracted into its own component in `src/components/`. Monolithic page files that contain everything are PROHIBITED.
+* **Modular components**: Break the design into independent files. **Each reusable UI pattern** (cards, badges, pagination, search bars) MUST be extracted into its own component in `components/ui` for generic controls or in the corresponding business module for business UI. Monolithic page files that contain everything are PROHIBITED.
 * **Logic isolation**: Move event handlers and business logic into custom hooks in `src/hooks/`. Examples: pagination logic → `usePagination`, filtering → `useFilter`.
 * **Data decoupling**: Move ALL static text, image URLs, and lists into `src/data/mockData.ts`. No hardcoded content in components.
 * **Type safety**: EVERY component file (including pages) MUST include a `Readonly` TypeScript interface named `[ComponentName]Props`. The validator checks for this — files without a Props interface will FAIL validation.
@@ -94,7 +100,7 @@ You are a frontend engineer focused on transforming designs into clean React cod
 3. **Component drafting**: Use `resources/component-template.tsx` as a base. Find and replace ALL instances of `StitchComponent` with the actual name of the component you are creating.
 4. **Application wiring**: Update the project entry point (like `App.tsx`) to render the new components.
 5. **Quality check (Optional - Ask User first)**:
-    * Run `npm run validate <file_path>` for **EVERY** `.tsx` file in `src/components/` and `src/pages/` to report component validity.
+    * Run the bundled validator only for files it supports. For the JavaScript profile, run the project’s actual build, lint and relevant tests on changed global components and business modules; do not require TypeScript conversion.
     * Run `tsc --noEmit` to verify TypeScript compile status.
     * Check output against `resources/architecture-checklist.md`.
     * Obtain permission before starting the dev server with `npm run dev` or initiating visual browser audits to verify the live result.

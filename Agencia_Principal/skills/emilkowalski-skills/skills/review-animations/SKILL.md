@@ -4,6 +4,10 @@ description: Reviews animation and motion code against a high craft bar derived 
 disable-model-invocation: true
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Reviewing Animations
 
 ## Initial Response

@@ -3,6 +3,10 @@ name: test-driven-development
 description: Drives development with tests. Use when implementing any logic, fixing any bug, or changing any behavior. Use when you need to prove that code works, when a bug report arrives, or when you're about to modify existing functionality.
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Test-Driven Development
 
 ## Overview

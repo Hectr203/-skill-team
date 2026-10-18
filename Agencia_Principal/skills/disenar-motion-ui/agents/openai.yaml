@@ -1,0 +1,4 @@
+interface:
+  display_name: "Diseño de movimiento para interfaces"
+  short_description: "Movimiento contextual, accesible y verificable"
+  default_prompt: "Usa $disenar-motion-ui para diseñar o revisar el movimiento de esta interfaz según su objetivo, comparando técnicas y alternativas pertinentes."

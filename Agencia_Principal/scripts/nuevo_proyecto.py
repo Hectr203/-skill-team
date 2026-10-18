@@ -22,22 +22,23 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from memoria_proyecto import ahora_iso, inicializar, resolver_proyecto
+from memoria_proyecto import ahora_iso, inicializar, resolver_proyecto, validar_identificador
 
 
-def crear_proyecto(nombre: str, cliente: str = "", tipo: str = "nuevo", stack: str = "estandar") -> Path:
-    raiz_agencia = Path(__file__).resolve().parents[1]
+def crear_proyecto(nombre: str, cliente: str = "", tipo: str = "nuevo", stack: str = "estandar", *, raiz_agencia: Path | None = None) -> Path:
+    raiz_agencia = (raiz_agencia or Path(__file__).resolve().parents[1]).resolve()
     raiz_proyectos = raiz_agencia / "contexts" / "projects"
     plantillas_dir = raiz_agencia / "plantillas"
     stacks_dir = raiz_agencia / "stacks"
 
-    # Validar caracteres del nombre
-    caracteres_invalidos = set(' /\\:*?"<>|')
-    if caracteres_invalidos.intersection(set(nombre)):
-        print(f"[!] Error: El nombre '{nombre}' contiene caracteres no permitidos.")
-        sys.exit(1)
-
-    destino = raiz_proyectos / nombre
+    validar_identificador(nombre)
+    validar_identificador(stack)
+    if tipo not in ("nuevo", "existente", "auditoria", "correccion", "produccion"):
+        raise ValueError("Tipo de proyecto no reconocido.")
+    destino = resolver_proyecto(nombre, raiz_agencia)
+    ruta_stack = stacks_dir / ("estandar" if stack == "estandar" else f"alternativos/{stack}")
+    if not ruta_stack.is_dir() or ruta_stack.resolve() != ruta_stack:
+        raise ValueError("Stack no registrado o redirigido: completa su perfil antes de crear el proyecto.")
 
     if destino.exists():
         print(f"[!] El proyecto '{nombre}' ya existe en: {destino}")
@@ -53,21 +54,7 @@ def crear_proyecto(nombre: str, cliente: str = "", tipo: str = "nuevo", stack: s
     if cliente:
         print(f"    Cliente:         {cliente}")
 
-    # Verificar o auto-generar perfil de stack si es alternativo
-    ruta_stack = stacks_dir / "estandar"
-    if stack != "estandar":
-        ruta_stack = stacks_dir / "alternativos" / stack
-        if not ruta_stack.exists():
-            print(f"[i] El stack alternativo '{stack}' no existe. Auto-generando perfil en stacks/alternativos/{stack}...")
-            ruta_stack.mkdir(parents=True, exist_ok=True)
-            plantilla_stack = stacks_dir / "plantillas" / "nuevo-stack.md"
-            contenido_stack = plantilla_stack.read_text(encoding="utf-8") if plantilla_stack.exists() else "# Nuevo Stack\n"
-            contenido_stack = contenido_stack.replace("[ejemplo: laravel-livewire-alpine]", stack)
-            contenido_stack = contenido_stack.replace("[Ejemplo: Laravel + Livewire + Alpine.js]", stack.replace("-", " ").title())
-            (ruta_stack / "stack.md").write_text(contenido_stack, encoding="utf-8")
-            print(f"    ✓ Perfil creado: stacks/alternativos/{stack}/stack.md")
-
-    destino.mkdir(parents=True, exist_ok=True)
+    destino.mkdir(parents=True, exist_ok=False)
 
     # 1. Crear Manifiesto del proyecto
     manifiesto_path = destino / "manifiesto.md"

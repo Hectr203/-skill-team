@@ -3,7 +3,7 @@
 Memoria de Proyecto unificada — Agencia de Proyectos.
 
 Combina persistencia transparente en Markdown (contexts/projects/<id>/memoria.md),
-registro de eventos estructurado en JSONL, integración con claude-mem cuando está disponible,
+registro local de eventos estructurado en JSONL,
 y compatibilidad retroactiva con proyectos existentes.
 """
 from __future__ import annotations
@@ -11,8 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import shutil
-import subprocess
+import re
 import tempfile
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -28,33 +27,41 @@ def ahora_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
+def validar_identificador(valor: str) -> str:
+    """Un ID explícito evita alias por nombre, traversal y diferencias de mayúsculas."""
+    if not isinstance(valor, str) or not re.fullmatch(r"[a-z0-9_][a-z0-9_-]{0,79}", valor):
+        raise ValueError("ID inválido: usa de 1 a 80 letras minúsculas, números, guiones o guiones bajos.")
+    return valor
+
+
 def resolver_proyecto(ruta: str | Path, raiz_agencia: Path | None = None) -> Path:
-    """Resuelve la ruta de un proyecto, soportando rutas relativas a la agencia,
-    nombres simples bajo contexts/projects/<nombre>, o rutas absolutas."""
-    if raiz_agencia is None:
-        raiz_agencia = Path(__file__).resolve().parents[1]
-
-    p = Path(ruta).expanduser()
-    if p.is_absolute():
-        return p.resolve()
-
-    # Si se pasó un nombre simple y existe en contexts/projects/
-    candidato_context = raiz_agencia / "contexts" / "projects" / p
-    if candidato_context.exists():
-        return candidato_context.resolve()
-
-    # Si es relativo a la raíz de la agencia
-    candidato_agencia = (raiz_agencia / p).resolve()
-    if candidato_agencia.exists():
-        return candidato_agencia
-
-    # Por defecto resolver respecto a la raíz de la agencia
-    return candidato_agencia
+    """Acepta un ID o una ruta central; nunca convierte rutas externas en alias."""
+    raiz = (raiz_agencia or Path(__file__).resolve().parents[1]).resolve()
+    almacen = raiz / "contexts" / "projects"
+    if almacen.resolve() != almacen:
+        raise ValueError("El almacén central no puede redirigirse mediante enlaces simbólicos.")
+    texto = str(ruta)
+    if not texto or texto in (".", "..") or "\\" in texto:
+        raise ValueError("Indica un ID de proyecto explícito.")
+    entrada = Path(texto).expanduser()
+    if len(entrada.parts) == 1 and not entrada.is_absolute():
+        candidato = almacen / validar_identificador(texto)
+    else:
+        if ".." in entrada.parts:
+            raise ValueError("No se permiten rutas con '..'.")
+        candidato = entrada if entrada.is_absolute() else raiz / entrada
+        if candidato.parent != almacen:
+            raise ValueError("Ruta externa no registrada: utiliza el ID único de contexts/projects/.")
+        validar_identificador(candidato.name)
+    if candidato.resolve() != candidato:
+        raise ValueError("La memoria del proyecto no puede redirigirse mediante enlaces simbólicos.")
+    return candidato
 
 
 def rutas_memoria(proyecto: Path) -> dict[str, Path]:
+    proyecto = proyecto.resolve()
     base = proyecto / ".memoria"
-    return {
+    rutas = {
         "proyecto": proyecto,
         "base": base,
         "memoria_md": proyecto / "memoria.md",
@@ -67,18 +74,27 @@ def rutas_memoria(proyecto: Path) -> dict[str, Path]:
         "mem_palace": base / "mem_palace.enc",
         "manifiesto_mem": base / "manifiesto_memoria.md",
     }
+    if any(ruta.resolve() != ruta for ruta in rutas.values()):
+        raise ValueError("Los archivos de memoria no pueden redirigirse mediante enlaces simbólicos.")
+    return rutas
 
 
-def _obtener_fernet_opcional(rutas: dict[str, Path]):
+def _obtener_fernet_opcional(rutas: dict[str, Path], crear: bool = False):
     """Soporte legacy para proyectos cifrados con Fernet sin romper si falta cryptography."""
     try:
         from cryptography.fernet import Fernet  # type: ignore[import]
     except ImportError:
         return None
 
-    rutas["base"].mkdir(parents=True, exist_ok=True)
     if not rutas["clave"].exists():
-        rutas["clave"].write_bytes(Fernet.generate_key())
+        if rutas["mem_palace"].exists():
+            raise ValueError("Memoria cifrada sin clave: restaurar la clave original antes de modificarla.")
+        if not crear:
+            return None
+        rutas["base"].mkdir(parents=True, exist_ok=True)
+        with rutas["clave"].open("xb") as archivo:
+            os.chmod(rutas["clave"], 0o600)
+            archivo.write(Fernet.generate_key())
     return Fernet(rutas["clave"].read_bytes())
 
 
@@ -89,6 +105,14 @@ def inicializar(proyecto: Path) -> dict[str, Path]:
     rutas["base"].mkdir(parents=True, exist_ok=True)
     rutas["adrs"].mkdir(parents=True, exist_ok=True)
     rutas["evidencias"].mkdir(parents=True, exist_ok=True)
+    if rutas["mem_palace"].exists():
+        fernet_existente = _obtener_fernet_opcional(rutas)
+        if not rutas["memoria_md"].exists():
+            if fernet_existente is None:
+                raise ValueError("No se puede recuperar la memoria cifrada sin soporte cryptography.")
+            # No sustituir el historial anterior por una plantilla vacía.
+            texto_existente = fernet_existente.decrypt(rutas["mem_palace"].read_bytes()).decode("utf-8")
+            rutas["memoria_md"].write_text(texto_existente, encoding="utf-8")
 
     # 1. Memoria Markdown principal (visible y versionable)
     if not rutas["memoria_md"].exists():
@@ -129,7 +153,7 @@ Proyecto administrado bajo la Agencia de Proyectos. Memoria estructurada en Mark
         rutas["timeline"].write_text("", encoding="utf-8")
 
     # 3. Soporte legacy opcional (si cryptography está disponible)
-    fernet = _obtener_fernet_opcional(rutas)
+    fernet = _obtener_fernet_opcional(rutas, crear=True)
     if fernet and not rutas["mem_palace"].exists():
         contenido_inicial = f"""[MEMORIA DE PROYECTO: {proyecto.name}]
 - Fecha: {ahora_iso()}
@@ -218,25 +242,7 @@ def agregar_cloudmem(
         with rutas["timeline"].open("a", encoding="utf-8") as f:
             f.write(linea)
 
-    # Si claude-mem CLI está disponible, sincronizar
-    _notificar_claude_mem(proyecto.name, resumen, decisiones)
-
-
-def _notificar_claude_mem(proyecto_id: str, resumen: str, decisiones: str) -> None:
-    """Intenta notificar a claude-mem CLI de forma segura y no bloqueante si existe."""
-    cmd = shutil.which("claude-mem") or shutil.which("mem")
-    if not cmd:
-        return
-    try:
-        texto = f"[{proyecto_id}] {resumen}. Decisiones: {decisiones}".strip()
-        subprocess.run(
-            [cmd, "record", texto],
-            capture_output=True,
-            timeout=2,
-            check=False,
-        )
-    except Exception:
-        pass
+    # La memoria local no envía datos a herramientas externas automáticamente.
 
 
 def leer_cloudmem(proyecto: Path, limite: int = 8, filtro: str = "") -> list[dict]:
@@ -266,6 +272,8 @@ def bloqueo_proyecto(base: Path):
     """Serializa cierres por proyecto sin añadir dependencias externas."""
     base.mkdir(parents=True, exist_ok=True)
     lock_path = base / ".lock"
+    if lock_path.is_symlink():
+        raise ValueError("El bloqueo de memoria no puede redirigirse.")
     with lock_path.open("a+", encoding="utf-8") as lock:
         if fcntl is not None:
             fcntl.flock(lock.fileno(), fcntl.LOCK_EX)

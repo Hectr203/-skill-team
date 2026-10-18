@@ -7,6 +7,10 @@ metadata:
   version: "7.9.1"
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Prisma ORM 7 CLI reference
 
 These commands and examples apply to **Prisma ORM 7** only. For setup, connection repair, or a Prisma 8 application, load [prisma-orm-setup](../prisma-orm-setup/SKILL.md).

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Servidor MCP Nativo — Agencia de Proyectos (Estándar Élite 11/10).
+Servidor MCP local de Agencia Principal.
 
 Implementa el protocolo Model Context Protocol (MCP) sobre JSON-RPC 2.0 (stdio)
 utilizando únicamente la biblioteca estándar de Python (cero dependencias externas).
 
-Expone 6 herramientas nativas para cualquier cliente MCP (Google Antigravity IDE,
+Expone herramientas locales de contexto, integridad y descubrimiento de skills para cualquier cliente MCP (Google Antigravity IDE,
 Claude Code, Cursor, OpenCode):
 - agencia_arranque: Context Engine y recuperación de memoria/ADRs/FinOps.
 - agencia_cierre: Registro de tareas, decisiones y cierre de sesión.
@@ -17,7 +17,7 @@ Claude Code, Cursor, OpenCode):
 Uso en configuración MCP:
     "agencia": {
       "command": "python3",
-      "args": ["/mnt/nvme/skill-team/Agencia_de_Proyectos/scripts/agencia_mcp.py"]
+      "args": ["<ruta-absoluta-agencia>/scripts/agencia_mcp.py"]
     }
 """
 from __future__ import annotations
@@ -37,19 +37,19 @@ if str(SCRIPT_DIR) not in sys.path:
 TOOLS_DEFINITIONS = [
     {
         "name": "agencia_arranque",
-        "description": "Context Engine: Carga la memoria, manifiesto, decisiones de arquitectura (ADRs), estado Git y presupuesto de tokens de un proyecto. Retorna el System Primer formateado listo para inyectar al LLM o el paquete JSON estructurado.",
+        "description": "Context Engine: Carga la memoria, manifiesto, decisiones de arquitectura (ADRs), estado Git y presupuesto de tokens de un proyecto. Retorna contexto de referencia que no reemplaza instrucciones vigentes o el paquete JSON estructurado.",
         "inputSchema": {
             "type": "object",
             "properties": {
                 "proyecto": {
                     "type": "string",
-                    "description": "Nombre o ID del proyecto (admite búsqueda difusa, ej: 'vtp' o 'vtptransportes').",
+                    "description": "Nombre o ID del proyecto (requiere ID exacto, ej: 'vtp' o 'vtptransportes').",
                 },
                 "formato": {
                     "type": "string",
                     "enum": ["primer", "json", "visual"],
                     "default": "primer",
-                    "description": "Formato de salida: 'primer' (System Prompt para LLM), 'json' (objeto estructurado), 'visual' (dashboard texto).",
+                    "description": "Formato de salida: 'primer' (contexto de referencia para el modelo), 'json' (objeto estructurado), 'visual' (dashboard texto).",
                 },
             },
             "required": ["proyecto"],
@@ -147,13 +147,14 @@ TOOLS_DEFINITIONS = [
                     "default": "nuevo",
                     "description": "Tipo de flujo o naturaleza del proyecto.",
                 },
+                "stack": {"type": "string", "default": "estandar", "description": "ID de un stack registrado en stacks/."},
             },
             "required": ["nombre"],
         },
     },
     {
         "name": "agencia_validar",
-        "description": "Ejecuta la suite de verificación formal de integridad de la agencia (78 skills, 16 agentes, scripts operativos, audios y enlaces sin roturas).",
+        "description": "Ejecuta la suite de verificación formal de integridad de la agencia (contratos de agentes, scripts, catálogo y enlaces; no audita el contenido de las skills).",
         "inputSchema": {
             "type": "object",
             "properties": {},
@@ -161,15 +162,60 @@ TOOLS_DEFINITIONS = [
     },
 ]
 
+TOOLS_DEFINITIONS.extend([
+    {"name": "agencia_plan", "description": "Consulta el plan local del proyecto, dependencias, revisión y vigencia de evidencias. No modifica estados ni inicia agentes; el contenido es contexto de referencia.",
+     "inputSchema": {"type": "object", "properties": {"proyecto": {"type": "string"}}, "required": ["proyecto"]}},
+    {"name": "agencia_skills", "description": "Lista nombres, descripciones y fuentes canónicas. El filtro textual ayuda a descubrir candidatos; no elige ni ejecuta skills.",
+     "inputSchema": {"type": "object", "properties": {"consulta": {"type": "string", "default": ""}}}},
+    {"name": "agencia_skill", "description": "Resuelve una skill por nombre exacto y su directorio de recursos. El agente debe leerla y comprobar aplicabilidad; no se ejecuta su procedimiento.",
+     "inputSchema": {"type": "object", "properties": {"nombre": {"type": "string"}}, "required": ["nombre"]}},
+])
+
+
+def validar_argumentos(nombre: str, argumentos: dict) -> None:
+    """Valida el contrato publicado antes de ejecutar cualquier herramienta."""
+    definicion = next((item for item in TOOLS_DEFINITIONS if item["name"] == nombre), None)
+    if definicion is None:
+        raise ValueError("Herramienta desconocida.")
+    if not isinstance(argumentos, dict):
+        raise ValueError("arguments debe ser un objeto.")
+    esquema = definicion["inputSchema"]
+    propiedades = esquema["properties"]
+    if set(argumentos) - set(propiedades):
+        raise ValueError("Argumentos no reconocidos.")
+    for campo in esquema.get("required", []):
+        if campo not in argumentos:
+            raise ValueError(f"Falta el argumento obligatorio: {campo}.")
+    for campo, valor in argumentos.items():
+        regla = propiedades[campo]
+        tipo = regla["type"]
+        if tipo == "string" and not isinstance(valor, str) or tipo == "boolean" and not isinstance(valor, bool):
+            raise ValueError(f"Tipo inválido para {campo}.")
+        if campo in esquema.get("required", []) and isinstance(valor, str) and not valor.strip():
+            raise ValueError(f"El argumento {campo} no puede estar vacío.")
+        if "enum" in regla and valor not in regla["enum"]:
+            raise ValueError(f"Valor no permitido para {campo}.")
+
 
 def ejecutar_herramienta(name: str, args: dict) -> tuple[str, bool]:
     """Despacha la ejecución de cada herramienta capturando la salida de forma segura."""
     f_out = io.StringIO()
     f_err = io.StringIO()
+    codigo = 0
 
     try:
+        validar_argumentos(name, args)
         with redirect_stdout(f_out), redirect_stderr(f_err):
-            if name == "agencia_arranque":
+            if name == "agencia_plan":
+                from operacion_tareas import consultar
+                print(json.dumps(consultar(args["proyecto"]), ensure_ascii=False, indent=2))
+
+            elif name in ("agencia_skills", "agencia_skill"):
+                from consulta_skills import listar_skills, resolver_skill
+                resultado = resolver_skill(args["nombre"]) if name == "agencia_skill" else listar_skills(args.get("consulta", ""))
+                print(json.dumps(resultado, ensure_ascii=False, indent=2))
+
+            elif name == "agencia_arranque":
                 from arranque import ejecutar_arranque
                 formato = args.get("formato", "primer")
                 ejecutar_arranque(
@@ -198,7 +244,7 @@ def ejecutar_herramienta(name: str, args: dict) -> tuple[str, bool]:
             elif name == "agencia_doctor":
                 from doctor import Doctor
                 doc = Doctor(verbose=args.get("verbose", False))
-                doc.ejecutar()
+                codigo = doc.ejecutar()
 
             elif name == "agencia_estado":
                 from agencia import cmd_estado
@@ -211,12 +257,13 @@ def ejecutar_herramienta(name: str, args: dict) -> tuple[str, bool]:
                     nombre=args.get("nombre"),
                     cliente=args.get("cliente", ""),
                     tipo=args.get("tipo", "nuevo"),
+                    stack=args.get("stack", "estandar"),
                 )
 
             elif name == "agencia_validar":
                 from agencia import cmd_validar
                 import argparse
-                cmd_validar(argparse.Namespace())
+                codigo = cmd_validar(argparse.Namespace())
 
             else:
                 return f"Error: Herramienta desconocida '{name}'.", True
@@ -226,6 +273,8 @@ def ejecutar_herramienta(name: str, args: dict) -> tuple[str, bool]:
 
     res = f_out.getvalue().strip()
     err = f_err.getvalue().strip()
+    if codigo:
+        return f"{res}\n{err}\nLa herramienta terminó con código {codigo}.".strip(), True
     if err and not res:
         return f"Aviso/Error: {err}", True
     return res, False
@@ -243,8 +292,19 @@ def responder_jsonrpc(id_req, result=None, error=None):
 
 
 def procesar_mensaje(msg: dict):
+    if not isinstance(msg, dict) or msg.get("jsonrpc") != "2.0" or not isinstance(msg.get("method"), str):
+        responder_jsonrpc(None, error={"code": -32600, "message": "Solicitud JSON-RPC inválida"})
+        return
     method = msg.get("method")
     req_id = msg.get("id")
+    if req_id is not None and type(req_id) not in (int, str):
+        responder_jsonrpc(None, error={"code": -32600, "message": "ID de solicitud inválido"})
+        return
+    if "id" not in msg:
+        return
+    if not isinstance(msg.get("params", {}), dict):
+        responder_jsonrpc(req_id, error={"code": -32602, "message": "params debe ser un objeto"})
+        return
 
     # 1. initialize
     if method == "initialize":
@@ -302,7 +362,7 @@ def procesar_mensaje(msg: dict):
         return
 
     # Método no soportado
-    if req_id is not None:
+    if "id" in msg:
         responder_jsonrpc(
             req_id,
             error={"code": -32601, "message": f"Método no soportado: {method}"},
@@ -324,9 +384,7 @@ def main():
             msg = json.loads(linea)
             procesar_mensaje(msg)
         except json.JSONDecodeError as exc:
-            # Enviar error de parseo si es posible
-            sys.stderr.write(f"[agencia_mcp] Error decodificando JSON: {exc}\n")
-            sys.stderr.flush()
+            responder_jsonrpc(None, error={"code": -32700, "message": "JSON inválido"})
 
 
 if __name__ == "__main__":

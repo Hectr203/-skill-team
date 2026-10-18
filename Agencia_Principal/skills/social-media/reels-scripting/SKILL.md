@@ -3,6 +3,10 @@ name: reels-scripting
 description: Creación de guiones dinámicos para video corto vertical (Reels, TikTok, YouTube Shorts). Temporización de ganchos (0-3s), retención visual y llamados a la acción.
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Guiones Audiovisuales para Video Corto (Reels Scripting)
 
 Basado en el módulo audiovisual de **Social Media Skills** ([github.com/charlie947/social-media-skills](https://github.com/charlie947/social-media-skills)). Estructura contenidos audiovisuales verticales de 30 a 60 segundos con alta tasa de finalización (*completion rate*).

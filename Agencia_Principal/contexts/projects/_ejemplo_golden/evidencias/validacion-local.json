@@ -1,0 +1,78 @@
+{
+  "fecha": "2026-10-07T23:02:23.324978-06:00",
+  "alcance": "Pruebas locales de agencia; no constituye recibo de revisión ni validación externa",
+  "resultados": [
+    {
+      "comando": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "codigo": 0,
+      "stdout": "=== AGENCIA PRINCIPAL — NUEVO PROYECTO ===\n\n[+] ID del Proyecto: test-proyecto-stack\n    Ubicación:       /tmp/tmpqkc18dvi/contexts/projects/test-proyecto-stack\n    Tipo:            nuevo\n    Stack:           estandar\n    Cliente:         Cliente Test\n      ✓ Manifiesto creado: manifiesto.md\n      ✓ Memoria inicializada: memoria.md y .memoria/\n      ✓ Directorio de ADRs creado: adrs/\n      ✓ Directorio de evidencias creado: evidencias/\n      ✓ Archivo de protección de secretos creado: .gitignore\n\n✅ Proyecto 'test-proyecto-stack' creado con éxito en contexts/projects/test-proyecto-stack.\n\n── Siguientes pasos recomendados ────────────────────────────────\n  1. Completa el manifiesto del proyecto:\n       /tmp/tmpqkc18dvi/contexts/projects/test-proyecto-stack/manifiesto.md\n  2. Consulta la memoria al inicio de cada sesión:\n       python3 scripts/arranque.py --proyecto test-proyecto-stack\n  3. Registra el cierre de sesión o tarea tras cada cambio:\n       python3 scripts/cierre.py --proyecto test-proyecto-stack \\\n           --tareas \"Definición inicial de alcance\" \\\n           --decisiones \"Arquitectura inicial acordada\"\n────────────────────────────────────────────────────────────────\n\n  [solicitar_autorizacion] Notificación emitida para recurso: prueba\n  [solicitar_autorizacion] Notificación emitida para recurso: prueba\n",
+      "stderr": "test_fuzzy_lookup_does_not_choose_between_projects (test_agencia_operativa.AgenciaOperativaTests.test_fuzzy_lookup_does_not_choose_between_projects) ... ok\ntest_mcp_survives_invalid_tool_call (test_agencia_operativa.AgenciaOperativaTests.test_mcp_survives_invalid_tool_call) ... ok\ntest_nuevo_proyecto_con_stack (test_agencia_operativa.AgenciaOperativaTests.test_nuevo_proyecto_con_stack) ... ok\ntest_validator_is_json_safe_through_mcp (test_agencia_operativa.AgenciaOperativaTests.test_validator_is_json_safe_through_mcp) ... ok\ntest_auditoria_fallida_bloquea_aprobacion (test_controles.ControlesTests.test_auditoria_fallida_bloquea_aprobacion) ... No se pudo registrar la solicitud de autorización.\nok\ntest_autorizacion_aprobada_rechazada_y_auditoria (test_controles.ControlesTests.test_autorizacion_aprobada_rechazada_y_auditoria) ... ok\ntest_autorizacion_pendiente_no_es_exito (test_controles.ControlesTests.test_autorizacion_pendiente_no_es_exito) ... ok\ntest_creacion_aislada_y_stack_invalido_no_mutan_agencia (test_controles.ControlesTests.test_creacion_aislada_y_stack_invalido_no_mutan_agencia) ... ok\ntest_enlace_simbolico_no_sale_del_almacen (test_controles.ControlesTests.test_enlace_simbolico_no_sale_del_almacen) ... ok\ntest_estado_de_memoria_no_admite_enlaces (test_controles.ControlesTests.test_estado_de_memoria_no_admite_enlaces) ... ok\ntest_id_y_ruta_central_resuelven_la_misma_memoria (test_controles.ControlesTests.test_id_y_ruta_central_resuelven_la_misma_memoria) ... ok\ntest_lectura_sin_clave_no_modifica_estado (test_controles.ControlesTests.test_lectura_sin_clave_no_modifica_estado) ... ok\ntest_mcp_nuevo_admite_stack (test_controles.ControlesTests.test_mcp_nuevo_admite_stack) ... ok\ntest_mcp_propaga_codigos_de_fallo (test_controles.ControlesTests.test_mcp_propaga_codigos_de_fallo) ... ok\ntest_mcp_sobrevive_json_de_forma_invalida (test_controles.ControlesTests.test_mcp_sobrevive_json_de_forma_invalida) ... ok\ntest_mcp_valida_argumentos_antes_de_mutar (test_controles.ControlesTests.test_mcp_valida_argumentos_antes_de_mutar) ... ok\ntest_migracion_legacy_conserva_historial (test_controles.ControlesTests.test_migracion_legacy_conserva_historial) ... ok\ntest_rutas_externas_no_se_aliasan_por_nombre (test_controles.ControlesTests.test_rutas_externas_no_se_aliasan_por_nombre) ... ok\ntest_crear_arrancar_cerrar_y_reanudar_sin_mezclar_clientes (test_flujo_piloto.FlujoPilotoTests.test_crear_arrancar_cerrar_y_reanudar_sin_mezclar_clientes) ... ok\n\n----------------------------------------------------------------------\nRan 19 tests in 1.496s\n\nOK\n"
+    },
+    {
+      "comando": [
+        "python3",
+        "scripts/agencia.py",
+        "validar"
+      ],
+      "codigo": 0,
+      "stdout": "skills=146 agentes=19 scripts=11 audios=4 archivos_md=604\nVALIDACION OK (integridad local; no certifica servicios externos ni calidad de proyectos)\n",
+      "stderr": ""
+    },
+    {
+      "comando": [
+        "python3",
+        "scripts/catalogo_skills.py"
+      ],
+      "codigo": 0,
+      "stdout": "Habilidades canónicas: 110\n",
+      "stderr": ""
+    },
+    {
+      "comando": [
+        "python3",
+        "scripts/doctor.py"
+      ],
+      "codigo": 0,
+      "stdout": "\n\u001b[1m=======================================================\u001b[0m\n\u001b[1m🩺 AGENCIA DE PROYECTOS — DIAGNÓSTICO Y PREFLIGHT CHECK\u001b[0m\n\u001b[1m=======================================================\u001b[0m\nDirectorio raíz: /mnt/nvme/PROYECTO GILBERTO/Agencia_Principal\nSistema Operativo: Linux 7.0.0-34-generic (x86_64)\n\n\u001b[1m\u001b[94m── 1. Entorno Python ──────────────────────────────────────\u001b[0m\n  \u001b[92m[✓ OK]\u001b[0m Python 3.12.3 \u001b[96m(/usr/bin/python3)\u001b[0m\n  \u001b[92m[✓ OK]\u001b[0m Módulo opcional: cryptography\n  \u001b[92m[✓ OK]\u001b[0m Módulo opcional: requests\n\n\u001b[1m\u001b[94m── 2. Entorno Node.js y JavaScript ──────────────────────────────────────\u001b[0m\n  \u001b[92m[✓ OK]\u001b[0m Node.js ejecutable: v22.23.3 \u001b[96m(/usr/bin/node)\u001b[0m\n  \u001b[92m[✓ OK]\u001b[0m Herramienta 'npm' disponible \u001b[96m(/usr/bin/npm)\u001b[0m\n  \u001b[92m[✓ OK]\u001b[0m Herramienta 'npx' disponible \u001b[96m(/usr/bin/npx)\u001b[0m\n\n\u001b[1m\u001b[94m── 3. Herramientas CLI y Reproductores de Audio ──────────────────────────────────────\u001b[0m\n  \u001b[92m[✓ OK]\u001b[0m Git disponible \u001b[96m(/usr/bin/git)\u001b[0m\n  \u001b[92m[✓ OK]\u001b[0m Reproductores de sonido del sistema: aplay, ffplay, pw-cat\n  \u001b[92m[✓ OK]\u001b[0m Todos los archivos de audio oficiales presentes (4/4)\n\n\u001b[1m\u001b[94m── 4. Servidores MCP y Tooling Especializado ──────────────────────────────────────\u001b[0m\n  \u001b[92m[✓ OK]\u001b[0m Registro de servidores MCP presente (mcp/registro-mcp.md)\n  \u001b[92m[✓ OK]\u001b[0m opencode.json válido (4 MCPs declarados)\n  \u001b[94m[ℹ INFO]\u001b[0m MCP 'playwright': desactivado; no se comprobó conexión\n  \u001b[94m[ℹ INFO]\u001b[0m MCP 'headroom': desactivado; no se comprobó conexión\n  \u001b[94m[ℹ INFO]\u001b[0m MCP 'stitch': desactivado; no se comprobó conexión\n  \u001b[94m[ℹ INFO]\u001b[0m CLI 'claude-mem' no en PATH; integración no comprobada, usar alternativas locales documentadas\n  \u001b[94m[ℹ INFO]\u001b[0m CLI 'headroom' no en PATH; integración no comprobada, usar alternativas locales documentadas\n  \u001b[92m[✓ OK]\u001b[0m Launcher Impeccable presente y ejecutable; motor no iniciado\n\n\u001b[1m\u001b[94m── 5. Integridad Estructural y Contextos ──────────────────────────────────────\u001b[0m\n  \u001b[92m[✓ OK]\u001b[0m Contexto 'contexts/projects/' (4 elementos)\n  \u001b[92m[✓ OK]\u001b[0m Contexto 'contexts/brands/' (1 elementos)\n  \u001b[92m[✓ OK]\u001b[0m Contexto 'contexts/clients/' (1 elementos)\n  \u001b[92m[✓ OK]\u001b[0m Contexto 'contexts/agency/' (5 elementos)\n  \u001b[92m[✓ OK]\u001b[0m Contexto 'contexts/campaigns/' (1 elementos)\n  \u001b[92m[✓ OK]\u001b[0m Plantilla presente: plantillas/manifiesto-proyecto.md\n  \u001b[92m[✓ OK]\u001b[0m Plantilla presente: plantillas/adr.md\n  \u001b[92m[✓ OK]\u001b[0m Fichas de agentes y documentos de apoyo presentes (19)\n  \u001b[92m[✓ OK]\u001b[0m Fuentes de skills presentes (146 archivos, incluyendo variantes)\n\n\u001b[1m\u001b[94m── 6. Validación y protocolo MCP local ──────────────────────────────────────\u001b[0m\n  \u001b[92m[✓ OK]\u001b[0m Validación estructural ejecutada\n  \u001b[92m[✓ OK]\u001b[0m MCP agencia: inicialización y seis herramientas verificadas\n\n\u001b[1m── Resumen del Diagnóstico ────────────────────────────\u001b[0m\n  \u001b[92m✓ Pruebas superadas (OK): 23\u001b[0m\n\n\u001b[1m\u001b[92mComprobaciones locales aprobadas; integraciones externas y proyectos requieren validación independiente.\u001b[0m\n\n",
+      "stderr": ""
+    },
+    {
+      "comando": [
+        "python3",
+        "/home/hector/.codex/skills/.system/skill-creator/scripts/quick_validate.py",
+        "skills/ahorro-contexto"
+      ],
+      "codigo": 0,
+      "stdout": "Skill is valid!\n",
+      "stderr": ""
+    }
+  ],
+  "sha256_archivos_verificados": {
+    "scripts/doctor.py": "32423bc2cc251784ec2ebfb96620c9e23e268fe819f971a3d512b4128e41ed1c",
+    "scripts/agencia_mcp.py": "5592d825030d69ace7b0ee9591fe1b32768ad7dcb2cd844b7e7d16fbad2d5ccd",
+    "scripts/validar_agencia.py": "de01e8da2bf16a535a4c60f0f1ea4a90ad7d9f297d1bebb4b3c38fe92045fb68",
+    "scripts/memoria_proyecto.py": "b904362fb7f647b66d5aed94c3aed815e2621f77bb592f8072a12c46c1f266b5",
+    "scripts/solicitar_autorizacion.py": "ecb60589fceec01bd485af8e79b7931780c9e5b11a8e5c0e5be3f2b1478a0151",
+    "scripts/notificar_tarea.py": "cdb99ca046badb20364ace4eabb3e09587d0b3906c7bc30f61af94a3be223157",
+    "scripts/catalogo_skills.py": "2aee13019ee4dc44ededf39691d78fe58f0e3386c22b78cb63ead0565e7b5a29",
+    "scripts/arranque.py": "616a3c823f1995bda6bd65796652d1185181f03d063e297159c7dac69440afae",
+    "scripts/solicitar_validacion.py": "4ae34d35365d3485d7ddf53e4202adc58e7dc5d3c47405ac7e5b79dc4bb14b38",
+    "scripts/nuevo_proyecto.py": "2d4a26f4475e4b2b7fff903541d348973fa0ddba7ecb91a59d1b94df4ecc6ef8",
+    "scripts/cierre.py": "ae06bfc8d0f7e58ad93de70270e0e98d5a8054a26db6ac205a57ed60b88afe26",
+    "scripts/agencia.py": "4caa5ab7c60b5eb60babb8cc78b0139da82d4f5fca4e5978c6145fa6163d12f5",
+    "tests/test_flujo_piloto.py": "285e083cb6d3237ef33c94da8a06b88dc4a8f75308bea43c15bbc3a4255baf7a",
+    "tests/test_controles.py": "1d0ab59eb6c0f8582b453ecd17140a9d38c8af6c8dcded2f42800c995aae740c",
+    "tests/test_agencia_operativa.py": "cc04a864641cb69a98228ea97137e95dd78e935bb165f70f094e3965177619d4",
+    "opencode.json": "6ed71c6243d583a9d1fa1d9487ed468209d235de4d3f7dc6f72b773a9f2ea926",
+    "reglas/precedencia.md": "d479a42cba48a6ef8a76900ab06e53199d6794cec9a8eccbf59aca4194004232",
+    "skills/ahorro-contexto/SKILL.md": "c6db070f54d850efaba00449c6668e1fc3187654fa4c03b79127cc31c7bd15c0"
+  }
+}

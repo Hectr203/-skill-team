@@ -1,104 +1,24 @@
 ---
 name: ahorro-contexto
-description: Use this skill when working in this project to reduce token usage, avoid unnecessary context loading, minimize memory usage, and keep project work concise and efficient.
+description: Recuperar y cerrar el contexto de un proyecto de esta agencia con memoria por ID explícito y lectura mínima. Aplicar al reanudar sesiones o registrar decisiones; no usar como sustituto de un gestor de secretos.
 ---
 
-# Ahorro de contexto y tokens
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
 
-When working in this project:
 
-- Do not read large files unless necessary.
-- Do not scan the whole repository unless the task requires it.
-- Prefer targeted searches over broad searches.
-- Read only the files directly related to the task.
-- Summarize findings briefly.
-- Avoid repeating file contents unless requested.
-- Avoid loading generated folders, dependency folders, build outputs, cache folders, logs, and binary files.
-- Before editing, identify the smallest set of files needed.
-- Prefer small, focused changes.
-- Do not create long explanations after code changes.
-- Do not include large diffs in the response unless requested.
-- Mention only changed files and the reason for each change.
-- Keep answers short and practical.
+# Contexto y memoria por proyecto
 
-Avoid reading or indexing these paths unless explicitly requested:
+Usa el CLI central desde la raíz de la agencia. Los scripts duplicados dentro de suites importadas son referencias históricas; no son el motor operativo activo.
 
-- node_modules/
-- vendor/
-- dist/
-- build/
-- coverage/
-- .git/
-- .cache/
-- .next/
-- .nuxt/
-- out/
-- target/
-- tmp/
-- logs/
-- *.log
-- *.lock
-- package-lock.json
-- yarn.lock
-- pnpm-lock.yaml
-- composer.lock
+1. Identifica el ID único en `contexts/projects/<id>/`. No lo deduzcas a partir de una ruta externa ni mezcles proyectos con el mismo nombre de carpeta.
+2. Recupera contexto con `python3 scripts/agencia.py arranque <id> --prime` o `agencia_arranque` con `formato="primer"`.
+3. Consulta CodeGraph antes de explorar código. Lee solo las fuentes relacionadas y omite dependencias, compilados y registros extensos salvo necesidad concreta.
+4. Registra decisiones, riesgos y pendientes mediante `python3 scripts/agencia.py cierre <id> --tareas "resumen" --decisiones "decisiones" --pendientes "pendientes"`.
+5. Conserva convenciones existentes y aplica [precedencia](../../reglas/precedencia.md).
 
-Default workflow:
+El manifiesto y `memoria.md` son texto legible. El historial JSONL también puede contener datos sensibles: nunca registrar credenciales, datos personales innecesarios ni contenido confidencial de otro cliente. El cifrado de compatibilidad no protege las copias Markdown y JSONL.
 
-1. Understand the request.
-2. Search only relevant filenames, symbols, or folders.
-3. Open the smallest useful files.
-4. Make the minimal necessary change.
-5. Respond with a short summary.
+No inicializar memoria durante una lectura. Si falta una clave de un archivo cifrado existente, informar la limitación; no generar una clave nueva para intentar recuperarlo.
 
-## Memoria persistente del proyecto
-
-Antes de cualquier modificacion importante dentro de `Agentes_Unificados`, ejecutar desde la raiz de la agencia:
-
-```bash
-python3 skills/ahorro-contexto/scripts/arranque.py
-```
-
-El arranque recupera Mem Palace y las entradas recientes de CloudMem local.
-
-Despues de modificar documentos, agentes, skills, reglas, arquitectura o configuracion, registrar el cierre:
-
-```bash
-python3 skills/ahorro-contexto/scripts/cierre.py \
-  --tareas "Resumen de tareas completadas" \
-  --pendientes "Pendientes" \
-  --decisiones "Decisiones tecnicas" \
-  --riesgos "Riesgos" \
-  --cloud-resumen "Resumen operativo no sensible" \
-  --archivos "archivo1.md,archivo2.md" \
-  --tipo "documental"
-```
-
-Usar Mem Palace para decisiones estables, arquitectura, backend, base de datos, seguridad y reglas criticas. Usar CloudMem local para historial operativo no sensible, avances recientes y archivos modificados.
-
-## Memoria independiente por proyecto
-
-Para cualquier tarea dentro de `proyectos/<nombre>/`, usar siempre memoria del proyecto:
-
-```bash
-python3 skills/ahorro-contexto/scripts/arranque.py --proyecto proyectos/<nombre>
-```
-
-Al cerrar:
-
-```bash
-python3 skills/ahorro-contexto/scripts/cierre.py \
-  --proyecto proyectos/<nombre> \
-  --tareas "Resumen de tareas completadas" \
-  --pendientes "Pendientes" \
-  --decisiones "Decisiones tecnicas" \
-  --riesgos "Riesgos" \
-  --cloud-resumen "Resumen operativo no sensible" \
-  --archivos "archivo1.md,archivo2.md"
-```
-
-Para inicializar un proyecto copiado desde plantilla:
-
-```bash
-python3 skills/ahorro-contexto/scripts/memoria_proyecto.py --proyecto proyectos/<nombre> init
-```
+Las herramientas opcionales de compresión y memoria remota se usan cuando están disponibles. No afirmar que comprimieron o sincronizaron datos sin evidencia de ejecución.

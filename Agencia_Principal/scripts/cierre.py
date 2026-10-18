@@ -9,7 +9,7 @@ Opcionalmente emite notificación sonora y de escritorio.
 Uso:
     python3 scripts/cierre.py --proyecto <nombre> \\
         --tareas "Implementación del endpoint de autenticación" \\
-        --archivos "src/auth.ts,src/user.ts" \\
+        --archivos "archivos/del/proyecto" \\
         --decisiones "Uso de tokens JWT con rotación" \\
         --pendientes "Pruebas de estrés y rate-limiting" \\
         --agente "Backend" \\

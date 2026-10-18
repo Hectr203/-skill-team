@@ -1,29 +1,12 @@
-# Servidor MCP: Headroom (Compresión Semántica en Tiempo Real)
+# Adaptador opcional: headroom
 
-- **Repositorio oficial**: [github.com/headroomlabs-ai/headroom](https://github.com/headroomlabs-ai/headroom)
-- **Licencia**: Apache-2.0
-- **Propósito**: Comprimir en tiempo real la salida de comandos largos, volcados de terminal, logs masivos y diffs de git, logrando hasta un 80% de ahorro de tokens sin perder información crítica ni stack traces.
+## Propósito
+Reducción opcional de salidas extensas preservando evidencia. Este documento no instala, conecta ni ejecuta el servicio.
 
-## Herramientas Expuestas
-- `headroom_compress`: Comprime bloques de texto extensos reteniendo líneas críticas (FATAL, ERROR, excepciones).
-- `headroom_retrieve`: Recupera fragmentos originales específicos no comprimidos cuando sea necesario.
-- `headroom_stats`: Reporta la tasa de compresión efectiva y los tokens ahorrados acumulados.
+## Disponibilidad y uso
+Consultar el [registro](../registro-mcp.md) y la configuración real del cliente. Distinguir archivo configurado, proceso iniciado, conexión comprobada y operación completada. Descubrir nombres y esquemas de herramientas publicados por el servidor; no copiar comandos de ejemplos como si fueran APIs verificadas.
 
-## Configuración (`mcp_config.json`)
-```json
-{
-  "mcpServers": {
-    "headroom": {
-      "command": "npx",
-      "args": ["-y", "headroom-ai", "mcp"]
-    }
-  }
-}
-```
+El asistente principal selecciona esta capacidad cuando corresponde al alcance. Las skills pertinentes se leen mediante [selección común](../../reglas/seleccion-skills.md); no acoplan roles o perfiles a este servidor. Si falta, usar una alternativa local que cumpla el objetivo o informar qué control queda pendiente.
 
-## Modo Wrapper Alternativo
-Compatible con ejecución transparente por terminal:
-```bash
-headroom wrap pytest
-headroom wrap npm test
-```
+## Permisos y datos
+Conservar autorización vigente, aislamiento y datos mínimos. Una herramienta instalada no autoriza transferencia de memoria, publicación, contacto o cambio de infraestructura. Credenciales fuera de documentación y configuración versionable. No declarar privacidad total o resultados no medidos.

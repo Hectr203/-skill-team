@@ -4,6 +4,10 @@ description: Create distinctive, production-grade frontend interfaces with high 
 license: Complete terms in LICENSE.txt
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Diseno de Frontend
 
 This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. Implement real working code with exceptional attention to aesthetic details and creative choices.

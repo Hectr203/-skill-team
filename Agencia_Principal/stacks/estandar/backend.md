@@ -1,77 +1,15 @@
-# Stack Estándar: Backend (Node.js 22 LTS + Express + JavaScript ES Modules)
+# Perfil estándar: Backend
 
-Este documento define las especificaciones técnicas obligatorias para el desarrollo de backend bajo el stack oficial predeterminado de la agencia.
+## Tecnología
+Node.js con Express y JavaScript ES Modules; PostgreSQL y Prisma para persistencia. Conservar la versión fijada por el proyecto. Zod para validación de entradas del perfil; JSDoc para contratos útiles. Autenticación y hash de contraseñas se eligen conforme al flujo y requisitos del proyecto; conservar JWT/bcryptjs donde ya estén aprobados. No añadir autenticación a endpoints públicos sin un requisito.
 
----
+No copiar versiones de paquetes de ejemplos antiguos ni actualizar versiones mayores incidentalmente. Prisma, su cliente y sus adaptadores deben ser compatibles con la versión instalada. Otros perfiles seleccionan sus propias tecnologías sin cambiar este perfil.
 
-## 1. Tecnologías y Dependencias Base
+## Arquitectura y archivos
+Aplicar [arquitectura backend](arquitectura-backend.md): módulos de negocio, casos de uso independientes de Express y Prisma, y composición por módulo. Los puertos y adaptadores son límites de dependencia, no capas o archivos obligatorios. La fuente define árbol, responsabilidades, flujo, validación y transacciones; no duplicarlos en la ficha del agente.
 
-- **Runtime:** Node.js 22 LTS
-- **Framework:** Express.js 4.x / 5.x
-- **Lenguaje:** JavaScript moderno (ECMAScript 2024+ con ES Modules `"type": "module"`)
-- **ORM:** Prisma ORM 6.x / 7.x
-- **Base de Datos:** PostgreSQL 16+
-- **Seguridad:** JWT (`jsonwebtoken`), hash de contraseñas (`bcryptjs`), sanitización y CORS.
-- **Herramientas de Ejecución y Pruebas:** `node --watch` (nativo en Node 22) o `nodemon`, Jest o runner nativo `node --test`.
+## Simplicidad
+Todo trabajo backend aplica Ponytail en nivel `full` según la [política de simplicidad](../../reglas/simplicidad-ponytail.md): reutilizar antes de crear, capacidades nativas de JavaScript, Node.js, Express, PostgreSQL y Prisma antes que dependencias nuevas, y ninguna capa o archivo sin necesidad actual.
 
-Dependencias recomendadas en `package.json`:
-```json
-{
-  "name": "backend",
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "node --watch src/server.js",
-    "start": "node src/server.js",
-    "test": "node --test tests/**/*.test.js",
-    "prisma:migrar": "prisma migrate dev",
-    "prisma:generar": "prisma generate",
-    "prisma:semilla": "node prisma/seed.js"
-  },
-  "dependencies": {
-    "@prisma/client": "^6.0.0",
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.0",
-    "jsonwebtoken": "^9.0.2"
-  },
-  "devDependencies": {
-    "prisma": "^6.0.0"
-  }
-}
-```
-
----
-
-## 2. Estructura de Directorios (Clean Architecture en JavaScript)
-
-```txt
-backend/
-├── src/
-│   ├── app.js                         # Configuración de Express, middlewares y rutas
-│   ├── server.js                      # Arranque del servidor y conexión a base de datos
-│   ├── configuracion/                 # Variables de entorno y configuración general
-│   ├── middlewares/                   # Autenticación, manejo global de errores y validación
-│   ├── modulos/                       # Módulos organizados por dominio de negocio
-│   │   └── <nombre_modulo>/
-│   │       ├── dominio/               # Entidades y reglas de negocio puras
-│   │       ├── aplicacion/            # Casos de uso y lógica de aplicación
-│   │       ├── infraestructura/       # Repositorio con Prisma y llamadas externas
-│   │       └── interfaces/            # Controladores HTTP y rutas Express
-│   └── utilidades/                    # Respuestas JSON estándar y helpers puros
-├── prisma/
-│   ├── schema.prisma                  # Esquema declarativo de base de datos
-│   └── seed.js                        # Datos iniciales para desarrollo y pruebas
-├── tests/                             # Pruebas unitarias y de integración
-├── .env.example
-└── package.json
-```
-
----
-
-## 3. Reglas de Código Obligatorias
-1. **Nombres en Español**: Controladores (`controladorUsuarios.js`), casos de uso (`crearUsuarioCasoUso.js`), repositorios (`repositorioUsuarios.js`) y variables deben estar estrictamente en español neutro.
-2. **Encapsulamiento de Prisma**: Queda terminantemente prohibido importar `@prisma/client` en controladores, rutas o casos de uso. Prisma solo existe dentro de la capa `infraestructura/` del módulo correspondiente.
-3. **Manejo Centralizado de Excepciones**: Ningún error debe fugar trazas de stack en producción; todos deben devolver formato `{ "exito": false, "mensaje": "...", "codigo": "..." }`.
-4. **Agilidad sin Fatiga de Tipado**: Se utiliza JavaScript moderno y claro. Las validaciones de entrada se realizan en la capa de interfaz/controlador mediante validación semántica simple, aplicando la filosofía Ponytail & YAGNI.
+## Integración y calidad
+Aplicar el [contrato del perfil](contrato-integracion.md) y [persistencia](base-datos.md). Validar comportamiento, errores, autorización por cliente, contratos API e integridad. Usar comandos reales del proyecto y registrar controles pendientes. No devolver trazas o credenciales en respuestas.

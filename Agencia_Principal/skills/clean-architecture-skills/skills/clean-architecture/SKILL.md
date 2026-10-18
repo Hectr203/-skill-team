@@ -3,6 +3,10 @@ name: clean-architecture
 description: Review code and provide design guidance based on Clean Architecture principles. Checks dependency rule, layer separation, crossing boundaries, and SOLID principles. Use when asked to review architecture, check dependencies, or design with clean architecture principles.
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Clean Architecture Review Skill
 
 ## Overview

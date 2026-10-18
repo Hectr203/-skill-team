@@ -1,13 +1,12 @@
-# Plantilla de Proyecto
+# Referencia de contexto de proyecto
 
-Usa esta carpeta como base para agregar un nuevo proyecto dentro de `Agentes_Unificados/proyectos/`.
+Esta carpeta conserva ejemplos de contexto. El comando de creación utiliza las plantillas de `plantillas/`; no copia este directorio.
 
-## Crear nuevo proyecto
+Desde la raíz de la agencia:
 
 ```bash
-cp -R proyectos/_plantilla_proyecto proyectos/mi-proyecto
-python3 skills/ahorro-contexto/scripts/memoria_proyecto.py --proyecto proyectos/mi-proyecto init
+python3 scripts/agencia.py nuevo mi-proyecto --cliente "Cliente"
+python3 scripts/agencia.py arranque mi-proyecto --prime
 ```
 
-## Regla
-Cada proyecto debe tener memoria propia en `.memoria/`. No se debe usar la memoria raiz de la agencia como memoria compartida de proyectos.
+Cada proyecto mantiene su manifiesto, memoria y decisiones en `contexts/projects/<id>/`. No compartir memoria entre clientes. La aplicación se desarrolla en su propio repositorio.

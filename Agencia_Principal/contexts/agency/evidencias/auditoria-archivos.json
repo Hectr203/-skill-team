@@ -1,0 +1,884 @@
+{
+  "fecha": "2026-10-08",
+  "archivos": 156,
+  "skills_excluidas": 827,
+  "registro": [
+    {
+      "archivo": ".agencia/catalogo-skills.json",
+      "revision": "estructura y sintaxis",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": ".gitignore",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": ".hitl_audit.jsonl",
+      "revision": "metadatos privados; contenido no examinado",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": ".mem_palace.key",
+      "revision": "metadatos privados; contenido no examinado",
+      "estado": "conservado",
+      "permisos": "0o600"
+    },
+    {
+      "archivo": "AGENTS.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "GUIA-INICIO-PROYECTO.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "README.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "agentes/agente-arquitectura.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/agente-backend.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/agente-base-datos.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/agente-contexto.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/agente-despliegue-azure.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/agente-documentacion.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/agente-frontend.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/agente-motion-ui.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "agentes/agente-orquestador.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/analista-requerimientos.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/auditor-seguridad.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/contrato-agente.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/crm-leads.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/diseno-motion.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/guia-de-personas.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/ingeniero-de-pruebas.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/redes-sociales.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/revisor-de-codigo.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "agentes/seo-tecnico.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "asistente-principal.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "audios/Aprobación urgente..mp3",
+      "revision": "integridad binaria; sin evaluación sonora",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "audios/Necesito Validación.mp3",
+      "revision": "integridad binaria; sin evaluación sonora",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "audios/noti.mp3",
+      "revision": "integridad binaria; sin evaluación sonora",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "audios/termine la tarea.mp3",
+      "revision": "integridad binaria; sin evaluación sonora",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "context/alternativas_memoria.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "context/flujo_memoria.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "context/guia_agentes_y_skills.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "context/propuesta_estructura.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "context/propuesta_unificada.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "contexts/agency/README.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "contexts/agency/acuerdos.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "contexts/agency/auditoria-integral.md",
+      "revision": "documentación del alcance y límites",
+      "estado": "nuevo",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "contexts/agency/capacidades.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "contexts/agency/evaluacion-operativa.md",
+      "revision": "criterios documentales de calidad y límites de evidencia",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "contexts/agency/mejoras-operativas.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "contexts/agency/politicas.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "contexts/brands/README.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "contexts/campaigns/README.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "contexts/clients/README.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "contexts/projects/README.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "contexts/projects/_ejemplo_golden/evidencias/validacion-local.json",
+      "revision": "evidencia histórica; no prueba vigente",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "contexts/projects/_ejemplo_golden/manifiesto.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "contexts/projects/_ejemplo_golden/memoria.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "contexts/projects/_plantilla_proyecto/.gitignore",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "contexts/projects/_plantilla_proyecto/.memoria/.gitkeep",
+      "revision": "metadatos privados; contenido no examinado",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "contexts/projects/_plantilla_proyecto/README.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "contexts/projects/_plantilla_proyecto/adrs/.gitkeep",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "contexts/projects/_plantilla_proyecto/context/manifiesto-proyecto.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "contexts/projects/_plantilla_proyecto/evidencias/.gitkeep",
+      "revision": "evidencia histórica; no prueba vigente",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "flujos/auditoria-seguridad.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "flujos/automatizacion-pruebas-web.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "flujos/campana-lanzamiento.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "flujos/correccion-urgente.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "flujos/desarrollo-incremental.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "flujos/desplegar-en-azure.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "flujos/dev-flow-completo.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "flujos/diseno-visual-motion.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "flujos/gestion-comercial.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "flujos/optimizacion-seo.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "flujos/produccion-growth.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "flujos/proyecto-existente.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "flujos/proyecto-nuevo.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "flujos/revision-y-cierre.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "mcp/auto-crm/README.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "mcp/claude-mem/README.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "mcp/google-stitch/README.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "mcp/headroom/README.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "mcp/mcp_config.example.json",
+      "revision": "estructura y sintaxis",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "mcp/mcp_config.json",
+      "revision": "estructura y sintaxis",
+      "estado": "conservado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "mcp/notebooklm/README.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "mcp/playwright/README.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "mcp/registro-mcp.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "mcp_config.json",
+      "revision": "estructura y sintaxis",
+      "estado": "conservado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "opencode.json",
+      "revision": "estructura y sintaxis",
+      "estado": "conservado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "plantillas/adr.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "plantillas/entrega.json",
+      "revision": "control operativo, esquema y pruebas de cierre",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "plantillas/informe-cierre.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "plantillas/manifiesto-proyecto.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "plantillas/nueva-skill.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "plantillas/nuevo-agente.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "plantillas/plan-tareas.json",
+      "revision": "coordinación persistente, recuperación, integridad y pruebas de regresión",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "plantillas/requerimiento.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "plantillas/tarea-agente.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "reglas/aislamiento-contexto.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "reglas/calidad-entregas.md",
+      "revision": "criterios documentales de calidad y límites de evidencia",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "reglas/compatibilidad-ia.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "reglas/frontend-fsd.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "reglas/frontend-modular.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "reglas/human-in-the-loop.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "reglas/lineamientos-desarrollo.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "reglas/metodologia-superpowers-artefactos.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "reglas/operacion-tareas.md",
+      "revision": "coordinación persistente, recuperación, integridad y pruebas de regresión",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "reglas/precedencia.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "reglas/reglas-generales.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "reglas/rutas-agentes.json",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "reglas/seleccion-skills.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "reglas/verificacion-local.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/agencia.py",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "scripts/agencia_mcp.py",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "scripts/arranque.py",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/azure_auditor.py",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "scripts/catalogo_skills.py",
+      "revision": "estructura y sintaxis",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/cierre.py",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/configurar_mcp.py",
+      "revision": "estructura y sintaxis",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/consulta_skills.py",
+      "revision": "estructura y sintaxis",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/control_entregas.py",
+      "revision": "control operativo, esquema y pruebas de cierre",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/doctor.py",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "scripts/memoria_proyecto.py",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/notificacion_tarea.html",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/notificar_tarea.py",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o775"
+    },
+    {
+      "archivo": "scripts/nuevo_proyecto.py",
+      "revision": "estructura y sintaxis",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/operacion_tareas.py",
+      "revision": "coordinación persistente, recuperación, integridad y pruebas de regresión",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/registrar_agente.py",
+      "revision": "estructura y sintaxis",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/solicitar_autorizacion.py",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/solicitar_validacion.py",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o775"
+    },
+    {
+      "archivo": "scripts/solicitud_autorizacion.html",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/solicitud_validacion.html",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/validar_agencia.py",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/validar_rutas_agentes.py",
+      "revision": "estructura y sintaxis",
+      "estado": "modificado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "scripts/verificacion_local.py",
+      "revision": "estructura y sintaxis",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "stacks/README.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "stacks/alternativos/laravel-livewire-alpine/stack.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "stacks/despliegue/azure.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "stacks/estandar/arquitectura-backend.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "stacks/estandar/arquitectura-frontend.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "stacks/estandar/backend.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "stacks/estandar/base-datos.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "stacks/estandar/contrato-integracion.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "stacks/estandar/frontend.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "stacks/plantillas/nuevo-stack.md",
+      "revision": "revisión documental de coherencia y referencias",
+      "estado": "modificado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "tests/test_agencia_operativa.py",
+      "revision": "estructura y sintaxis",
+      "estado": "conservado",
+      "permisos": "0o644"
+    },
+    {
+      "archivo": "tests/test_control_entregas.py",
+      "revision": "control operativo, esquema y pruebas de cierre",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "tests/test_controles.py",
+      "revision": "estructura y sintaxis",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "tests/test_controles_runtime.py",
+      "revision": "coordinación persistente, recuperación, integridad y pruebas de regresión",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "tests/test_flujo_piloto.py",
+      "revision": "estructura y sintaxis",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "tests/test_integracion_skills.py",
+      "revision": "estructura y sintaxis",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "tests/test_operacion_tareas.py",
+      "revision": "coordinación persistente, recuperación, integridad y pruebas de regresión",
+      "estado": "nuevo",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "tests/test_rutas_agentes.py",
+      "revision": "estructura y sintaxis",
+      "estado": "conservado",
+      "permisos": "0o664"
+    },
+    {
+      "archivo": "tests/test_verificacion_local.py",
+      "revision": "estructura y sintaxis",
+      "estado": "conservado",
+      "permisos": "0o664"
+    }
+  ],
+  "ampliacion": "Coordinación transaccional y grafos, 2026-10-08"
+}

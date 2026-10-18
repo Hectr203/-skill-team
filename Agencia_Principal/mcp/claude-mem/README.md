@@ -1,28 +1,12 @@
-# Servidor MCP: claude-mem (Memoria Persistente Universal)
+# Adaptador opcional: claude-mem
 
-- **Repositorio oficial**: [github.com/thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)
-- **Licencia**: Apache-2.0
-- **Propósito**: Proveer memoria persistente a largo plazo multicapa y compartida para cualquier modelo o plataforma de IA (Google Antigravity, Claude Code, OpenCode, Cursor, Cline).
+## Propósito
+Memoria externa opcional con permisos y alcance explícitos. Este documento no instala, conecta ni ejecuta el servicio.
 
-## Herramientas Expuestas
-- `mem:search`: Búsqueda híbrida (FTS5 en SQLite + vectores de Chroma) en el historial de tareas del proyecto.
-- `mem:recall` / `get_observations`: Recuperación detallada de observaciones específicas sin reinyectar logs completos.
-- `mem:timeline`: Consulta de la secuencia cronológica de decisiones y cambios.
-- `mem:forget`: Purga de memorias obsoletas o descartadas a solicitud del usuario.
-- `mem:stats`: Métricas de almacenamiento y tamaño de memoria.
+## Disponibilidad y uso
+Consultar el [registro](../registro-mcp.md) y la configuración real del cliente. Distinguir archivo configurado, proceso iniciado, conexión comprobada y operación completada. Descubrir nombres y esquemas de herramientas publicados por el servidor; no copiar comandos de ejemplos como si fueran APIs verificadas.
 
-## Configuración Universal (`mcp_config.json`)
-```json
-{
-  "mcpServers": {
-    "claude-mem": {
-      "command": "npx",
-      "args": ["-y", "claude-mem", "mcp"]
-    }
-  }
-}
-```
+El asistente principal selecciona esta capacidad cuando corresponde al alcance. Las skills pertinentes se leen mediante [selección común](../../reglas/seleccion-skills.md); no acoplan roles o perfiles a este servidor. Si falta, usar una alternativa local que cumpla el objetivo o informar qué control queda pendiente.
 
-## Fallback en Markdown
-Si el servidor MCP no está activo, los agentes consultan y actualizan automáticamente el volcado de memoria en:
-`contexts/projects/<project-id>/memoria.md` o los scripts en `scripts/arranque.py` y `scripts/cierre.py`.
+## Permisos y datos
+Conservar autorización vigente, aislamiento y datos mínimos. Una herramienta instalada no autoriza transferencia de memoria, publicación, contacto o cambio de infraestructura. Credenciales fuera de documentación y configuración versionable. No declarar privacidad total o resultados no medidos.

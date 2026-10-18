@@ -42,7 +42,7 @@ Configurar solo los adaptadores del IDE o agente que el proyecto realmente usara
 ## Prevencion de conflictos
 Prioridad: instrucciones del humano, reglas globales de la agencia, arquitectura del proyecto, configuracion del IDE, Ponytail, valores predeterminados.
 
-Ponytail no elimina obligaciones de seguridad, validacion, accesibilidad, pruebas minimas, Clean Architecture, Prisma ni Atomic Design. Solo cuestiona complejidad no requerida dentro de esas reglas.
+Ponytail no elimina obligaciones de seguridad, validacion, accesibilidad, pruebas minimas, Clean Architecture, Prisma ni Feature-Sliced Design. Solo cuestiona complejidad no requerida dentro de esas reglas.
 
 ## Actualizacion
 Para actualizar esta copia, comparar contra el repositorio de referencia `../../ponytail` desde la raiz del workspace, revisar cambios en `skills/`, `AGENTS.md`, `hooks/`, `commands/`, `docs/` y adaptadores, y copiar solo lo necesario. No reemplazar `SKILL.md` ni este documento sin conservar las adaptaciones de agencia.

@@ -56,20 +56,13 @@ class AgenciaOperativaTests(unittest.TestCase):
         nuevo_mod = importlib.import_module("nuevo_proyecto")
         crear_proyecto = getattr(nuevo_mod, "crear_proyecto")
         with tempfile.TemporaryDirectory() as tmp:
-            # Probar creación de proyecto y verificación de manifiesto
             nombre = "test-proyecto-stack"
-            # Simular en el directorio real de la agencia temporalmente y luego limpiar
-            raiz_agencia = ROOT
-            destino = raiz_agencia / "contexts" / "projects" / nombre
-            try:
-                crear_proyecto(nombre, cliente="Cliente Test", tipo="nuevo", stack="estandar")
-                self.assertTrue(destino.exists())
-                manifiesto = (destino / "manifiesto.md").read_text(encoding="utf-8")
-                self.assertIn("Stack Tecnológico Asignado: stacks/estandar", manifiesto)
-            finally:
-                if destino.exists():
-                    import shutil
-                    shutil.rmtree(destino)
+            raiz_agencia = Path(tmp)
+            (raiz_agencia / "stacks/estandar").mkdir(parents=True)
+            destino = crear_proyecto(nombre, cliente="Cliente Test", tipo="nuevo", stack="estandar", raiz_agencia=raiz_agencia)
+            self.assertTrue(destino.exists())
+            manifiesto = (destino / "manifiesto.md").read_text(encoding="utf-8")
+            self.assertIn("Stack Tecnológico Asignado: stacks/estandar", manifiesto)
 
 
 if __name__ == "__main__":

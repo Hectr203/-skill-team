@@ -1,28 +1,12 @@
-# Servidor MCP: Auto-CRM (Consultas Comerciales Privadas)
+# Adaptador opcional: auto-crm
 
-- **Repositorio oficial**: [github.com/hainrixz/auto-crm](https://github.com/hainrixz/auto-crm)
-- **Licencia**: MIT
-- **Propósito**: Interfaz conversacional privada para consultar y actualizar el pipeline comercial local en SQLite sin enviar datos a plataformas SaaS externas.
+## Propósito
+Consulta y actualización de oportunidades dentro del cliente autorizado. Este documento no instala, conecta ni ejecuta el servicio.
 
-## Comandos y Herramientas Expuestas
-- `/pipeline`: Visualización del embudo de ventas actual y distribución de prospectos por etapa.
-- `/deals`: Lista de oportunidades activas, montos y días de estancamiento.
-- `/summary`: Resumen ejecutivo de conversión, valor total del pipeline y próximos pasos comerciales.
+## Disponibilidad y uso
+Consultar el [registro](../registro-mcp.md) y la configuración real del cliente. Distinguir archivo configurado, proceso iniciado, conexión comprobada y operación completada. Descubrir nombres y esquemas de herramientas publicados por el servidor; no copiar comandos de ejemplos como si fueran APIs verificadas.
 
-## Configuración (`mcp_config.json`)
-```json
-{
-  "mcpServers": {
-    "auto-crm": {
-      "command": "node",
-      "args": ["services/crm/mcp-server.js"],
-      "env": {
-        "CRM_DATABASE_URL": "file:./data/crm.db"
-      }
-    }
-  }
-}
-```
+El asistente principal selecciona esta capacidad cuando corresponde al alcance. Las skills pertinentes se leen mediante [selección común](../../reglas/seleccion-skills.md); no acoplan roles o perfiles a este servidor. Si falta, usar una alternativa local que cumpla el objetivo o informar qué control queda pendiente.
 
-## Tratamiento Desacoplado
-Auto-CRM opera como módulo complementario; no se impone su stack en proyectos que no requieran gestión comercial.
+## Permisos y datos
+Conservar autorización vigente, aislamiento y datos mínimos. Una herramienta instalada no autoriza transferencia de memoria, publicación, contacto o cambio de infraestructura. Credenciales fuera de documentación y configuración versionable. No declarar privacidad total o resultados no medidos.

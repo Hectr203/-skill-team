@@ -3,6 +3,10 @@ name: schema-markup
 description: Generación y validación de datos estructurados JSON-LD Schema.org para enriquecer fragmentos de búsqueda (rich snippets) y clarificar entidades ante motores de búsqueda.
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Datos Estructurados y Marcado Schema.org
 
 Basado en el módulo de microdatos de **Claude SEO** ([github.com/AgriciDaniel/claude-seo](https://github.com/AgriciDaniel/claude-seo)). Define la semántica formal del sitio web mediante bloques `<script type="application/ld+json">`.

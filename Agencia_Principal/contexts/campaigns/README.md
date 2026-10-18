@@ -1,6 +1,6 @@
 # Gestión de Campañas y Lanzamientos — Agencia Principal
 
-Este directorio contiene la planificación, seguimiento de métricas y entregables de campañas de marketing, lanzamientos digitales y optimizaciones de crecimiento coordinadas por el agente `growth` y el flujo `flujos/campana-lanzamiento.md`.
+Este directorio contiene la planificación, seguimiento de métricas y entregables de campañas de marketing, lanzamientos digitales y optimizaciones de crecimiento coordinadas por el asistente principal con el rol `redes-sociales` y el flujo `flujos/campana-lanzamiento.md`.
 
 ---
 

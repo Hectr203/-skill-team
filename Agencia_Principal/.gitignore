@@ -27,3 +27,6 @@ build/
 *.log
 .DS_Store
 Thumbs.db
+
+# Evidencia de ejecución local; se regenera para cada contenido.
+.agencia/verificacion-local.json

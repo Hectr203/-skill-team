@@ -30,7 +30,7 @@ Utilice esta plantilla al registrar un nuevo ecosistema o perfil tecnológico ba
 - **Capa de Negocio / Dominio:** [Convenciones de servicios, modelos, acciones]
 - **Persistencia / ORM:** [Eloquent, SQLAlchemy, etc. - Reglas de migración]
 - **Interfaz de Usuario:** [Blade, Templates, Componentes, Estilos]
-- **Convenciones de Idioma:** [Español mandatorio para modelos, métodos y documentación]
+- **Convenciones de Idioma:** [Español para nombres propios nuevos y comunicación, conservando convenciones y contratos existentes]
 
 ---
 
@@ -41,3 +41,15 @@ Utilice esta plantilla al registrar un nuevo ecosistema o perfil tecnológico ba
   # Comando de linter / typecheck
   # Comando de pruebas unitarias
   ```
+
+
+## 6. Resolución de capas e integración
+- **Frontend:** [entrada o sección con arquitectura, archivos, imports y validación; no aplicable si no existe].
+- **Backend:** [entrada o sección con dominio, casos de uso, interfaces/adaptadores y dependencias].
+- **Datos:** [entrada o sección con esquema, migraciones, integridad y recuperación].
+- **Contratos entre capas:** [DTOs públicos, errores, permisos, datos y responsables].
+- **Estado existente / objetivo:** [distinguir estructura real de una migración propuesta].
+- **Skills pertinentes y exclusiones:** [según tecnología y resultado, no heredadas del estándar automáticamente].
+- **Desviaciones y ADRs:** [decisiones particulares sin duplicar contratos].
+
+Los agentes referencian estas definiciones; no incorporan tecnologías fijas en sus fichas. Los comandos deben existir en el proyecto y una capa sin uso debe marcarse expresamente como no aplicable.

@@ -2,6 +2,10 @@
 name: google-stitch
 description: Use for approved Google Stitch UI ideation, screen inspection, design tokens and design-to-code mapping.
 ---
+
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
 # Google Stitch
 Adaptador y suite oficial de diseño para Google Stitch en la Agencia.
 

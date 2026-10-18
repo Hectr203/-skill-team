@@ -1,8 +1,10 @@
 # Architecture Quality Gate
 
+Esta lista guía una revisión manual; no demuestra que el validador automático compruebe todos estos criterios. Los ejemplos de lenguaje se adaptan al perfil aprobado. En React Native conservar primitives y navegación nativos.
+
 ### Structural integrity
-- [ ] Logic extracted to custom hooks in `src/hooks/`.
-- [ ] No monolithic files; strictly Atomic/Composite modularity.
+- [ ] Lógica del caso de uso en el segmento model de su módulo.
+- [ ] Responsabilidades coherentes con arquitectura modular por dominio: módulos por dominio, APIs públicas e dependencias entre módulos y recursos compartidos.
 - [ ] All static text/URLs moved to `src/data/mockData.ts`.
 
 ### Type safety and syntax

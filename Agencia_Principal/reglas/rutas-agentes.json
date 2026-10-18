@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "roles": {
+    "agente-orquestador": {
+      "archivo": "agentes/agente-orquestador.md",
+      "skills": []
+    },
+    "agente-arquitectura": {
+      "archivo": "agentes/agente-arquitectura.md",
+      "skills": []
+    },
+    "agente-base-datos": {
+      "archivo": "agentes/agente-base-datos.md",
+      "skills": ["ponytail"]
+    },
+    "agente-contexto": {
+      "archivo": "agentes/agente-contexto.md",
+      "skills": []
+    },
+    "agente-documentacion": {
+      "archivo": "agentes/agente-documentacion.md",
+      "skills": []
+    },
+    "analista-requerimientos": {
+      "archivo": "agentes/analista-requerimientos.md",
+      "skills": []
+    },
+    "auditor-seguridad": {
+      "archivo": "agentes/auditor-seguridad.md",
+      "skills": []
+    },
+    "ingeniero-de-pruebas": {
+      "archivo": "agentes/ingeniero-de-pruebas.md",
+      "skills": []
+    },
+    "revisor-de-codigo": {
+      "archivo": "agentes/revisor-de-codigo.md",
+      "skills": []
+    },
+    "agente-motion-ui": {
+      "archivo": "agentes/agente-motion-ui.md",
+      "skills": []
+    },
+    "diseno-motion": {
+      "archivo": "agentes/diseno-motion.md",
+      "skills": []
+    },
+    "seo-tecnico": {
+      "archivo": "agentes/seo-tecnico.md",
+      "skills": []
+    },
+    "crm-leads": {
+      "archivo": "agentes/crm-leads.md",
+      "skills": []
+    },
+    "redes-sociales": {
+      "archivo": "agentes/redes-sociales.md",
+      "skills": []
+    },
+    "agente-frontend": {
+      "archivo": "agentes/agente-frontend.md",
+      "skills": ["ponytail"]
+    },
+    "agente-backend": {
+      "archivo": "agentes/agente-backend.md",
+      "skills": ["ponytail"]
+    },
+    "agente-despliegue-azure": {
+      "archivo": "agentes/agente-despliegue-azure.md",
+      "skills": []
+    }
+  }
+}

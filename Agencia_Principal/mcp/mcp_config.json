@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "agencia": {
+      "command": "python3",
+      "args": [
+        "/mnt/nvme/PROYECTO GILBERTO/Agencia_Principal/scripts/agencia_mcp.py"
+      ]
+    }
+  }
+}

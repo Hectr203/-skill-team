@@ -3,13 +3,17 @@ name: playwright-mcp-testing
 description: QA y testing con Playwright MCP para proyectos nuevos. Usar para escribir y ejecutar pruebas E2E, de integracion y unitarias usando Playwright y el protocolo MCP. Incluye configuracion, reporteria y CI.
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Playwright MCP Testing
 
 ## Proposito
 Integrar Playwright como framework de testing E2E y de integracion en proyectos nuevos, usando el ecosistema MCP para orquestacion automatica de navegadores. Esta skill garantiza que el proyecto tenga pruebas reales desde el dia uno, sin configuracion manual repetitiva.
 
 ## Prerequisitos
-- Proyecto Node.js 22 LTS con TypeScript.
+- Proyecto con runtime y lenguaje definidos en su manifiesto; ejemplos TypeScript se adaptan si el perfil usa JavaScript.
 - Playwright instalado (`npm init playwright@latest` o `npm install -D @playwright/test`).
 - Playwright MCP server configurado (ver abajo).
 

@@ -1,32 +1,12 @@
-# Servidor MCP: Google Stitch (`stitch-mcp`)
+# Adaptador opcional: google-stitch
 
-- **Paquete / Integración**: `@_davideast/stitch-mcp` o servidor oficial de Google Stitch
-- **Propósito**: Conectar agentes de IA con proyectos de Google Stitch para generar vistas UI/UX a partir de prompts o imágenes, inspeccionar variantes de pantallas y extraer tokens de diseño visual (*design-to-code*).
+## Propósito
+Ideación y conversión visual cuando se solicitan. Este documento no instala, conecta ni ejecuta el servicio.
 
-## Herramientas Expuestas
-- `list_projects`: Lista de proyectos activos de Stitch.
-- `list_screens`: Lista de pantallas y wireframes dentro de un proyecto.
-- `get_screen`: Recuperación del código HTML/React, estilos y estructura de una pantalla específica.
-- `extract_tokens`: Extracción estructurada de la paleta de colores, tipografía y espaciado en JSON para sincronizar con Tailwind/CSS/Bootstrap.
+## Disponibilidad y uso
+Consultar el [registro](../registro-mcp.md) y la configuración real del cliente. Distinguir archivo configurado, proceso iniciado, conexión comprobada y operación completada. Descubrir nombres y esquemas de herramientas publicados por el servidor; no copiar comandos de ejemplos como si fueran APIs verificadas.
 
-## Requisitos y Credenciales
-- Acceso habilitado a Stitch API en Google Cloud.
-- Autenticación mediante Application Default Credentials (ADC) o API Key en variable de entorno.
+El asistente principal selecciona esta capacidad cuando corresponde al alcance. Las skills pertinentes se leen mediante [selección común](../../reglas/seleccion-skills.md); no acoplan roles o perfiles a este servidor. Si falta, usar una alternativa local que cumpla el objetivo o informar qué control queda pendiente.
 
-## Configuración (`mcp_config.json`)
-```json
-{
-  "mcpServers": {
-    "google-stitch": {
-      "command": "npx",
-      "args": ["-y", "@_davideast/stitch-mcp"],
-      "env": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}"
-      }
-    }
-  }
-}
-```
-
-## Plan de Contingencia
-Si las credenciales no están presentes o el servidor no responde, los agentes UI/UX recurren a especificaciones locales y diseño modular mediante la skill `skills/design-and-motion/stitch/SKILL.md` y `ui-ux-pro-max` sin detener el desarrollo.
+## Permisos y datos
+Conservar autorización vigente, aislamiento y datos mínimos. Una herramienta instalada no autoriza transferencia de memoria, publicación, contacto o cambio de infraestructura. Credenciales fuera de documentación y configuración versionable. No declarar privacidad total o resultados no medidos.

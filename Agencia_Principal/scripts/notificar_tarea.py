@@ -21,12 +21,13 @@ import shutil
 import subprocess
 import sys
 import textwrap
+import tempfile
 import time
 import webbrowser
 from pathlib import Path
 
 
-HTML_NOTIFICACION = Path(__file__).with_name("notificacion_tarea.html")
+HTML_NOTIFICACION = Path("agencia-notificacion-tarea.html")
 
 AUDIO_COMPLETADO = "termine la tarea.mp3"
 
@@ -37,8 +38,6 @@ _REPRODUCTORES_CACHE: list[list[str]] | None = None
 def _detectar_reproductores(audio_path: Path, es_mp3: bool) -> list[list[str]]:
     """Detecta reproductores de audio disponibles en el sistema."""
     global _REPRODUCTORES_CACHE
-    if _REPRODUCTORES_CACHE is not None:
-        return _REPRODUCTORES_CACHE
 
     sistema = platform.system().lower()
     candidatos: list[list[str]] = []
@@ -131,14 +130,15 @@ def reproducir_sonido_sistema(repeticiones: int, audio_filename: str = AUDIO_COM
         ejecutado = False
         for comando in comandos:
             try:
-                subprocess.run(
+                proceso = subprocess.run(
                     comando,
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                     timeout=30,
                 )
-                ejecutado = True
-                break
+                if proceso.returncode == 0:
+                    ejecutado = True
+                    break
             except (OSError, subprocess.TimeoutExpired):
                 continue
         if not ejecutado:
@@ -222,8 +222,12 @@ def crear_html_notificacion(tarea: str, estado: str, mensaje: str, repeticiones:
     </body>
     </html>
     """
-    HTML_NOTIFICACION.write_text(textwrap.dedent(contenido).strip(), encoding="utf-8")
-    return HTML_NOTIFICACION
+    destino = HTML_NOTIFICACION
+    if not destino.is_absolute():
+        destino = Path(tempfile.mkdtemp(prefix="agencia-avisos-")) / destino.name
+    with destino.open("w", encoding="utf-8") as archivo:
+        archivo.write(textwrap.dedent(contenido).strip())
+    return destino
 
 
 def enviar_notificacion_escritorio(titulo: str, mensaje: str) -> None:
@@ -233,7 +237,7 @@ def enviar_notificacion_escritorio(titulo: str, mensaje: str) -> None:
             subprocess.Popen([
                 "osascript",
                 "-e",
-                f'display notification "{mensaje}" with title "{titulo}"',
+                "on run argv\n display notification (item 2 of argv) with title (item 1 of argv)\nend run", titulo, mensaje,
             ])
         elif sistema == "linux":
             subprocess.Popen(["notify-send", titulo, mensaje])
@@ -266,9 +270,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--urgente", action="store_true", help="Refuerza la notificacion con mas sonido.")
     parser.add_argument("--auto-completado", action="store_true",
                         help="Modo tarea 100%% terminada: usa audio pre-establecido (termine la tarea.mp3), "
-                             "3 repeticiones, mensaje de finalizacion, navegador y escritorio activados.")
+                             "2 repeticiones y mensaje de finalización; respeta opciones de silencio.")
     parser.add_argument("--sin-interfaz", action="store_true",
-                        help="Compatibilidad: se ignora para no desactivar navegador ni audio en avisos.")
+                        help="Omite avisos visuales y sonoros.")
     parser.add_argument("--diagnostico", action="store_true",
                         help="Ejecuta diagnostico de audio: verifica archivos, reproductores y reproduccion de prueba.")
     return parser.parse_args()
@@ -333,16 +337,13 @@ def main() -> int:
         if not args.mensaje or args.mensaje == "La tarea fue completada correctamente.":
             args.mensaje = "La ejecucion termino y el agente esta por responder."
         args.repeticiones = 2
-        # --auto-completado siempre activa navegador, escritorio y audio.
+        # El preset conserva las preferencias explícitas del usuario.
 
     if args.urgente:
         args.repeticiones = 2
 
-    if args.sin_interfaz or args.sin_navegador or args.sin_sonido:
-        print("  [notificar_tarea] Flags de silencio ignorados: los avisos deben abrir navegador y reproducir audio.", file=sys.stderr)
-        args.sin_interfaz = False
-        args.sin_navegador = False
-        args.sin_sonido = False
+    if args.sin_interfaz:
+        args.sin_navegador = args.sin_sonido = args.sin_escritorio = True
 
     titulo = f"Tarea {args.estado}: {args.tarea}"
 

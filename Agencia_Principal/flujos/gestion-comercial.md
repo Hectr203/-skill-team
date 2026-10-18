@@ -1,40 +1,18 @@
-# Flujo de Gestión Comercial y Pipeline de Ventas (Auto-CRM)
+# Gestión comercial
 
-Este flujo establece la captura, calificación y seguimiento soberano de prospectos comerciales mediante una base de datos local SQLite, garantizando total privacidad sin enviar datos sensibles a plataformas externas.
+El [asistente principal](../asistente-principal.md) coordina este flujo. Aplicar [precedencia](../reglas/precedencia.md), [contrato de roles](../agentes/contrato-agente.md) y [selección de skills](../reglas/seleccion-skills.md). Tecnología y arquitectura se resuelven en el perfil del manifiesto.
 
----
+## Activación
+Organización o análisis de oportunidades autorizado.
 
-## Fases del Flujo
+## Entradas
+Cliente correcto, origen de datos, permiso de uso, proceso y objetivo.
 
-```text
-1. Captura de Leads ──> 2. Calificación Automática ──> 3. Pipeline Visual ──> 4. Alertas de Estancamiento ──> 5. Cierre y Métricas
-```
+## Procedimiento
+Elegir almacenamiento y herramienta disponibles, sin presumir un webhook o base CRM instalada. Minimizar datos y definir etapas y criterios comerciales transparentes. Distinguir cálculo, recomendación y automatización real. No puntuar por atributos sensibles ni prometer privacidad total por usar una base local. Contacto, exportación o compromisos externos solo con autorización.
 
-### Fase 1: Captura de Prospectos
-1. Recepción de payloads JSON desde landing pages o formularios web en el webhook local (`POST /api/leads/webhook`).
-2. Sanitización y normalización de datos en SQLite local (`nombre`, `email`, `telefono`, `empresa`, `origen`, `mensaje`).
+## Entrega
+Registros o propuesta, fuentes, criterios y próximas acciones autorizadas.
 
-### Fase 2: Calificación Automática (Lead Scoring)
-1. Evaluación de completitud de datos y perfil del cliente ideal (ICP).
-2. Asignación de prioridad (Baja, Media, Alta) y etiquetado automático del requerimiento técnico o comercial.
-
-### Fase 3: Pipeline Comercial y Seguimiento
-1. Avance visual a través de las etapas del embudo:
-   - `Lead Nuevo` -> `Calificado` -> `Propuesta / Demo` -> `Negociación` -> `Ganado / Perdido`.
-2. Registro cronológico de notas técnicas, llamadas y acuerdos en la base de datos local.
-
-### Fase 4: Monitoreo de Deals Estancados
-1. Detección automática de oportunidades sin interacción en más de 7 días.
-2. Generación de avisos locales mediante `scripts/notificar_tarea.py` para sugerir acciones de reactivación.
-
-### Fase 5: Consultas Conversacionales Vía MCP
-- Consulta del estado comercial en lenguaje natural mediante el servidor MCP de Auto-CRM:
-  - `/pipeline`: Visión general del embudo de ventas.
-  - `/deals`: Lista de oportunidades abiertas y valores estimados.
-  - `/summary`: Tasa de conversión y valor total en pipeline.
-
----
-
-## Compuertas Human-in-the-Loop
-- El análisis y seguimiento en base de datos local es autónomo.
-- **Toda interacción externa** (enviar correos comerciales, mensajes de WhatsApp o proponer contratos formales) requiere aprobación explícita del usuario.
+## Criterios de aceptación
+Aislamiento y trazabilidad conservados; no hay contacto o transferencia no autorizada.

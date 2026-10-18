@@ -3,6 +3,10 @@ name: geo-ai-optimization
 description: Optimización para motores de búsqueda generativos basados en inteligencia artificial (GEO / AEO). Estructuración de llms.txt, citabilidad algorítmica y formatos para ChatGPT, Claude, Perplexity y Gemini.
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Optimización para Motores de IA (GEO / AEO)
 
 Basado en las directivas de Generative Engine Optimization (GEO) y Answer Engine Optimization (AEO) de **Claude SEO** ([github.com/AgriciDaniel/claude-seo](https://github.com/AgriciDaniel/claude-seo)). Prepara el contenido y la arquitectura del sitio para maximizar su probabilidad de citación en respuestas generadas por modelos de IA.

@@ -3,6 +3,10 @@ name: post-scorer
 description: Evaluación algorítmica previa de copys para redes sociales. Calificación cuantitativa de ganchos, legibilidad móvil, retención y potencial de alcance orgánico antes de publicar.
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Puntuación Previa de Publicaciones (Post Scorer)
 
 Basado en la herramienta de evaluación de **Social Media Skills** ([github.com/charlie947/social-media-skills](https://github.com/charlie947/social-media-skills)). Califica objetivamente cualquier borrador antes de presentarlo al usuario para aprobación.

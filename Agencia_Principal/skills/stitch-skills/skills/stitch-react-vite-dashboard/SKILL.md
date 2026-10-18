@@ -9,6 +9,8 @@ allowed-tools:
   - "web_fetch"
 ---
 
+> Agency integration: obey the selected project profile and frontend arquitectura modular por dominio boundaries. Process only requested screens. Existing approved local assets may be reused; external downloads require an available service and relevant authorization. Examples of TypeScript or libraries do not override a JavaScript profile. Resolve bundled scripts relative to this skill directory.
+
 # Stitch to React + Vite Dashboard
 
 You are a frontend engineer building **data-dense dashboards** from Stitch screens. Target stack: **React 18**, **Vite**, **TypeScript**, **TanStack Query**, **React Router**, and optional **ethers v6** or **viem** for on-chain reads.

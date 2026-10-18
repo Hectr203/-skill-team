@@ -1,33 +1,18 @@
-# Flujo para Crear y Configurar un Proyecto Nuevo
+# Proyecto nuevo
 
-## Objetivo
-Establecer bases sólidas para un proyecto nuevo asegurando que su arquitectura, stack tecnológico y contexto inicial estén correctamente definidos desde el primer día.
+El [asistente principal](../asistente-principal.md) coordina este flujo. Aplicar [precedencia](../reglas/precedencia.md), [contrato de roles](../agentes/contrato-agente.md) y [selección de skills](../reglas/seleccion-skills.md). Tecnología y arquitectura se resuelven en el perfil del manifiesto.
 
-> 💡 **Guía Práctica Paso a Paso:** Para la estructura física de carpetas y los prompts exactos de chat para iniciar en un repositorio nuevo, consulta la [Guía Maestra de Inicio de Proyecto](../GUIA-INICIO-PROYECTO.md).
+## Activación
+Una iniciativa sin código existente necesita bases de desarrollo.
 
-## Pasos
-1. **Entender el Requerimiento**: Comprender el dominio del negocio, el problema a resolver y los objetivos del proyecto. Revisa obligatoriamente los [Lineamientos de desarrollo](../reglas/lineamientos-desarrollo.md) antes de comenzar.
-2. **Definir Stack y Arquitectura**: Aplicar el stack obligatorio de la agencia, acordar la estructura y los patrones, y documentar las excepciones aprobadas.
-3. **Definir Perfil de Despliegue**: Si el proyecto tendrá Azure, ejecutar la fase de diseño de [desplegar-en-azure.md](desplegar-en-azure.md). Seleccionar servicios por requisitos, pero no crear recursos todavía.
-4. **Inicializar Proyecto**:
-   - Crear el repositorio o carpeta principal utilizando plantillas o frameworks base (`npx`, `vite`, etc.).
-   - Inicializar el control de versiones (`git init`).
-   - (Opcional) Ejecutar el script `scripts/nuevo_proyecto.py` para establecer la memoria del proyecto si se requiere integración nativa con la agencia.
-5. **Configurar Entorno**: Añadir linters, formateadores de código (Ej. Prettier/ESLint), y Playwright como framework de pruebas inicial.
-6. **Configurar CI/CD**: Copiar `.github/workflows/ci.yml` y `.github/workflows/deploy.yml` al proyecto. Configurar secrets de Azure (AZURE_CREDENTIALS) si aplica.
-7. **Documentar el Contexto**: Crear o actualizar el `manifiesto-proyecto.md` detallando arquitectura de software, perfil de despliegue, variables y decisiones Azure aún no ejecutadas.
-8. **Implementar el Núcleo (Core)**: Construir la base con contratos de puerto, salud, configuración, persistencia y migraciones compatibles con la decisión aprobada.
-9. **Registrar Cierre Inicial**: Generar un informe de cierre de la fase de inicialización documentando tareas, dependencias base y próximos pasos.
+## Entradas
+Objetivo, alcance, criterios, ID y restricciones.
 
-## Criterio de cierre
-La fase de inicialización se considera terminada cuando el proyecto compila/ejecuta exitosamente en su forma base, cuenta con documentación arquitectónica y perfil de despliegue en `context/`, y está listo para recibir desarrollo incremental. La infraestructura Azure puede seguir sin crear hasta la fase aprobada de entrega.
+## Procedimiento
+Elegir el perfil documentado; usar el estándar solo si no se acordó otro. Registrar contexto mediante CLI o MCP; definir ubicación del código fuera de la agencia. Acordar contratos y responsabilidades de las capas necesarias, sin exigir todas. Preparar andamiaje con herramientas/versiones pertinentes, respetando archivos existentes. Configurar pruebas y CI solo según necesidades reales. Despliegue se prepara por separado, sin crear recursos.
 
-## Integracion con el ciclo de iteraciones
+## Entrega
+Base ejecutable pertinente, manifiesto y decisiones consistentes, controles y pendientes.
 
-Cada fase de configuracion e inicializacion debe verificarse antes de continuar:
-
-1. Despues de cada paso, verificar que el resultado sea correcto.
-2. Si un paso falla, corregirlo antes de avanzar al siguiente.
-3. No declarar un paso completado sin evidencias (compilacion exitosa, test pasado, archivo creado).
-4. Registrar cualquier desviacion del plan original.
-5. Si un bloqueo no puede resolverse en 3 intentos, documentarlo y escalar al humano.
+## Criterios de aceptación
+La base satisface criterios de inicio y existe evidencia de ejecución; preparación no equivale a despliegue.

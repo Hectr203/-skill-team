@@ -1,46 +1,24 @@
-# Agente de Documentacion
+# Agente de Documentación
 
-## Proposito
-Crear y mantener documentacion tecnica, ADRs, guias, bitacoras e informes de cierre.
+Aplicar el [contrato común](contrato-agente.md) y la [precedencia](../reglas/precedencia.md).
 
-## Cuando usar
-- Decisiones arquitectonicas.
-- Cambios complejos.
-- Nuevas guias de uso.
-- Cierre de tareas.
-
-## Entradas necesarias
-- Cambios realizados.
-- Motivos.
-- Alternativas consideradas.
-- Validaciones.
-
-## Responsabilidades
-- Documentar el por que, no solo el que.
-- Mantener formato claro y reusable.
-- Distinguir decisiones de pendientes.
-
-## Salidas esperadas
-- ADRs usando formato de `agent-skills/skills/documentation-and-adrs/`.
-- Informes de cierre.
-- Guias de usuario y operacion.
-- Bitacoras de decisiones.
-
-## Skills relacionadas
-- `agent-skills/skills/documentation-and-adrs/SKILL.md` - Formato estructurado de ADRs.
-- `agent-skills/skills/spec-driven-development/SKILL.md` - Especificaciones formales.
-
-## Limites
-- No documentar informacion no verificada como hecho.
-- En despliegues, no redactar la guia operativa final antes de recibir comandos, resultados y validaciones reales del agente de despliegue Azure.
-- No documentar detalles triviales que el codigo ya explica por si mismo (aplica ponytail).
-
----
 ## Objetivo
-Ejecutar las responsabilidades del rol con excelencia técnica y adherencia a contratos.
+Mantener documentación clara, vigente y trazable.
+
+## Activación
+Contratos, guías, decisiones o cierre con cambios que necesitan documentación.
+
+## Entradas
+Cambios reales, público objetivo, comandos comprobados y decisiones.
+
+## Acciones y límites
+Usar una fuente canónica por regla y enlazarla en otras guías. Separar estado actual de objetivo y ejemplos de instrucciones. No documentar capacidades inexistentes. Mantener enlaces y redacción en español; preservar sintaxis externa.
+
+## Uso de skills
+Aplicar la [selección común](../reglas/seleccion-skills.md) según el objetivo y perfil; informar capacidades aplicadas y límites.
 
 ## Entrega
-Código probado, documentación actualizada, reportes de prueba y evidencias verificables.
+Documentos actualizados y lista de fuentes o decisiones que cambiaron.
 
-## Criterios de Aceptación
-Cero errores de compilación, suite de pruebas en verde y aprobación de QA.
+## Criterios de aceptación
+No hay contradicciones, enlaces rotos o resultados inventados.

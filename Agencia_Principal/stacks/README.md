@@ -1,39 +1,25 @@
-# Sistema Multi-Stack Modular y Auto-Adaptable — Agencia Principal
+# Perfiles de arquitectura y tecnología
 
-Este directorio define la arquitectura y los contratos técnicos para la selección, ejecución y adaptación de perfiles tecnológicos en la **Agencia Principal**.
+Los agentes describen responsabilidades y coordinación. `stacks` define tecnologías, arquitectura, archivos, límites, integración y validación del perfil seleccionado. El manifiesto y ADRs registran decisiones particulares; aplicar [precedencia](../reglas/precedencia.md). Los perfiles pueden evolucionar mediante cambios autorizados; no se modifican por trabajar con otro cliente o tecnología.
 
----
+## Resolución del perfil
+1. Leer `Stack Tecnológico Asignado` en `contexts/projects/<id>/manifiesto.md` y confirmar la ruta registrada. No inferirlo por palabras de una tarea.
+2. `estandar` se usa para proyectos nuevos sin otro perfil. Para proyectos existentes comprobar stack y arquitectura reales; no asignar ni migrar por defecto si falta la decisión. Documentar lo detectado y resolver lo imprescindible.
+3. Leer entradas y contrato de la capa afectada. Los perfiles alternativos pueden definir todas las capas en `stack.md`; no heredan tecnologías estándar implícitamente. Una capa no utilizada se marca como no aplicable.
+4. Seleccionar skills por resultado y compatibilidad con el perfil. El registro identifica roles; no limita qué skills pueden utilizar. Consultar la selección común por tarea.
+5. Entregar perfil y documentos usados, ubicación de cambios, validaciones y desviaciones justificadas. No modificar fuera del alcance ni declarar ejecutado un despliegue o migración por haberlo diseñado.
 
-## 1. Principio de Resolución y Herencia
+## Perfil estándar
+- [Frontend](estandar/frontend.md): tecnología y [arquitectura arquitectura modular por dominio](estandar/arquitectura-frontend.md).
+- [Backend](estandar/backend.md): tecnología y [Clean Architecture con puertos/adaptadores](estandar/arquitectura-backend.md).
+- [Base de datos](estandar/base-datos.md): esquema, persistencia, migraciones e integridad.
+- [Integración](estandar/contrato-integracion.md): contratos, responsables y comprobaciones entre capas.
 
-1. **Stack Predeterminado Oficial (`stacks/estandar/`)**:
-   - Por defecto, toda nueva iniciativa creada con `python3 scripts/agencia.py nuevo <nombre>` utiliza este perfil.
-   - Especifica de forma exhaustiva las reglas, dependencias, carpetas y contratos para **Node.js 22 LTS, Express.js, JavaScript moderno (ES Modules), PostgreSQL, Prisma ORM, React 18+ (JSX) y Tailwind CSS**.
-   - Diseñado para máxima agilidad de desarrollo, sin sobrecargas ni fatiga de tipado de TypeScript.
-   - Este estándar es **inmutable** frente a proyectos alternativos: nunca se sobreescribe ni se elimina al trabajar con otras tecnologías.
+El frontend y el backend tienen estructuras distintas y comparten contratos públicos; la estructura arquitectura modular por dominio no se traslada al servidor. Los agentes consultan este perfil en lugar de duplicar sus árboles de carpetas.
 
-2. **Agnosticismo de Lenguaje y Perfiles Tecnológicos Alternativos (`stacks/alternativos/`)**:
-   - La Agencia Principal es intrínsecamente agnóstica al lenguaje de programación: puede operar con JavaScript, Python, PHP, Go o cualquier tecnología requerida.
-   - Cuando un proyecto específico requiera un ecosistema diferente (por ejemplo, `Laravel + Livewire + Alpine.js`, `FastAPI + Vue 3`, etc.), su definición vive en su propio subdirectorio bajo `stacks/alternativos/<id_stack>/`.
-   - El proyecto específico vincula su `manifiesto.md` con este stack, indicando a los agentes especialistas (`agente-backend`, `agente-frontend`, `agente-base-datos`) que adopten dichos contratos exclusivamente para ese proyecto.
+## Otros perfiles
+[Laravel, Livewire y Alpine](alternativos/laravel-livewire-alpine/stack.md) conserva su propio contrato. Registrar otro perfil mediante [plantilla](plantillas/nuevo-stack.md), completando capas y validación antes de seleccionarlo. El CLI rechaza rutas inexistentes y no genera perfiles vacíos; esto no equivale a comprobar automáticamente toda su arquitectura.
 
----
+## Despliegue
 
-## 2. Capacidad de Auto-Adaptación ante Nuevas Tecnologías
-
-Si al momento de plantear un requerimiento o crear un proyecto se solicita un stack no existente en `stacks/alternativos/`:
-
-1. **Detección**: El Asistente Principal detecta que la tecnología solicitada no cuenta con perfil registrado.
-2. **Generación Automática**: El agente orquestador genera automáticamente la carpeta `stacks/alternativos/<nombre-stack>/` utilizando la plantilla oficial `stacks/plantillas/nuevo-stack.md`.
-3. **Documentación de Contratos**: Se investigan y formalizan las dependencias oficiales, la estructura recomendada de directorios, las convenciones de código y los comandos de prueba para esa tecnología.
-4. **Asignación sin Impacto Global**: El nuevo proyecto se inicializa apuntando al nuevo stack sin alterar las reglas del stack estándar.
-
----
-
-## 3. Catálogo de Stacks Disponibles
-
-| Identificador | Descripción | Estado |
-| :--- | :--- | :--- |
-| `estandar` | Node.js 22 LTS, Express, JavaScript (ES Modules), PostgreSQL, Prisma, React (JSX), Tailwind CSS | Oficial (Predeterminado) |
-| `laravel-livewire-alpine` | PHP 8.3+, Laravel 11/12, Livewire 3, Alpine.js, Tailwind CSS, ApexCharts | Alternativo (Soportado) |
-
+El [perfil Azure](despliegue/azure.md) es un adaptador opcional, independiente del perfil de aplicación. Otros proveedores se documentan cuando un proyecto los requiere, sin imponer Azure a la agencia.

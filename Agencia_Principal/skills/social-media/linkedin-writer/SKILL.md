@@ -3,6 +3,10 @@ name: linkedin-writer
 description: Creación de publicaciones profesionales y técnicas en LinkedIn. Ganchos de alta retención, formato legible en dispositivos móviles, storytelling y llamadas a la acción.
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Redacción para LinkedIn (LinkedIn Writer)
 
 Basado en el módulo de autoridad profesional de **Social Media Skills** ([github.com/charlie947/social-media-skills](https://github.com/charlie947/social-media-skills)). Produce contenido técnico y ejecutivo de alto valor para distribución orgánica.

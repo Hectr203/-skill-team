@@ -1,7 +1,11 @@
 ---
 name: despliegue-azure-proyecto-nuevo
-description: Integrar arquitectura de despliegue y ejecución en Azure al ciclo de proyectos nuevos de la agencia. Usar al definir infraestructura, preparar producción, desplegar o documentar proyectos nuevos cuyo stack aprobado es React/TypeScript, Node.js 22/Express/TypeScript y PostgreSQL/Prisma, aplicando la skill compartida deploy-azure-cli sin volver a descubrir ni reemplazar arbitrariamente esas tecnologías.
+description: Integrar arquitectura de despliegue y ejecución en Azure al ciclo de proyectos nuevos de la agencia. Usar al definir infraestructura, preparar producción, desplegar o documentar proyectos nuevos cuyo stack aprobado es React/JavaScript, Node.js/Express/JavaScript y PostgreSQL/Prisma, aplicando la skill compartida deploy-azure-cli sin volver a descubrir ni reemplazar arbitrariamente esas tecnologías.
 ---
+
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
 
 # Desplegar un proyecto nuevo de la agencia
 

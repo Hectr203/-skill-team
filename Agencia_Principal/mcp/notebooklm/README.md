@@ -1,21 +1,12 @@
-# Servidor MCP: Google NotebookLM (`notebooklm-mcp`)
+# Adaptador opcional: notebooklm
 
-- **Repositorio de referencia**: [github.com/PleasePrompto/notebooklm-mcp](https://github.com/PleasePrompto/notebooklm-mcp)
-- **Propósito**: Conectar agentes con libretas de Google NotebookLM para consultar documentación extensa, especificaciones de arquitectura y PDFs de negocio con citas respaldadas.
+## Propósito
+Consulta documental sobre fuentes autorizadas. Este documento no instala, conecta ni ejecuta el servicio.
 
-## Advertencia de Mantenimiento y Contingencia
-- El repositorio upstream fue archivado por su autor original.
-- **Modo de Operación**: Operación experimental mediante stdio y Patchright Chromium.
-- **Alternativa Directa**: Si el servidor deja de responder, la agencia recurre a extracción estructurada de documentación mediante **Scrapling** o consultas a la API de Google Gemini / Vertex AI.
+## Disponibilidad y uso
+Consultar el [registro](../registro-mcp.md) y la configuración real del cliente. Distinguir archivo configurado, proceso iniciado, conexión comprobada y operación completada. Descubrir nombres y esquemas de herramientas publicados por el servidor; no copiar comandos de ejemplos como si fueran APIs verificadas.
 
-## Configuración (`mcp_config.json`)
-```json
-{
-  "mcpServers": {
-    "notebooklm": {
-      "command": "npx",
-      "args": ["-y", "notebooklm-mcp@latest"]
-    }
-  }
-}
-```
+El asistente principal selecciona esta capacidad cuando corresponde al alcance. Las skills pertinentes se leen mediante [selección común](../../reglas/seleccion-skills.md); no acoplan roles o perfiles a este servidor. Si falta, usar una alternativa local que cumpla el objetivo o informar qué control queda pendiente.
+
+## Permisos y datos
+Conservar autorización vigente, aislamiento y datos mínimos. Una herramienta instalada no autoriza transferencia de memoria, publicación, contacto o cambio de infraestructura. Credenciales fuera de documentación y configuración versionable. No declarar privacidad total o resultados no medidos.

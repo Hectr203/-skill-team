@@ -3,6 +3,10 @@ name: pipeline-setup
 description: Configuración del pipeline comercial y etapas de ventas para gestión de leads local y soberana con Auto-CRM.
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Configuración del Pipeline Comercial
 
 Basado en la arquitectura comercial de **Auto-CRM** ([github.com/hainrixz/auto-crm](https://github.com/hainrixz/auto-crm)). Define las fases de venta para el seguimiento ordenado de oportunidades sin depender de plataformas SaaS externas.

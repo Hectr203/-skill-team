@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CLI Unificado — Agencia de Proyectos (Estándar Élite 11/10).
+CLI de operaciones locales de Agencia Principal.
 
 Proporciona un punto de entrada centralizado para todas las operaciones de la agencia:
 - Diagnóstico del entorno (doctor)
@@ -86,12 +86,14 @@ def cmd_estado(args: argparse.Namespace) -> int:
     print(f"{BOLD}📊 ESTADO GENERAL DE PROYECTOS — AGENCIA DE PROYECTOS{RESET}")
     print(f"{BOLD}{AZUL}======================================================={RESET}\n")
 
+    if raiz_proyectos.resolve() != raiz_proyectos:
+        raise ValueError("El almacén de proyectos no puede redirigirse.")
     if not raiz_proyectos.exists():
         print("[i] Carpeta contexts/projects/ no existe aún.")
         return 0
 
     proyectos = sorted(
-        [p for p in raiz_proyectos.iterdir() if p.is_dir() and not p.name.startswith(".")],
+        [p for p in raiz_proyectos.iterdir() if p.is_dir() and not p.is_symlink() and not p.name.startswith((".", "_"))],
         key=lambda x: x.name,
     )
 
@@ -126,10 +128,63 @@ def cmd_estado(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_verificacion(args: argparse.Namespace) -> int:
+    from verificacion_local import verificar, comprobar
+    return verificar() if args.subcomando == "verificar" else comprobar()
+
+
+def cmd_skills(args):
+    import json
+    from consulta_skills import listar_skills, resolver_skill
+    resultado = resolver_skill(args.nombre) if args.nombre else listar_skills(args.consulta)
+    print(json.dumps(resultado, ensure_ascii=False, indent=2))
+    return 0
+
+
+def cmd_registrar_agente(args):
+    from registrar_agente import registrar
+    print(registrar(args.nombre))
+    return 0
+
+
+def cmd_entregas(args):
+    import json
+    from control_entregas import cargar, evaluar, metricas
+    if args.accion == "evaluar":
+        if len(args.informes) != 1:
+            raise ValueError("Evaluar acepta un solo informe.")
+        resultado = evaluar(cargar(args.informes[0]), args.raiz_entrega)
+    else:
+        resultado = metricas(args.informes, args.raiz_entrega)
+    print(json.dumps(resultado, ensure_ascii=False, indent=2))
+    return 0 if args.accion == "metricas" or resultado["aprobado"] else 2
+
+
+def cmd_tareas(args):
+    import json
+    from control_entregas import cargar
+    from operacion_tareas import crear_plan, consultar, cambiar, historial_planes
+    if args.accion == "crear":
+        if not args.plan:
+            raise ValueError("Crear requiere --plan archivo.json.")
+        resultado = crear_plan(args.proyecto, cargar(args.plan), revision=args.revision)
+    elif args.accion == "historial":
+        resultado = historial_planes(args.proyecto)
+    elif args.accion == "consultar":
+        resultado = consultar(args.proyecto)
+    else:
+        if args.revision is None or not args.tarea or not args.estado:
+            raise ValueError("Cambiar requiere --tarea, --estado y --revision.")
+        resultado = cambiar(args.proyecto, args.tarea, args.estado, args.revision,
+                            args.motivo, args.informe, args.raiz_entrega)
+    print(json.dumps(resultado, ensure_ascii=False, indent=2))
+    return 0
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog="agencia",
-        description="CLI Centralizado de la Agencia de Proyectos (Nivel 11/10).",
+        description="CLI de operación local de la Agencia de Proyectos.",
     )
     subparsers = parser.add_subparsers(dest="subcomando", required=True)
 
@@ -157,7 +212,7 @@ def main() -> None:
 
     # 3. Arranque
     p_arranque = subparsers.add_parser("arranque", help="Context Engine: carga memoria, manifiesto y ADRs.")
-    p_arranque.add_argument("proyecto", nargs="?", default="", help="Nombre o coincidencia difusa del proyecto.")
+    p_arranque.add_argument("proyecto", nargs="?", default="", help="ID exacto del proyecto.")
     p_arranque.add_argument("--json", action="store_true", help="Salida en formato JSON estructurado.")
     p_arranque.add_argument("--prime", "--prompt", action="store_true", dest="prime", help="Genera System Primer para LLMs.")
     p_arranque.set_defaults(func=cmd_arranque)
@@ -181,11 +236,45 @@ def main() -> None:
     p_estado.set_defaults(func=cmd_estado)
 
     # 6. Validar
-    p_validar = subparsers.add_parser("validar", help="Ejecuta la suite de validación integral (11/10).")
+    p_validar = subparsers.add_parser("validar", help="Ejecuta la comprobación de integridad local.")
     p_validar.set_defaults(func=cmd_validar)
 
+    for accion, ayuda in (("verificar", "Ejecuta pruebas y guarda evidencia vinculada al contenido."),
+                          ("comprobar", "Comprueba la evidencia existente sin repetir las pruebas.")):
+        subparsers.add_parser(accion, help=ayuda).set_defaults(func=cmd_verificacion)
+
+    p_skills = subparsers.add_parser("skills", help="Descubre metadatos o resuelve una skill sin ejecutarla.")
+    p_skills.add_argument("--consulta", default="")
+    p_skills.add_argument("--nombre")
+    p_skills.set_defaults(func=cmd_skills)
+    p_registrar = subparsers.add_parser("registrar-agente", help="Registra una ficha existente con contrato válido.")
+    p_registrar.add_argument("nombre")
+    p_registrar.set_defaults(func=cmd_registrar_agente)
+
+    p_entregas = subparsers.add_parser("entregas", help="Comprueba entregas o calcula métricas locales sin ejecutar sus instrucciones.")
+    p_entregas.add_argument("accion", choices=("evaluar", "metricas"))
+    p_entregas.add_argument("informes", nargs="+")
+    p_entregas.add_argument("--raiz-entrega", required=True, type=Path)
+    p_entregas.set_defaults(func=cmd_entregas)
+
+    p_tareas = subparsers.add_parser("tareas", help="Plan local transaccional; no inicia agentes.")
+    p_tareas.add_argument("accion", choices=("crear", "consultar", "cambiar", "historial"))
+    p_tareas.add_argument("proyecto", help="ID exacto de proyecto registrado.")
+    p_tareas.add_argument("--plan", type=Path)
+    p_tareas.add_argument("--tarea")
+    p_tareas.add_argument("--estado", choices=("en_curso", "bloqueado", "completado", "cancelado"))
+    p_tareas.add_argument("--revision", type=int)
+    p_tareas.add_argument("--motivo", default="")
+    p_tareas.add_argument("--informe", type=Path)
+    p_tareas.add_argument("--raiz-entrega", type=Path)
+    p_tareas.set_defaults(func=cmd_tareas)
+
     args = parser.parse_args()
-    sys.exit(args.func(args))
+    try:
+        sys.exit(args.func(args))
+    except (ValueError, OSError) as exc:
+        print(f"Error de operación: {exc}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

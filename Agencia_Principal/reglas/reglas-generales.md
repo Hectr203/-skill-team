@@ -1,21 +1,12 @@
-# Reglas Generales
+# Reglas generales de trabajo
 
-1. El proyecto nuevo es la fuente principal de verdad.
-2. La documentacion existente prevalece sobre suposiciones del agente.
-3. Las convenciones locales prevalecen sobre estilos genericos.
-4. Todo cambio debe tener una razon vinculada al requerimiento, bug o mejora solicitada.
-5. Las modificaciones deben ser lo mas pequenas posible dentro de una solucion correcta.
-6. No se deben introducir dependencias sin verificar alternativas existentes.
-7. No se debe cambiar arquitectura para resolver un problema local si una extension puntual es suficiente.
-8. Los cambios de base de datos requieren analisis de impacto, migracion y plan de validacion.
-9. Los cambios de seguridad requieren revision explicita de autenticacion, autorizacion, datos sensibles y exposicion.
-10. Todo cierre debe declarar pruebas ejecutadas, pruebas no ejecutadas y riesgo residual.
-11. Ninguna tarea se considera completada sin evidencias de que todos los criterios de aceptacion obligatorios estan cumplidos.
-12. Cada tarea debe pasar por el ciclo completo: Analisis, Especificacion, Implementacion, Validacion, Evaluacion, Correccion y Cierre. No se permite saltar fases.
-13. Cada iteracion debe registrarse con numero correlativo, agentes participantes, pruebas ejecutadas, errores detectados, correcciones aplicadas y estado de los criterios de aceptacion.
-14. No repetir una correccion identica que ya haya fallado anteriormente sin modificar el enfoque.
-15. Si un error persiste tras 3 intentos de correccion, documentar el bloqueo y escalar al humano. Maximo 5 iteraciones por defecto.
-16. No confundir actividad con progreso. No confundir generacion de codigo con cumplimiento de requerimientos.
-17. No ocultar errores ni pruebas fallidas. No declarar exito cuando las pruebas no puedan ejecutarse.
-18. **Cero Basura en el Repositorio (Artefactos del IDE Obligatorios):** Queda prohibido crear carpetas temporales o acumulativas como `docs/specs/`, `docs/plans/`, `specs/` o `.plans/` en el proyecto para acumular especificaciones o planes intermedios. Todo análisis, plan de implementación o especificación de tarea debe generarse y presentarse exclusivamente como un Artefacto del IDE (`<appDataDir>/brain/<conversation-id>/`), manteniendo el workspace completamente limpio, salvo que el humano solicite explícitamente guardarlo en el repositorio. Véase [metodologia-superpowers-artefactos.md](metodologia-superpowers-artefactos.md).
+Aplicar [precedencia](precedencia.md) y el [asistente principal](../asistente-principal.md).
 
+- Todo cambio responde al objetivo autorizado y conserva contratos fuera de su alcance.
+- Aplicar obligatoriamente Ponytail para evitar la sobreingeniería. En desarrollo y revisión (backend, persistencia y frontend) rige la [política de simplicidad](simplicidad-ponytail.md) en nivel `full`; solo el asistente principal o el usuario cambian el nivel. Ninguna regla obliga a crear capas, patrones, dependencias o archivos sin justificación técnica concreta. Justificar simplificaciones con límite conocido mediante `// ponytail:`.
+- Revisar contexto y código real antes de crear archivos, dependencias o abstracciones. Preferir la solución sencilla que preserve seguridad y comportamiento.
+- El manifiesto y perfil definen arquitectura; las skills complementan la ejecución mediante [selección](seleccion-skills.md).
+- Analizar compatibilidad y recuperación de datos antes de migraciones. Operaciones sensibles siguen [HITL](human-in-the-loop.md).
+- Planificar y documentar proporcionalmente al cambio; conservar decisiones estables en la ubicación acordada. No imponer rutas de un IDE ni crear informes redundantes.
+- Verificar criterios con controles pertinentes, informar fallos y no repetir una corrección fallida sin cambiar el enfoque.
+- La entrega distingue completado, parcial y bloqueado, con evidencia y próximos responsables.

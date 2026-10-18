@@ -1,7 +1,11 @@
 ---
 name: prisma-base-de-datos
-description: Guia y convenciones para el uso obligatorio de Prisma con PostgreSQL en, incluyendo modelos, migraciones, semillas, repositorios y transacciones.
+description: Guía para proyectos cuyo perfil selecciona Prisma con PostgreSQL, incluyendo modelos, migraciones, semillas, repositorios y transacciones.
 ---
+
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
 
 # Habilidad: Prisma y Base de Datos
 
@@ -40,7 +44,7 @@ actualizadoEn DateTime  @updatedAt
 
 ## Restricciones
 - PostgreSQL es el motor definitivo.
-- Prisma es el ORM obligatorio.
+- Prisma es el ORM del perfil estándar; otros perfiles conservan su ORM aprobado.
 - Quedan prohibidos `SQL Server`, `Knex` y consultas SQL crudas como practica comun.
 - Si una consulta cruda es inevitable, debe justificarse, documentarse y aprobarse.
 

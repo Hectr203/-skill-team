@@ -1,14 +1,16 @@
 # Architecture Quality Gate
 
+Esta lista guía una revisión manual; no demuestra que el validador automático compruebe todos estos criterios. Los ejemplos de lenguaje se adaptan al perfil aprobado. En React Native conservar primitives y navegación nativos.
+
 ### Structural integrity
-- [ ] Components organized by Atomic Design: atoms, molecules, organisms in `src/components/`.
-- [ ] Logic extracted to custom hooks in `src/hooks/`.
+Place generic controls in components/ui and business UI in the appropriate arquitectura modular por dominio módulo; preserve public APIs and explicit public contracts without cycles.
+- [ ] Lógica del caso de uso en hooks y servicios de su módulo.
 - [ ] No monolithic files. Each component in its own file.
-- [ ] All static text, image URIs, and list data moved to `src/data/mockData.ts`.
+- [ ] Datos de demostración separados de fuentes reales y ubicados en su módulo; no reemplazar contenido real por mocks.
 
 ### Type safety and syntax
-- [ ] Every component exports a `[ComponentName]Props` interface with `readonly` property modifiers.
-- [ ] File is syntactically valid TypeScript (no parse errors).
+- [ ] Contratos de props según el lenguaje del perfil: JSDoc en JavaScript o tipos en TypeScript.
+- [ ] Archivos sintácticamente válidos en el lenguaje del proyecto.
 - [ ] Placeholders from template (e.g., `StitchComponent`) have been replaced with actual names.
 - [ ] Navigation screen params are typed with `NativeStackScreenProps` or equivalent.
 
@@ -22,7 +24,7 @@
 ### Styling
 - [ ] All styles defined via `StyleSheet.create()` at the bottom of the file.
 - [ ] No inline style objects (use `StyleSheet` references).
-- [ ] No hardcoded hex values. Colors referenced from `src/theme.ts`.
+- [ ] No hardcoded hex values. Colors referenced from the project’s shared design tokens.
 - [ ] Shadows use `Platform.select()` for iOS/Android differences.
 - [ ] `flexDirection` explicitly set where row layout is needed (default is `column`).
 

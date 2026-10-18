@@ -3,6 +3,10 @@ name: lectura-arquitectura
 description: Metodología de diagnóstico y lectura de arquitectura en repositorios existentes mediante memoria persistente, inspección estática y grafos de conocimiento.
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Lectura y Diagnóstico de Arquitectura Existente
 
 ## Propósito

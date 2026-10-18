@@ -16,6 +16,6 @@ contexts/agency/
 ---
 
 ## 2. Parámetros de Operación Estándar
-- **Tiempo Base de Entrega por MVP:** 8 a 12 semanas (desarrollo ágil incremental).
-- **Capacidad Técnica:** Desarrollo Full Stack (Node.js, Express, TypeScript, React, Tailwind, PostgreSQL, Prisma, Azure Cloud).
+- **Tiempo de entrega:** estimar por alcance y disponibilidad; no hay un plazo comercial verificado en esta carpeta.
+- **Capacidad Técnica:** stack predeterminado JavaScript; perfiles alternativos según manifiesto. Ver [capacidades](capacidades.md).
 - **Regla de Oro:** Calidad verificada por pruebas automatizadas antes de cualquier entrega comercial.

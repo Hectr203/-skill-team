@@ -1,14 +1,18 @@
 ---
 name: backend-dominio-limpio
-description: Guia arquitectonica y estandares para desarrollar backend con Node.js, Express, TypeScript, PostgreSQL y Prisma bajo Clean Architecture y arquitectura hexagonal.
+description: Guia arquitectonica y estandares para desarrollar backend con Node.js, Express, JavaScript, PostgreSQL y Prisma bajo Clean Architecture y arquitectura hexagonal.
 ---
+
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
 
 # Habilidad: Backend con Dominio Limpio
 
 ## Objetivo
 Garantizar que el backend del proyecto se construya con separacion estricta de responsabilidades, bajo acoplamiento, alta cohesion y trazabilidad tecnica, evitando que la logica de negocio quede mezclada con Express o Prisma.
 
-## Arquitectura obligatoria
+## Arquitectura del perfil estándar
 Todo desarrollo backend debe organizarse por modulos de negocio dentro de `backend/src/modulos/`:
 
 ```text
@@ -37,7 +41,7 @@ backend/src/modulos/administracion/almacen/
 7. Los nombres de variables, funciones, DTOs, errores y logs deben mantenerse en espanol, salvo palabras reservadas o convenciones inevitables.
 
 ## Restricciones
-- Stack obligatorio: Node.js 22 LTS, Express.js, TypeScript, PostgreSQL y Prisma.
+- Stack predeterminado para proyectos nuevos sin otro perfil: Node.js 22 LTS, Express.js, JavaScript, PostgreSQL y Prisma.
 - Quedan prohibidos `SQL Server`, `Knex` y accesos paralelos a la persistencia fuera de Prisma.
 - No usar consultas SQL crudas salvo excepcion aprobada y documentada.
 

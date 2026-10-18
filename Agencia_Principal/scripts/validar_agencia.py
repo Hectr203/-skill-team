@@ -5,8 +5,8 @@ Validador estructural y operativo integral para la Agencia de Proyectos.
 Verifica:
 1. Documentos y contratos raíz requeridos.
 2. Integridad de JSON en opencode.json y configuraciones MCP.
-3. Frontmatter válido en los 78 skills (name y description).
-4. Contrato formal completo en los 16 agentes.
+3. Interfaz de catálogo y resolución de skills, sin auditar su contenido.
+4. Contrato formal completo en las fichas de agentes.
 5. Invocabilidad y sintaxis de todos los scripts operativos en scripts/ (--help).
 6. Presencia de assets oficiales de alerta de escritorio en audios/.
 7. Existencia y completitud del proyecto golden de referencia en contexts/projects/_ejemplo_golden/.
@@ -39,22 +39,45 @@ for item in REQUIRED:
         errors.append(f"falta {item}")
 
 # 2. Validación de JSONs de configuración
-try:
-    json.loads((ROOT / "opencode.json").read_text(encoding="utf-8"))
-    json.loads((ROOT / "mcp/mcp_config.example.json").read_text(encoding="utf-8"))
-except (OSError, json.JSONDecodeError) as exc:
-    errors.append(f"JSON invalido: {exc}")
+def secretos_configuracion(valor, ruta=""):
+    """Señala ubicaciones de credenciales literales sin imprimir su contenido."""
+    hallazgos = []
+    if isinstance(valor, dict):
+        for clave, contenido in valor.items():
+            ubicacion = f"{ruta}.{clave}" if ruta else clave
+            sensible = re.search(r"api.?key|authorization|password|secret|token", clave, re.I)
+            referencia = isinstance(contenido, str) and re.fullmatch(r"\{(?:env|file):[^}]+\}|\$\{[^}]+\}", contenido)
+            if sensible and contenido and not referencia and not isinstance(contenido, dict):
+                hallazgos.append(ubicacion)
+            hallazgos.extend(secretos_configuracion(contenido, ubicacion))
+    elif isinstance(valor, list):
+        for indice, contenido in enumerate(valor):
+            hallazgos.extend(secretos_configuracion(contenido, f"{ruta}[{indice}]"))
+    return hallazgos
 
-# 3. Comprobación de frontmatter en skills
-skills = list(ROOT.glob("skills/**/SKILL.md"))
-if not skills:
-    errors.append("no hay SKILL.md")
-for path in skills:
-    text = path.read_text(encoding="utf-8")
-    if not text.startswith("---\n") or not re.search(r"^name:\s*[a-z0-9-]+$", text, re.M):
-        errors.append(f"frontmatter name invalido: {path.relative_to(ROOT)}")
-    if not re.search(r"^description:\s*.+$", text, re.M):
-        errors.append(f"frontmatter description ausente: {path.relative_to(ROOT)}")
+
+for relativa in ("opencode.json", "mcp_config.json", "mcp/mcp_config.json", "mcp/mcp_config.example.json"):
+    try:
+        configuracion = json.loads((ROOT / relativa).read_text(encoding="utf-8"))
+        for campo in secretos_configuracion(configuracion):
+            errors.append(f"credencial literal: {relativa} -> {campo}")
+    except (OSError, json.JSONDecodeError):
+        errors.append(f"JSON ausente o inválido: {relativa}")
+
+from catalogo_skills import comprobar
+try:
+    errors.extend(comprobar(ROOT))
+except ValueError as exc:
+    errors.append(str(exc))
+
+# 3. El catálogo comprueba la interfaz de descubrimiento; contenido de skills fuera de alcance.
+skills = list((ROOT / ".agencia/skills-activos").glob("*/SKILL.md"))
+
+from validar_rutas_agentes import comprobar_rutas
+try:
+    errors.extend(comprobar_rutas(ROOT))
+except (ValueError, OSError, TypeError) as exc:
+    errors.append(f"rutas de agentes inválidas: {exc}")
 
 # 4. Comprobación de agentes
 agents = list((ROOT / "agentes").glob("*.md"))
@@ -101,7 +124,11 @@ if not (golden_dir / "memoria.md").is_file():
     errors.append("falta _ejemplo_golden/memoria.md")
 
 # 8. Verificación de enlaces Markdown locales
+EXCLUIDOS_VALIDACION = {"skills", "skills-activos", "mcp", "vphone-cli"}
 for path in ROOT.rglob("*.md"):
+    partes = path.relative_to(ROOT).parts
+    if partes[0] in EXCLUIDOS_VALIDACION or "skills-activos" in partes:
+        continue
     texto_md = path.read_text(encoding="utf-8")
     if "http://" in texto_md:
         errors.append(f"URL insegura http: {path.relative_to(ROOT)}")
@@ -119,6 +146,9 @@ for path in ROOT.rglob("*.md"):
 
 # 9. Carpetas vacías
 for directory in ROOT.rglob("*"):
+    partes = directory.relative_to(ROOT).parts
+    if partes[0] in EXCLUIDOS_VALIDACION or "skills-activos" in partes:
+        continue
     if directory.is_dir() and not any(directory.iterdir()):
         errors.append(f"directorio vacio: {directory.relative_to(ROOT)}")
 
@@ -131,7 +161,7 @@ source_roots = [Path("Agencia_para_proyectos_desde_0"), Path("Agencia_Proyectos_
 if any((ROOT / rel).exists() for rel in source_roots):
     errors.append("la agencia nueva contiene una ruta de fuente original")
 
-total_md = len(list(ROOT.rglob("*.md")))
+total_md = sum(1 for p in ROOT.rglob("*.md") if p.relative_to(ROOT).parts[0] not in EXCLUIDOS_VALIDACION and "skills-activos" not in p.parts)
 print(f"skills={len(skills)} agentes={len(agents)} scripts={len(scripts_py)} audios={len(audios_esperados)} archivos_md={total_md}")
 
 if errors:
@@ -139,4 +169,4 @@ if errors:
     print("\n".join(f"- {error}" for error in errors))
     raise SystemExit(1)
 
-print("VALIDACION OK (11/10)")
+print("VALIDACION OK (integridad local; no certifica servicios externos ni calidad de proyectos)")

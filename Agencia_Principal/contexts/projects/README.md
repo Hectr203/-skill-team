@@ -22,9 +22,9 @@ contexts/projects/<nombre_proyecto>/
 ## 2. Proyectos Especiales del Sistema
 
 1. **`_plantilla_proyecto/`**:
-   - Plantilla base que el comando `python3 scripts/agencia.py nuevo <nombre>` utiliza para inicializar proyectos nuevos sin errores de estructura.
+   - Ejemplos históricos de contexto. El comando `nuevo` utiliza las plantillas de `plantillas/`.
 2. **`_ejemplo_golden/`**:
-   - Proyecto de referencia completo con ADRs reales, memoria inicializada y evidencias de prueba. Sirve como estándar de calidad (Benchmark) para validar el comportamiento de los agentes.
+   - Escenario de referencia para pruebas locales. Sus evidencias históricas no certifican el estado actual de la agencia ni una aplicación entregada.
 
 ---
 
@@ -37,6 +37,6 @@ python3 scripts/agencia.py estado
 # Inicializar un nuevo proyecto
 python3 scripts/agencia.py nuevo mi-proyecto --cliente "Acme Corp" --stack estandar
 
-# Cargar contexto para un LLM (--prime genera System Primer conciso)
+# Cargar contexto para un LLM (--prime genera resumen de contexto conciso)
 python3 scripts/agencia.py arranque mi-proyecto --prime
 ```

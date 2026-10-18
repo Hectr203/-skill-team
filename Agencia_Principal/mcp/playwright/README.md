@@ -1,28 +1,12 @@
-# Servidor MCP: Playwright (Automatización Web y Pruebas E2E)
+# Adaptador opcional: playwright
 
-- **Repositorio oficial**: [github.com/microsoft/playwright-mcp](https://github.com/microsoft/playwright-mcp)
-- **Mantenedor**: Microsoft (Licencia MIT)
-- **Propósito**: Navegación, interacción y verificación determinista en navegadores web mediante snapshots del árbol de accesibilidad (rápido y sinVision dependiente).
+## Propósito
+Recorridos y comprobaciones web con herramientas disponibles. Este documento no instala, conecta ni ejecuta el servicio.
 
-## Regla de Precedencia Estricta
-1. **Prioridad 1 (Google Antigravity IDE)**: Usar directamente el control del navegador integrado de Antigravity (navegador Chrome real con captura visual automática en webp).
-2. **Prioridad 2 (Fallback Universal)**: En otros entornos (Cursor, Windsurf, Claude Code, VS Code o terminales CLI), activar automáticamente `@playwright/mcp@latest`.
+## Disponibilidad y uso
+Consultar el [registro](../registro-mcp.md) y la configuración real del cliente. Distinguir archivo configurado, proceso iniciado, conexión comprobada y operación completada. Descubrir nombres y esquemas de herramientas publicados por el servidor; no copiar comandos de ejemplos como si fueran APIs verificadas.
 
-## Herramientas Expuestas
-- `navigate`: Carga de URL web.
-- `click`: Clic sobre elementos mediante selectores de accesibilidad.
-- `fill`: Llenado de campos de formulario.
-- `screenshot`: Captura de imagen de la pantalla o elemento.
-- `evaluate`: Ejecución segura de JavaScript en el contexto de la página.
+El asistente principal selecciona esta capacidad cuando corresponde al alcance. Las skills pertinentes se leen mediante [selección común](../../reglas/seleccion-skills.md); no acoplan roles o perfiles a este servidor. Si falta, usar una alternativa local que cumpla el objetivo o informar qué control queda pendiente.
 
-## Configuración (`mcp_config.json`)
-```json
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"]
-    }
-  }
-}
-```
+## Permisos y datos
+Conservar autorización vigente, aislamiento y datos mínimos. Una herramienta instalada no autoriza transferencia de memoria, publicación, contacto o cambio de infraestructura. Credenciales fuera de documentación y configuración versionable. No declarar privacidad total o resultados no medidos.

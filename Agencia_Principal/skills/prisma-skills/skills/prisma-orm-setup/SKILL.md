@@ -7,6 +7,10 @@ metadata:
   version: "1.0.0"
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # Prisma ORM setup
 
 This skill owns ORM version selection for setup and connection work. Preserve the application's ORM version and intended database. A connection repair does not require a major upgrade.

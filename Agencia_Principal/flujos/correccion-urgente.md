@@ -1,35 +1,18 @@
-# Flujo de Corrección Urgente (Hotfix)
+# Corrección urgente
 
-Este flujo proporciona un proceso rápido, de precisión quirúrgica y seguro para resolver incidencias críticas o bugs bloqueantes en producción o desarrollo sin romper la arquitectura ni introducir sobreingeniería.
+El [asistente principal](../asistente-principal.md) coordina este flujo. Aplicar [precedencia](../reglas/precedencia.md), [contrato de roles](../agentes/contrato-agente.md) y [selección de skills](../reglas/seleccion-skills.md). Tecnología y arquitectura se resuelven en el perfil del manifiesto.
 
----
+## Activación
+Incidente o defecto que requiere parche acotado.
 
-## Fases del Hotfix
+## Entradas
+Síntoma, entorno, impacto, alcance autorizado y evidencia sin secretos.
 
-```text
-1. Diagnóstico Aislado ──> 2. Reproducción Mínima ──> 3. Parche Quirúrgico Ponytail ──> 4. Prueba de Regresión ──> 5. Despliegue y Registro
-```
+## Procedimiento
+Localizar y reproducir el defecto con prueba o pasos deterministas. Aplicar parche mínimo sin refactors incidentales; en backend y frontend, conforme a la [política de simplicidad](../reglas/simplicidad-ponytail.md), dejando la prueba de reproducción como comprobación mínima. Verificar reproducción y regresiones relevantes. Preparar recuperación y distinguir prueba local de intervención productiva. Desplegar únicamente si está autorizado; registrar causa y mitigación sin transferir logs a terceros automáticamente.
 
----
+## Entrega
+Parche, causa observada, pruebas, riesgo residual y estado de despliegue.
 
-### Fase 1: Diagnóstico Aislado
-- Identificar el error exacto (stack trace, código HTTP, mensaje de excepción).
-- Consultar `graphify query` para ubicar puntualmente la función o archivo responsable.
-- Comprimir la salida de error con **Headroom** para analizarla sin quemar tokens.
-
-### Fase 2: Reproducción Mínima
-- Escribir una prueba unitaria o aserción mínima reproducible que falle demostrando la existencia del bug (*Red*).
-- Si no es posible escribir un test automatizado de inmediato, registrar los pasos de reproducción manual determinista.
-
-### Fase 3: Parche Quirúrgico Ponytail
-- Aplicar la modificación de código más pequeña que resuelva la falla.
-- **Prohibición de refactors durante el hotfix**: No cambiar variables adyacentes, no renombrar carpetas ni formatear archivos completos.
-
-### Fase 4: Prueba de Regresión
-- Ejecutar la prueba creada en la Fase 2 y confirmar que ahora pasa exitosamente (*Green*).
-- Ejecutar la suite de pruebas del módulo para certificar que no existen efectos secundarios.
-
-### Fase 5: Despliegue Seguro y Registro
-- Notificar la corrección con `scripts/notificar_tarea.py`.
-- Registrar la causa raíz y la solución en `claude-mem` y en el manifiesto del proyecto.
-- Solicitar aprobación humana antes de desplegar el parche a producción.
+## Criterios de aceptación
+El defecto tiene evidencia de resolución dentro del alcance; no se declara producción corregida por una prueba local.

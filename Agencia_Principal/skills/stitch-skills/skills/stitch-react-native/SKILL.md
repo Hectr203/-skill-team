@@ -11,6 +11,8 @@ allowed-tools:
   - "web_fetch"
 ---
 
+> Agency integration: obey the selected project profile and frontend arquitectura modular por dominio boundaries. Process only requested screens. Existing approved local assets may be reused; external downloads require an available service and relevant authorization. Examples of TypeScript or libraries do not override a JavaScript profile. Resolve bundled scripts relative to this skill directory.
+
 # Stitch to React Native Components
 
 You are a mobile engineer focused on transforming Stitch web designs into clean, production-ready React Native code or syncing/updating existing native components to align with the latest Stitch designs. You translate HTML/CSS layouts into native mobile components using React Native primitives and `StyleSheet`.
@@ -19,12 +21,12 @@ You are a mobile engineer focused on transforming Stitch web designs into clean,
 
 ## Phase 1: Retrieval and networking
 
-> **GATE: Phase 1 is complete ONLY when all screens have been downloaded via `scripts/fetch-stitch.sh` AND visually audited. Reading local files directly without going through this phase is PROHIBITED.**
+> **GATE: Phase 1 is complete ONLY when requested source designs are available via `scripts/fetch-stitch.sh` AND visually audited. Approved local sources may be reused and their origin documented.**
 
 1. **Namespace discovery**: Run `list_tools` to find the Stitch MCP prefix. Use this prefix (e.g., `stitch:`) for all subsequent calls.
-2. **Metadata fetch**: Call `[prefix]:get_screen` for **EVERY screen** in the project to retrieve the design JSON with download URLs. Do NOT skip any screen.
+2. **Metadata fetch**: Call `[prefix]:get_screen` for each screen in the authorized scope to retrieve the design JSON with download URLs. Do NOT skip any screen.
 3. **Check for existing designs**: Before downloading, check if `.stitch/designs/{page}.html` and `.stitch/designs/{page}.png` already exist:
-   - **If files exist**: Ask the user whether to refresh the designs from the Stitch project using the MCP, or reuse the existing local files. **You MUST ask — do not assume.** Only re-download if the user confirms.
+   - **If files exist**: Ask the user whether to refresh the designs from the Stitch project using the MCP, or reuse the existing local files. Honor an existing instruction to reuse or refresh; ask only when that choice is unresolved. Only re-download if the user confirms.
    - **If files do not exist**: Proceed to step 4.
 4. **High-reliability download**: Internal AI fetch tools can fail on Google Cloud Storage domains. You MUST use the provided script.
    - **HTML**: `bash scripts/fetch-stitch.sh "[htmlCode.downloadUrl]" ".stitch/designs/{page}.html"`
@@ -63,7 +65,7 @@ You are a mobile engineer focused on transforming Stitch web designs into clean,
 
 ## Phase 3: Architectural rules and HTML mapping
 
-> **GATE: Every component MUST satisfy ALL of the following rules. Violations will cause `npm run validate` to fail.**
+> **GATE: Every component MUST satisfy ALL of the following rules. Review these rules manually and execute available project checks; do not assume a syntax validator enforces every architectural rule.**
 
 ### Element mapping
 Map HTML elements to React Native components using these rules:
@@ -107,7 +109,7 @@ CSS and Tailwind classes do not work in React Native. Convert all styles to `Sty
 * **Unsupported CSS properties**: Do not use `hover`, `transition`, `animation` (use `react-native-reanimated` for animations), or `position: fixed` (use absolute positioning instead).
 
 ### Architectural Rules
-* **Modular components (Atomic Design)**: Break the design into independent files. Organize components as atoms (buttons, labels, icons), molecules (input groups, cards), and organisms (headers, lists, forms). Place them in `src/components/atoms/`, `src/components/molecules/`, and `src/components/organisms/`. Monolithic page/screen files are PROHIBITED.
+Place generic controls in components/ui and business UI in the appropriate arquitectura modular por dominio módulo; preserve public APIs and explicit public contracts without cycles.
 * **Logic isolation**: Move event handlers, API calls, and business logic into custom hooks in `src/hooks/`. Components should only handle rendering.
 * **Data decoupling**: Move ALL static text, image URLs, and lists into `src/data/mockData.ts`. No hardcoded content in components.
 * **Type safety**: EVERY component file (including screens) MUST export a TypeScript interface named `[ComponentName]Props` with `readonly` property modifiers. The validator requires the interface to be **exported** — files without an exported Props interface will FAIL validation.

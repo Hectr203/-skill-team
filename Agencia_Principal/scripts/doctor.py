@@ -73,7 +73,7 @@ class Doctor:
     def verificar_python(self) -> None:
         self.seccion("1. Entorno Python")
         v = sys.version_info
-        if v.major >= 3 and v.minor >= 9:
+        if (v.major, v.minor) >= (3, 10):
             self.ok(f"Python {v.major}.{v.minor}.{v.micro}", sys.executable)
         else:
             self.fail(f"Python {v.major}.{v.minor} es antiguo", "Se recomienda Python 3.10 o superior.")
@@ -99,9 +99,12 @@ class Doctor:
         if node:
             try:
                 res = subprocess.run([node, "--version"], capture_output=True, text=True, timeout=2)
-                self.ok(f"Node.js instalado: {res.stdout.strip()}", node)
-            except Exception:
-                self.ok("Node.js instalado", node)
+                if res.returncode == 0 and res.stdout.startswith("v"):
+                    self.ok(f"Node.js ejecutable: {res.stdout.strip()}", node)
+                else:
+                    self.fail("Node.js no responde correctamente")
+            except (OSError, subprocess.TimeoutExpired):
+                self.fail("No se pudo ejecutar Node.js")
         else:
             self.warn("Node.js no encontrado en PATH", "Instalar Node.js LTS para soporte completo de MCPs y tooling frontend.")
 
@@ -161,6 +164,16 @@ class Doctor:
                 data = json.loads(opencode.read_text(encoding="utf-8"))
                 mcps = data.get("mcp", {})
                 self.ok(f"opencode.json válido ({len(mcps)} MCPs declarados)")
+                for nombre, configuracion in mcps.items():
+                    if not configuracion.get("enabled", True):
+                        self.info(f"MCP '{nombre}': desactivado; no se comprobó conexión")
+                    elif configuracion.get("type") == "remote":
+                        if nombre == "stitch" and not os.environ.get("STITCH_API_KEY", "").strip():
+                            self.fail("Stitch habilitado sin STITCH_API_KEY en el entorno")
+                        else:
+                            self.warn(f"MCP remoto '{nombre}': declarado; conectividad no comprobada")
+                    elif nombre != "agencia":
+                        self.warn(f"MCP local '{nombre}': declarado; arranque no comprobado")
             except Exception as e:
                 self.fail(f"opencode.json con JSON inválido: {e}")
         else:
@@ -172,12 +185,12 @@ class Doctor:
             if p:
                 self.ok(f"CLI '{cli}' activo en sistema ({desc})", p)
             else:
-                self.info(f"CLI '{cli}' no en PATH (opera mediante fallback transparente en Markdown y logs locales)")
+                self.info(f"CLI '{cli}' no en PATH; integración no comprobada, usar alternativas locales documentadas")
 
         # Motor de Diseño Frontend Impeccable
         impeccable_launcher = self.raiz / "skills" / "impeccable" / "scripts" / "impeccable"
         if impeccable_launcher.exists() and os.access(impeccable_launcher, os.X_OK):
-            self.ok("Motor de diseño frontend Impeccable activo (skills/impeccable/scripts/impeccable)")
+            self.ok("Launcher Impeccable presente y ejecutable; motor no iniciado")
         else:
             self.warn("Motor Impeccable no ejecutable", "Dar permisos chmod +x a skills/impeccable/scripts/impeccable")
 
@@ -205,16 +218,41 @@ class Doctor:
         # Agentes
         agentes = list((self.raiz / "agentes").glob("*.md"))
         if len(agentes) >= 12:
-            self.ok(f"Catálogo de agentes completo ({len(agentes)} agentes)")
+            self.ok(f"Fichas de agentes y documentos de apoyo presentes ({len(agentes)})")
         else:
             self.fail(f"Catálogo de agentes incompleto ({len(agentes)} encontrados)")
 
         # Skills
         skills = list(self.raiz.glob("skills/**/SKILL.md"))
         if len(skills) >= 50:
-            self.ok(f"Catálogo de skills amplio ({len(skills)} skills con SKILL.md)")
+            self.ok(f"Fuentes de skills presentes ({len(skills)} archivos, incluyendo variantes)")
         else:
             self.warn(f"Pocos skills encontrados ({len(skills)})")
+
+    def verificar_operacion_local(self) -> None:
+        self.seccion("6. Validación y protocolo MCP local")
+        try:
+            resultado = subprocess.run([sys.executable, str(self.raiz / "scripts/validar_agencia.py")],
+                                       capture_output=True, text=True, timeout=30, cwd=self.raiz)
+            if resultado.returncode:
+                self.fail("Validación estructural fallida", "Ejecutar python3 scripts/agencia.py validar")
+                if self.verbose:
+                    print(resultado.stdout)
+            else:
+                self.ok("Validación estructural ejecutada")
+            from agencia_mcp import TOOLS_DEFINITIONS
+            mensajes = [{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}},
+                        {"jsonrpc": "2.0", "id": 2, "method": "tools/list"}]
+            resultado = subprocess.run([sys.executable, str(self.raiz / "scripts/agencia_mcp.py")],
+                                       input="".join(json.dumps(m) + "\n" for m in mensajes),
+                                       capture_output=True, text=True, timeout=10, cwd=self.raiz)
+            respuestas = [json.loads(linea) for linea in resultado.stdout.splitlines()]
+            if resultado.returncode or len(respuestas) != 2 or {t.get("name") for t in respuestas[1].get("result", {}).get("tools", [])} != {t["name"] for t in TOOLS_DEFINITIONS}:
+                self.fail("MCP agencia: inicialización o catálogo inválidos")
+            else:
+                self.ok("MCP agencia: inicialización y herramientas publicadas verificadas")
+        except (OSError, ValueError, subprocess.TimeoutExpired):
+            self.fail("No se pudo completar la comprobación operativa local")
 
     def ejecutar(self) -> int:
         print(f"\n{BOLD}======================================================={RESET}")
@@ -228,6 +266,7 @@ class Doctor:
         self.verificar_herramientas_cli()
         self.verificar_mcps()
         self.verificar_estructura_agencia()
+        self.verificar_operacion_local()
 
         print(f"\n{BOLD}── Resumen del Diagnóstico ────────────────────────────{RESET}")
         print(f"  {VERDE}✓ Pruebas superadas (OK): {self.oks}{RESET}")
@@ -242,7 +281,7 @@ class Doctor:
                 print(f"  • {s}")
 
         if self.fails == 0:
-            print(f"\n{BOLD}{VERDE}✨ ESTADO DEL SISTEMA: 100% OPERATIVO (NIVEL ÉLITE){RESET}\n")
+            print(f"\n{BOLD}{VERDE}Comprobaciones locales aprobadas; integraciones externas y proyectos requieren validación independiente.{RESET}\n")
             return 0
         else:
             print(f"\n{BOLD}{ROJO}❌ SE REQUIERE ATENCIÓN EN {self.fails} COMPONENTE(S){RESET}\n")

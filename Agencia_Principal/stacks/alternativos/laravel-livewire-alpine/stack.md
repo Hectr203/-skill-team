@@ -11,47 +11,10 @@ Este documento define las especificaciones técnicas obligatorias cuando un proy
 
 ---
 
-## 2. Dependencias Principales
+## 2. Dependencias y versiones
+Conservar el lockfile y versiones reales del proyecto. En un proyecto nuevo seleccionar PHP, Laravel, Livewire, Alpine y Tailwind compatibles mediante documentación oficial vigente. Librerías de permisos, gráficas y pruebas son opciones según necesidad; no copiar un manifiesto antiguo ni instalar todos los ejemplos.
 
-### `composer.json` (PHP)
-```json
-{
-  "require": {
-    "php": "^8.3",
-    "laravel/framework": "^11.0|^12.0",
-    "livewire/livewire": "^3.5",
-    "spatie/laravel-permission": "^6.0"
-  },
-  "require-dev": {
-    "fakerphp/faker": "^1.23",
-    "larastan/larastan": "^2.9",
-    "mockery/mockery": "^1.6",
-    "nunomaduro/collision": "^8.0",
-    "pestphp/pest": "^2.34",
-    "pestphp/pest-plugin-laravel": "^2.3"
-  }
-}
-```
-
-### `package.json` (JavaScript / UI)
-```json
-{
-  "devDependencies": {
-    "@tailwindcss/forms": "^0.5.7",
-    "@tailwindcss/typography": "^0.5.10",
-    "alpinejs": "^3.14.0",
-    "apexcharts": "^3.50.0",
-    "autoprefixer": "^10.4.19",
-    "axios": "^1.7.0",
-    "laravel-vite-plugin": "^1.0.0",
-    "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.4",
-    "vite": "^5.0.0"
-  }
-}
-```
-
----
+Frontend: Blade/Livewire para interacción y Alpine para estado visual local. Backend: acciones y servicios según complejidad. Datos: Eloquent y migraciones del motor seleccionado por el proyecto. No heredar React, Prisma ni pruebas del perfil estándar.
 
 ## 3. Estructura de Directorios
 

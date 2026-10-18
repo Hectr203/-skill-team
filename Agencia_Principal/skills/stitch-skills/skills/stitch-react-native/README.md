@@ -31,6 +31,6 @@ When activated, the agent follows a design-to-native pipeline:
 
 1. **Retrieval**: Uses a system-level `curl` script to download Stitch HTML and screenshots from Google Cloud Storage.
 2. **Mapping**: Translates HTML elements to React Native primitives (`View`, `Text`, `Pressable`, `Image`, etc.) and converts CSS/Tailwind to `StyleSheet.create()` calls.
-3. **Generation**: Scaffolds components using Atomic Design (atoms, molecules, organisms).
+Place generic controls in components/ui and business UI in the appropriate arquitectura modular por dominio módulo; preserve public APIs and explicit public contracts without cycles.
 4. **Validation**: Runs an automated AST check to catch missing Props interfaces or hardcoded style values.
 5. **Audit**: Performs a final self-correction check against the architecture checklist.

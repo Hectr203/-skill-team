@@ -1,6 +1,6 @@
 ---
 name: ponytail
-description: "Configura Ponytail en proyectos nuevos para establecer reglas de minimalismo, YAGNI, stdlib primero y uso de funciones nativas antes de iniciar el desarrollo."
+description: "Regla de minimalismo (YAGNI, nativo primero, mínimo código correcto) obligatoria en nivel full durante todo trabajo de backend, persistencia y frontend; también configura Ponytail en proyectos nuevos antes de iniciar el desarrollo."
 ---
 
 # Ponytail - Proyectos desde cero
@@ -9,6 +9,9 @@ description: "Configura Ponytail en proyectos nuevos para establecer reglas de m
 Ponytail es una skill portable para agentes de IA que fuerza la solución más simple que funciona: cuestionar trabajo innecesario, preferir la biblioteca estándar, preferir capacidades nativas de la plataforma, evitar dependencias nuevas y escribir el mínimo código correcto.
 
 En esta agencia de proyectos desde cero, Ponytail se usa durante la planificación inicial para definir reglas de IDE y asistentes antes de escribir lógica de negocio, componentes o infraestructura propia. Su objetivo no es reemplazar Clean Architecture, Prisma, UI/UX Pro Max ni las reglas técnicas de la agencia; su función es evitar que esas decisiones se implementen con abstracciones, dependencias o archivos innecesarios.
+
+## Aplicación continua en backend y frontend
+En esta agencia Ponytail permanece activa en nivel `full` durante toda tarea de backend, persistencia y frontend (funcionalidades, interfaces, componentes, estado, correcciones, refactorizaciones, APIs, casos de uso, consultas, validaciones, integraciones, procesos programados, pruebas, configuración y arquitectura). La política operativa está en [reglas/simplicidad-ponytail.md](../../reglas/simplicidad-ponytail.md); la regla original, en [skills/ponytail/SKILL.md](skills/ponytail/SKILL.md), y la revisión de sobreingeniería en [skills/ponytail-review/SKILL.md](skills/ponytail-review/SKILL.md). Solo el asistente principal o el usuario cambian el nivel.
 
 ## Cuándo invocar esta skill
 Invócala cuando ocurra cualquiera de estos casos:
@@ -25,7 +28,7 @@ No la invoques para justificar recortes en seguridad, validación en límites de
 - Ruta del proyecto nuevo, normalmente `proyectos/<nombre>/`.
 - IDE, agente o asistente objetivo. Si no está definido, pregúntalo o registra `AGENTS.md` como fallback genérico.
 - Nivel de intensidad: `lite`, `full`, `ultra` u `off`. Si no se especifica, usa `full`.
-- Restricciones de la agencia: React, TypeScript, Tailwind CSS, Express.js, PostgreSQL, Prisma, Atomic Design y Clean Architecture cuando apliquen.
+- Restricciones de la agencia: React, JavaScript, Tailwind CSS, Express.js, PostgreSQL, Prisma, Feature-Sliced Design y Clean Architecture cuando apliquen.
 - Decisiones previas de arquitectura o metodología que deban respetarse.
 
 ## Flujo de ejecución
@@ -81,7 +84,7 @@ Si otras skills tienen reglas de código, aplica este orden:
 5. Instrucciones de Ponytail.
 6. Valores predeterminados.
 
-Ponytail no impide cumplir Clean Architecture, Atomic Design o reglas de base de datos. Exige que cada capa, componente o configuración exista por una necesidad real y se implemente de la forma más pequeña y mantenible.
+Ponytail no impide cumplir Clean Architecture, Feature-Sliced Design o reglas de base de datos. Exige que cada capa, componente o configuración exista por una necesidad real y se implemente de la forma más pequeña y mantenible.
 
 ## Cómo NO utilizarla
 - No traduzcas ni edites las reglas originales al copiarlas a un proyecto.

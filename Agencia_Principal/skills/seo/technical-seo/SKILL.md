@@ -3,6 +3,10 @@ name: technical-seo
 description: Auditoría y optimización técnica de SEO web. Rastreo, indexabilidad, robots.txt, sitemaps XML, canonización, redirecciones 301/302, encabezados HTTP y Core Web Vitals.
 ---
 
+## Integración en Agencia Principal
+Aplicar el [contrato de selección y coordinación](../../../agentes/contrato-agente.md). Activar esta habilidad solo si su resultado corresponde al alcance autorizado; los ejemplos de stack y herramientas no sustituyen el manifiesto. Recursos relativos se resuelven desde esta fuente. No ampliar permisos, invocar procesos recursivos ni declarar controles no ejecutados.
+
+
 # SEO Técnico y Rastreo Web
 
 Basado en las directivas de **Claude SEO** ([github.com/AgriciDaniel/claude-seo](https://github.com/AgriciDaniel/claude-seo)). Esta skill audita la infraestructura técnica del sitio web para asegurar indexabilidad impecable y tiempos de carga óptimos.

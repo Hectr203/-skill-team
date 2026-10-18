@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "proyecto": "id-del-proyecto",
+  "tarea": "id-de-tarea",
+  "responsable": "Asistente principal",
+  "alcance": "Resultado autorizado y límites",
+  "perfil": "Perfil acordado o convenciones existentes",
+  "estado": "parcial",
+  "inicio": "2026-10-08T09:00:00-06:00",
+  "fin": "2026-10-08T09:00:00-06:00",
+  "retrabajo_minutos": 0,
+  "costo": null,
+  "criterios": [
+    {
+      "id": "C1",
+      "descripcion": "Sustituir por el criterio acordado",
+      "estado": "pendiente",
+      "evidencias": []
+    }
+  ],
+  "skills": [],
+  "riesgos": [],
+  "artefactos": []
+}

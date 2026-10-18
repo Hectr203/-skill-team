@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "proyecto": "id-del-proyecto",
+  "objetivo": "Resultado autorizado; sustituir los ejemplos por tareas reales",
+  "tareas": [
+    {
+      "id": "contrato-datos",
+      "rol": "agente-base-datos",
+      "depende_de": [],
+      "archivos": [
+        "backend/prisma/schema.prisma"
+      ],
+      "criterios": [
+        "C1"
+      ],
+      "skills": []
+    },
+    {
+      "id": "contrato-api",
+      "rol": "agente-backend",
+      "depende_de": [
+        "contrato-datos"
+      ],
+      "archivos": [
+        "backend/src/modules/almacen/almacen.dto.js"
+      ],
+      "criterios": [
+        "C1"
+      ],
+      "skills": []
+    },
+    {
+      "id": "integracion-ui",
+      "rol": "agente-frontend",
+      "depende_de": [
+        "contrato-api"
+      ],
+      "archivos": [
+        "frontend/src/modules/administracion/almacen/services/almacen.js"
+      ],
+      "criterios": [
+        "C1"
+      ],
+      "skills": []
+    }
+  ]
+}

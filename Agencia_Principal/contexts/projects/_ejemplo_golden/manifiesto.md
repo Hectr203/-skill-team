@@ -1,36 +1,14 @@
-# Manifiesto del Proyecto: VTP Transportes (Ejemplo Golden)
+# Piloto de referencia de la agencia
 
-- **ID:** `vtptransportes`
-- **Cliente y marca:** Transportes del Norte S.A.
-- **Tipo:** existente (evolución brownfield)
-- **Objetivo y problema:** Modernizar el módulo de asignación de rutas y liquidación de fletes sin interrumpir la operación logística diaria.
-- **Alcance:**
-  - Integración de API REST de cotización de combustible.
-  - Módulo de validación de bitácoras de viaje.
-  - Exportación de manifiestos fiscales en formato PDF/A.
-- **Fuera de alcance:** Migración del ERP central o cambio de base de datos relacional.
-- **Usuarios:** Despachadores logísticos, conductores y auditores contables.
-- **Requisitos funcionales:**
-  - Cálculo automático de peajes según categoría de eje.
-  - Registro de incidentes en ruta con coordenadas geográficas.
-- **Requisitos no funcionales:**
-  - Tiempo de respuesta de endpoints < 200ms en percentil 95.
-  - Disponibilidad 99.9% durante horario de carga y despacho (24/7).
-- **Restricciones y aprobaciones:**
-  - Aprobación HITL requerida para emitir manifiestos fiscales ante el ente regulador.
-  - No romper esquemas de base de datos PostgreSQL existentes.
-- **Arquitectura y stack detectado:**
-  - Backend: Node.js / Express con TypeScript y Prisma.
-  - Frontend: React / Vite con Tailwind CSS y componentes modulares.
-  - Base de datos: PostgreSQL 15.
-- **Frontend / backend / datos:** Separación en monorepo `apps/frontend` y `apps/backend`.
-- **Memoria y grafo:** Memoria registrada en `memoria.md`, grafo de llamadas indexado con Graphify.
-- **Criterios de aceptación:**
-  - 100% de tipos validados con `tsc --noEmit`.
-  - Pruebas unitarias de cálculo de fletes pasando con margen de error 0.00%.
-  - Recibo de auditoría firmado por Auditor de Calidad.
-- **Pruebas y evidencias:** Almacenadas en `evidencias/test-report-fletes.json`.
-- **Riesgos, decisiones y pendientes:**
-  - Decisión: [ADR-001: Arquitectura Modular Monorepo](adrs/ADR-001-arquitectura-modular-monorepo.md).
-  - Riesgo: Dependencia de API externa de combustible; mitigado con caché en memoria local (TTL 15 min).
-- **Próximo paso:** Despliegue en entorno de staging y validación con usuarios clave.
+- ID: _ejemplo_golden
+- Cliente y marca: ejemplo ficticio, sin datos de clientes.
+- Tipo: auditoria
+- Objetivo: comprobar el ciclo local de creación, arranque, cierre y recuperación.
+- Stack Tecnológico Asignado: stacks/estandar
+- Alcance: CLI, MCP y memoria. No certifica una aplicación desplegada.
+- Historia de usuario: como operador, quiero reanudar un proyecto sin mezclar su memoria con la de otro cliente.
+- Criterios de aceptación: dos IDs producen memorias independientes; el cierre aparece en el siguiente arranque y en MCP; fallos operativos se comunican como errores.
+- Casos de prueba: `tests/test_flujo_piloto.py` y `tests/test_controles.py`.
+- Comando: `python3 -m unittest discover -s tests -v` desde la raíz de la agencia.
+- Evidencia: salida real del comando; no considerar la mera presencia de esta ficha como prueba aprobada.
+- Fuera de alcance: credenciales externas, despliegue, ventas y rentabilidad.

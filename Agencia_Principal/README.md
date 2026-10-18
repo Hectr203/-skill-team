@@ -1,111 +1,87 @@
-# Agencia Principal — Sistema Integral de Agentes de IA
+# Agencia Principal
 
-Bienvenido a la **Agencia Principal**, el ecosistema unificado y de nivel industrial para desarrollo de software guiado por especificaciones (Spec-Driven Development), orquestación multi-agente, aseguramiento de calidad (QA) y gestión integral de proyectos digitales.
+Sistema local de trabajo con IA: fichas de agentes, habilidades, contextos por proyecto, CLI y servidor MCP. La documentación orienta al modelo; las pruebas verifican controles concretos. La agencia no sustituye al runtime de agentes del IDE ni certifica servicios externos por estar configurados.
 
-> 📖 **¿Iniciando un proyecto desde cero en un nuevo repositorio?**
-> Consulta la **[Guía Maestra de Inicio y Desarrollo de Proyectos](GUIA-INICIO-PROYECTO.md)** con la estructura de carpetas recomendada, el flujo en 5 pasos y los prompts exactos para copiar y pegar en el chat de tu IA.
+## Inicio
 
----
-
-## 🚀 Inicio Rápido con el CLI Operativo
-
-La agencia cuenta con una interfaz de línea de comandos centralizada en `scripts/agencia.py` y un servidor MCP nativo en `scripts/agencia_mcp.py`:
+Ejecutar desde esta carpeta:
 
 ```bash
-# 1. Diagnosticar el entorno operativo y herramientas
 python3 scripts/agencia.py doctor
-
-# 2. Validar la integridad estructural completa de la agencia (agentes, skills, scripts)
 python3 scripts/agencia.py validar
-
-# 3. Ver el estado y dashboard de todos los proyectos gestionados
-python3 scripts/agencia.py estado
-
-# 4. Crear un nuevo proyecto con el stack estándar (Node 22 + React + Prisma)
-python3 scripts/agencia.py nuevo mi-proyecto-web --cliente "Cliente Demo"
-
-# 5. Crear un nuevo proyecto con un stack alternativo (ej. Laravel Livewire Alpine)
-python3 scripts/agencia.py nuevo mi-proyecto-laravel --stack laravel-livewire-alpine
-
-# 6. Iniciar sesión de trabajo y cargar contexto optimizado en tokens (--prime)
-python3 scripts/agencia.py arranque mi-proyecto-web --prime
-
-# 7. Registrar cierre de sesión con trazabilidad y alerta sonora
-python3 scripts/agencia.py cierre mi-proyecto-web --tareas "Endpoints implementados" --notificar
+python3 -m unittest discover -s tests -v
+python3 scripts/agencia.py verificar
+python3 scripts/agencia.py comprobar
+python3 scripts/agencia.py nuevo cliente-web --cliente "Cliente"
+python3 scripts/agencia.py arranque cliente-web --prime
+python3 scripts/agencia.py cierre cliente-web --tareas "Avance verificado" --pendientes "Siguiente paso"
 ```
 
----
+Para otro stack registrado, añadir `--stack laravel-livewire-alpine`. El CLI crea contexto y memoria; no genera automáticamente una aplicación ni un despliegue. Los perfiles inexistentes se preparan y aprueban antes de crear el proyecto.
 
-## 🏛️ Arquitectura del Repositorio
+## Organización
 
-```txt
-Agencia_Principal/
-├── opencode.json                  # Integración de skills y MCP para OpenCode / Antigravity
-├── AGENTS.md                      # Reglas globales inmutables, español mandatorio y FinOps
-├── asistente-principal.md         # Orquestador supremo, loops SDD-QA y compuertas HITL
-│
-├── agentes/                       # 16 Agentes Especializados de ingeniería y dominios
-│   ├── agente-orquestador.md      # Asistente Principal y Coordinador
-│   ├── analista-requerimientos.md # Levantamiento de requerimientos formales, HU y CA
-│   ├── agente-arquitectura.md     # Arquitectura hexagonal, modular y ADRs
-│   ├── agente-backend.md          # Node 22, Express, TS, Prisma, Clean Architecture (+500 líneas)
-│   ├── agente-frontend.md         # React, TS, Tailwind, Atomic Design, Sonner, Zustand
-│   ├── agente-base-datos.md       # PostgreSQL, esquemas Prisma, migraciones aditivas
-│   ├── ingeniero-de-pruebas.md    # Playwright E2E, pruebas unitarias/integración, reportes QA
-│   ├── revisor-de-codigo.md       # Code review estricto, linters y mantenibilidad
-│   ├── auditor-seguridad.md       # Threat modeling, OWASP, secretos y permisos
-│   ├── agente-despliegue-azure.md # Azure CLI, App Services, Functions, Docker, CI/CD
-│   ├── agente-documentacion.md    # Trazabilidad técnica, bitácoras y actas de cierre
-│   ├── agente-contexto.md         # Memoria persistente, compresión y continuidad
-│   ├── diseno-motion.md           # Google Stitch, React Bits, Anime.js, tokens
-│   ├── seo-tecnico.md             # SEO técnico, GEO AI optimization, Schema Markup
-│   ├── crm-leads.md               # Auto-CRM SQLite, embudos de venta, webhooks
-│   ├── redes-sociales.md          # Voice builder, LinkedIn, guiones para reels
-│   ├── contrato-agente.md         # Plantilla contractual de entradas, salidas y límites
-│   └── guia-de-personas.md        # Estilos de comunicación y personalidades
-│
-├── context/                       # Documentación Maestra y Gobernanza
-│   ├── propuesta_unificada.md     # Gobernanza técnica obligatoria
-│   ├── propuesta_estructura.md    # Arquitectura de proyectos de software reutilizable
-│   ├── guia_agentes_y_skills.md   # Matriz de asignación y responsabilidades
-│   ├── flujo_memoria.md           # Protocolo de 3 capas de memoria persistente
-│   └── alternativas_memoria.md    # Análisis y justificación de persistencia
-│
-├── stacks/                        # Arquitectura Multi-Stack Modular y Auto-Adaptable
-│   ├── README.md                  # Guía del sistema multi-stack, resolución y herencia
-│   ├── estandar/                  # Stack Predeterminado Oficial (Node 22 / Express / TS / Prisma / React)
-│   ├── plantillas/                # Plantilla base para registrar nuevos stacks tecnológicos
-│   └── alternativos/              # Perfiles tecnológicos adicionales (Laravel/Livewire/Alpine, etc.)
-│
-├── contexts/                      # Contextos Operativos Vivos
-│   ├── projects/                  # Directorio de proyectos (_plantilla_proyecto y _ejemplo_golden)
-│   ├── clients/                   # Documentación estructurada por cliente
-│   ├── brands/                    # Guías de voz y tono de marca
-│   ├── campaigns/                 # Registro y seguimiento de campañas activas
-│   └── agency/                    # Acuerdos internos, tarifas y capacidades
-│
-├── flujos/                        # 12 Flujos de Trabajo Guiados Paso a Paso
-├── reglas/                        # Reglas y Estándares de Ingeniería
-├── scripts/                       # Motor Operativo Unificado y Servidor MCP
-├── audios/                        # Audios Oficiales de Alerta Local (4 archivos .mp3)
-├── skills/                        # Habilidades Reales (Completas y Descubribles)
-└── tests/                         # Suite de Pruebas Automatizadas
+- [Precedencia de reglas](reglas/precedencia.md): resolver stack, convenciones y autorizaciones.
+- [Asistente principal](asistente-principal.md) y [agentes](agentes/contrato-agente.md): selección de roles y entregables.
+- [Inicio de proyectos](GUIA-INICIO-PROYECTO.md): desarrollo fuera de la carpeta de la agencia.
+- [Stacks](stacks/README.md): estándar JavaScript y perfiles alternativos.
+- `contexts/projects/<id>/`: manifiesto, memoria, ADRs y evidencias por ID explícito.
+- `.agencia/catalogo-skills.json`: selección única de fuentes de habilidades.
+- `.agencia/skills-activos/`: entradas ligeras generadas que remiten a sus recursos originales.
+- [HITL](reglas/human-in-the-loop.md): operaciones sensibles y aprobación comprobable.
+- [Operación comercial](contexts/agency/acuerdos.md): datos a completar antes de cotizar.
+
+Las fuentes importadas se conservan. Para actualizar las entradas después de editar una fuente:
+
+```bash
+python3 scripts/catalogo_skills.py --generar
+python3 scripts/catalogo_skills.py
 ```
 
----
+No cargar recursivamente todas las variantes de `skills/` junto con las entradas activas. El catálogo detecta duplicados nuevos que requieren una selección explícita. Cada IDE puede añadir habilidades globales: comprobar sus colisiones en ese entorno.
 
-## 🎯 Pilares Diferenciadores
+## MCP y credenciales
 
-1. **Ahorro Extremo de Tokens y Navegación Basada en Grafos**:
-   - Queda prohibida la búsqueda ciega con `grep`/`find`.
-   - Se consulta obligatoriamente **CodeGraph** para exploración de código/símbolos y **Graphify** para mapas conceptuales.
-   - Salidas extensas se comprimen con **Headroom** hasta un 80%.
-2. **Sistema Multi-Stack Auto-Adaptable**:
-   - Stack estándar predeterminado e inmutable en `stacks/estandar/`.
-   - Capacidad dinámica de crear perfiles alternativos en `stacks/alternativos/` ante nuevas tecnologías sin romper la estandarización habitual.
-3. **Compuertas Human-in-the-Loop Auditadas**:
-   - Avisos audibles locales reproducidos exactamente 2 veces (`termine la tarea.mp3`, `Necesito Validación.mp3`, `Aprobación urgente..mp3`).
-   - Trazabilidad con registro auditado en `.hitl_audit.jsonl`.
-4. **Ciclo de Iteraciones SDD y QA**:
-   - Límite de 5 loops de corrección entre QA y Desarrollo.
-   - Cierre exclusivo por evidencia de pruebas verificables en verde.
+OpenCode carga el MCP local `agencia` y las entradas activas. Stitch está desactivado hasta configurar una credencial nueva y comprobar la conexión. Su configuración utiliza `{env:STITCH_API_KEY}` según la [documentación de OpenCode](https://opencode.ai/docs/es/config/).
+
+Los archivos `mcp_config.json` y `mcp/mcp_config.json` contienen solo el servidor local. Sus rutas corresponden a este equipo; al mover la agencia hay que apuntar al nuevo `scripts/agencia_mcp.py`. No asumir que otro cliente expande la sintaxis de variables de OpenCode.
+
+Retirar una credencial de los archivos no la revoca en el proveedor. Rotar la anterior en la cuenta correspondiente y actualizar el entorno; no pegar claves en chats, Markdown ni JSON versionable.
+
+El CLI y el MCP comunican fallos mediante código de salida e `isError`. `doctor` comprueba integridad local e inicialización MCP, sin realizar solicitudes a servicios externos.
+
+La [verificación local](reglas/verificacion-local.md) ejecuta pruebas y validador, y conserva evidencia vinculada al contenido. `comprobar` rechaza informes ausentes, fallidos o desactualizados. No requiere instalar herramientas adicionales; el alcance es este checkout de la agencia.
+
+## Piloto y comprobaciones
+
+El [piloto de referencia](contexts/projects/_ejemplo_golden/manifiesto.md) documenta criterios verificables. `tests/test_flujo_piloto.py` ejecuta creación, arranque, cierre y recuperación con dos clientes en una agencia temporal, sin alterar proyectos reales.
+
+Las pruebas de controles cubren rutas externas, enlaces simbólicos, validación de argumentos, propagación de errores y autorización pendiente. Una solicitud pendiente devuelve 2; solo una aprobación interactiva registrada devuelve 0.
+
+Los archivos Markdown y JSONL de memoria son legibles. No registrar secretos; el cifrado de compatibilidad no protege esas copias. El aislamiento por ID evita alias accidentales, pero no constituye aislamiento de sistema operativo entre usuarios.
+
+La rentabilidad, capacidad comercial y calidad de una aplicación se evalúan con datos y evidencias de cada proyecto, no con el número de agentes o habilidades.
+
+## Skills y ampliación de roles
+
+La selección se rige por [el contrato de skills](reglas/seleccion-skills.md). Buscar candidatos y resolver su fuente antes de leer y aplicar sus instrucciones:
+
+```bash
+python3 scripts/agencia.py skills --consulta frontend
+python3 scripts/agencia.py skills --nombre frontend-modular
+python3 scripts/agencia.py registrar-agente nombre-del-agente
+```
+
+El último comando registra una ficha existente creada con [la plantilla de agente](plantillas/nuevo-agente.md). No inicia procesos ni asigna skills obligatorias. Para generar configuración MCP en otra ubicación, usar `scripts/configurar_mcp.py --help`; nunca sobrescribe una configuración existente.
+
+[Auditoría integral](contexts/agency/auditoria-integral.md): alcance, correcciones y registro por archivo. Las skills conservan sus fuentes independientes; esta auditoría verifica su integración, no sus procedimientos internos.
+
+## Control de entregas y métricas
+
+El [control de calidad](reglas/calidad-entregas.md) añade un registro independiente de tecnología y proveedor. `scripts/control_entregas.py` comprueba criterios y huellas de evidencias sin ejecutar instrucciones del informe. Calcula duración mediana, retrabajo y costos por moneda a partir de registros explícitos; no atribuye resultados comerciales a escenarios de prueba.
+
+Los [escenarios operativos](contexts/agency/evaluacion-operativa.md) definen cómo comprobar coordinación, cambios de stack, contenido externo e indisponibilidad de herramientas. Están preparados para ejecución; no se contabilizan como resultados reales sin evidencia.
+
+## Coordinación persistente
+
+El [plan operativo](reglas/operacion-tareas.md) registra responsables, archivos y dependencias sin iniciar agentes. CLI `tareas` administra transiciones y revisiones; MCP `agencia_plan` consulta el mismo almacén. Un cierre pierde vigencia si cambian sus artefactos, su informe, su evidencia o un antecesor. Las fases anteriores se archivan y las escrituras son transaccionales.
