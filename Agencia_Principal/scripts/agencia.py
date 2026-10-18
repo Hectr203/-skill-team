@@ -58,6 +58,7 @@ def cmd_arranque(args: argparse.Namespace) -> int:
         formato_prime=args.prime,
         modo_completo=getattr(args, "completo", False),
         presupuesto=getattr(args, "presupuesto", 4000),
+        proveedor=getattr(args, "proveedor", "estandar"),
     )
     return 0
 
@@ -245,6 +246,12 @@ def main() -> None:
     p_arranque.add_argument("--prime", "--prompt", action="store_true", dest="prime", help="Genera System Primer para LLMs.")
     p_arranque.add_argument("--completo", action="store_true", help="Carga el historial completo sin recortar a ventana deslizante.")
     p_arranque.add_argument("--presupuesto", type=int, default=4000, help="Presupuesto máximo de tokens para contexto enfocado (default: 4000).")
+    p_arranque.add_argument(
+        "--proveedor",
+        default="estandar",
+        choices=["google", "anthropic", "openai", "deepseek", "estandar"],
+        help="Proveedor de IA para estimación de tokens y optimización de prefijo KV-cache (default: estandar).",
+    )
     p_arranque.set_defaults(func=cmd_arranque)
 
     # 4. Cierre
@@ -261,6 +268,7 @@ def main() -> None:
     p_cierre.add_argument("--notificar", action="store_true", help="Emite alertas sonoras y de escritorio.")
     p_cierre.add_argument("--resolver-pendientes", default="", help="Lista de pendientes resueltos en esta sesión separados por comas.")
     p_cierre.add_argument("--max-sesiones", type=int, default=5, help="Límite de sesiones en ventana deslizante (default: 5).")
+    p_cierre.add_argument("--sustituir-decisiones", default="", help="Lista de IDs o nombres de ADRs anteriores sustituidos/obsoletos separados por comas.")
     p_cierre.set_defaults(func=cmd_cierre)
 
     # 4.1 Historia

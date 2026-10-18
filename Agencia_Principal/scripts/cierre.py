@@ -18,6 +18,7 @@ Uso:
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -58,9 +59,26 @@ def ejecutar_cierre(args: argparse.Namespace, raiz_agencia: Path | None = None) 
     rutas = inicializar(ruta_proyecto)
     archs = lista_archivos(args.archivos)
     resueltos = lista_archivos(getattr(args, "resolver_pendientes", ""))
+    sustituidas = lista_archivos(getattr(args, "sustituir_decisiones", ""))
     max_ses = getattr(args, "max_sesiones", 5)
 
     ev_id = generar_evento_id(agente=args.agente, tareas=args.tareas)
+
+    # Centinela proactivo de consistencia cognitiva
+    avisos_centinela = []
+    if rutas["memoria_md"].exists():
+        texto_mem = rutas["memoria_md"].read_text(encoding="utf-8")
+        m_restr = re.search(r"-\s+\*\*Restricciones y bloqueos:\*\*\s*(.*)", texto_mem)
+        if m_restr:
+            restr = m_restr.group(1).strip()
+            if restr and restr.lower() not in ("ninguno", "ninguna"):
+                palabras_restr = [w.lower() for w in re.findall(r"\b\w{4,}\b", restr)]
+                palabras_tarea = [w.lower() for w in re.findall(r"\b\w{4,}\b", args.tareas)]
+                coincidencias = set(palabras_restr).intersection(palabras_tarea)
+                if coincidencias:
+                    avisos_centinela.append(
+                        f"La tarea menciona términos coincidentes con restricciones activas: {', '.join(sorted(coincidencias))}"
+                    )
 
     # Transacción atómica unificada bajo bloqueo exclusivo
     with bloqueo_proyecto(rutas["base"]):
@@ -77,6 +95,7 @@ def ejecutar_cierre(args: argparse.Namespace, raiz_agencia: Path | None = None) 
             agente=args.agente,
             evento_id=ev_id,
             pendientes_resueltos=resueltos,
+            decisiones_sustituidas=sustituidas,
         )
 
         # 2. Generar bloque de informe e inyectar en memoria.md
@@ -91,8 +110,13 @@ def ejecutar_cierre(args: argparse.Namespace, raiz_agencia: Path | None = None) 
         )
         guardar_mem_palace(ruta_proyecto, bloque_informe, acumular=True)
 
-        # 3. Compactar sesiones excedentes manteniendo ventana deslizante
-        rotar_memoria(ruta_proyecto, max_sesiones=max_ses, pendientes_resueltos=resueltos)
+        # 3. Compactar sesiones excedentes manteniendo ventana deslizante y ciclo de ADRs
+        rotar_memoria(
+            ruta_proyecto,
+            max_sesiones=max_ses,
+            pendientes_resueltos=resueltos,
+            decisiones_sustituidas=sustituidas,
+        )
 
     print(f"\n[✓] Cierre registrado con éxito:")
     print(f"    - ID Evento:          {ev_id}")
@@ -105,6 +129,11 @@ def ejecutar_cierre(args: argparse.Namespace, raiz_agencia: Path | None = None) 
         print(f"    - Decisiones:         {args.decisiones}")
     if resueltos:
         print(f"    - Pendientes resueltos: {', '.join(resueltos)}")
+    if sustituidas:
+        print(f"    - Decisiones sustituidas: {', '.join(sustituidas)}")
+    if avisos_centinela:
+        for av in avisos_centinela:
+            print(f"    - ⚠ Centinela:         {av}")
     print(f"    - Memoria actualizada: {ruta_proyecto / 'memoria.md'}")
 
     # 4. Notificación interactiva opcional
@@ -182,6 +211,11 @@ def main() -> None:
         "--resolver-pendientes",
         default="",
         help="Lista de pendientes resueltos en esta sesión separados por comas.",
+    )
+    parser.add_argument(
+        "--sustituir-decisiones",
+        default="",
+        help="Decisiones o ADRs previos sustituidos por este cierre (separados por coma).",
     )
     parser.add_argument(
         "--max-sesiones",

@@ -10,8 +10,10 @@ recuperación histórica puntual y compatibilidad retroactiva con proyectos exis
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import hashlib
 import json
+import math
 import os
 import re
 import tempfile
@@ -495,14 +497,25 @@ def consolidar_estado_activo(
     return "\n".join(lineas_salida)
 
 
-def consolidar_decisiones(decisiones_previas: str, nuevas_sesiones: list[str]) -> str:
-    """Consolida las decisiones vigentes para que no desaparezcan al rotar sesiones."""
+def consolidar_decisiones(
+    decisiones_previas: str,
+    nuevas_sesiones: list[str],
+    decisiones_sustituidas: list[str] | None = None,
+) -> str:
+    """
+    Consolida las decisiones vigentes para que no desaparezcan al rotar sesiones.
+    Soporta ciclo de vida de ADRs: las decisiones sustituidas explícitamente se retiran
+    de las decisiones activas para prevenir directivas contradictorias al LLM.
+    """
+    sustituidas_set = {s.strip().lower() for s in (decisiones_sustituidas or []) if s.strip()}
     lineas_existentes = []
     if decisiones_previas:
         for l in decisiones_previas.splitlines():
             s = l.strip()
             if s and not s.startswith("##") and s.lower() != "- ninguna decisión arquitectónica registrada aún.":
-                lineas_existentes.append(s)
+                es_sustituida = any(sust in s.lower() for sust in sustituidas_set)
+                if not es_sustituida and s not in lineas_existentes:
+                    lineas_existentes.append(s)
 
     for s in nuevas_sesiones:
         datos = _extraer_campos_sesion(s)
@@ -511,7 +524,8 @@ def consolidar_decisiones(decisiones_previas: str, nuevas_sesiones: list[str]) -
                 item_limpio = item.strip()
                 if item_limpio and item_limpio.lower() not in ("ninguna", "ninguno"):
                     formateado = f"- {item_limpio}" if not item_limpio.startswith("-") else item_limpio
-                    if formateado not in lineas_existentes:
+                    es_sustituida = any(sust in formateado.lower() for sust in sustituidas_set)
+                    if not es_sustituida and formateado not in lineas_existentes:
                         lineas_existentes.append(formateado)
 
     lineas_salida = ["## 2. Decisiones Técnicas y ADRs"]
@@ -520,6 +534,37 @@ def consolidar_decisiones(decisiones_previas: str, nuevas_sesiones: list[str]) -
     else:
         lineas_salida.append("- Ninguna decisión arquitectónica registrada aún.")
     return "\n".join(lineas_salida)
+
+
+def _compactar_hitos_en_epocas(hitos: list[str], max_hitos: int = 8) -> list[str]:
+    """
+    Compresión jerárquica multinivel (L3 Épocas / Fases):
+    Si la lista de hitos de una línea supera max_hitos, compacta los hitos más antiguos
+    en una entrada consolidada de época para mantener acotado el crecimiento del contexto a O(1).
+    """
+    if len(hitos) <= max_hitos:
+        return hitos
+
+    exceso = len(hitos) - (max_hitos - 1)
+    a_consolidar = hitos[:exceso]
+    recientes = hitos[exceso:]
+
+    eventos = re.findall(r"\[(ev_[a-zA-Z0-9_]+)\]", "\n".join(a_consolidar))
+    rango_ev = f"{eventos[0]} a {eventos[-1]}" if len(eventos) >= 2 else (eventos[0] if eventos else "historial consolidado")
+
+    resumenes = []
+    for h in a_consolidar:
+        limpio = re.sub(r"^\s*-\s*\[.*?\]\s*", "", h).strip()
+        limpio = re.sub(r"—\s*Ref:.*", "", limpio).strip()
+        if limpio and limpio not in resumenes:
+            resumenes.append(limpio)
+
+    sintesis = "; ".join(resumenes[:3])
+    if len(resumenes) > 3:
+        sintesis += f" (+{len(resumenes) - 3} tareas previas)"
+
+    hito_epoca = f"- **[Época Consolidada: {len(a_consolidar)} sesiones]** {sintesis} — Ref: {rango_ev}"
+    return [hito_epoca] + recientes
 
 
 def _respaldar_sesion_en_timeline(proyecto: Path, datos_sesion: dict) -> None:
@@ -571,13 +616,15 @@ def rotar_memoria(
     max_sesiones: int = 5,
     presupuesto_tokens: int | None = None,
     pendientes_resueltos: list[str] | None = None,
+    decisiones_sustituidas: list[str] | None = None,
 ) -> None:
     """
     Mantiene la ventana deslizante compactando sesiones excedentes a hitos de 1 línea.
     Garantiza:
     1. Respaldo previo íntegro en timeline.jsonl antes de compactar (cero pérdida de datos).
     2. Idempotencia total: ejecuciones repetidas producen exactamente el mismo contenido.
-    3. Preservación del Estado Activo y Decisiones vigentes.
+    3. Preservación del Estado Activo y Decisiones vigentes con ciclo de vida de ADRs.
+    4. Compresión jerárquica multinivel de hitos en épocas acotadas.
     """
     rutas = inicializar(proyecto)
     with bloqueo_proyecto(rutas["base"]):
@@ -589,10 +636,14 @@ def rotar_memoria(
         sesiones = parsed["sesiones_recientes"]
         hitos = parsed["hitos_anteriores"]
 
-        # Recopilar todos los pendientes resueltos de timeline.jsonl y del argumento
+        # Recopilar todos los pendientes resueltos y decisiones sustituidas de timeline.jsonl
         resueltos_acumulados = set()
+        sustituidas_acumuladas = set()
         if pendientes_resueltos:
             resueltos_acumulados.update(p.strip().lower() for p in pendientes_resueltos if p.strip())
+        if decisiones_sustituidas:
+            sustituidas_acumuladas.update(d.strip().lower() for d in decisiones_sustituidas if d.strip())
+
         if rutas["timeline"].exists():
             try:
                 for linea in rutas["timeline"].read_text(encoding="utf-8").splitlines():
@@ -603,6 +654,9 @@ def rotar_memoria(
                         for pr in obj.get("pendientes_resueltos", []):
                             if pr and pr.strip():
                                 resueltos_acumulados.add(pr.strip().lower())
+                        for ds in obj.get("decisiones_sustituidas", []):
+                            if ds and ds.strip():
+                                sustituidas_acumuladas.add(ds.strip().lower())
                     except Exception:
                         continue
             except Exception:
@@ -613,7 +667,7 @@ def rotar_memoria(
                 d = _extraer_campos_sesion(s)
                 _respaldar_sesion_en_timeline(proyecto, d)
             sesiones_conservadas = sesiones
-            hitos_finales = hitos
+            hitos_finales = _compactar_hitos_en_epocas(hitos)
         else:
             exceso = len(sesiones) - max_sesiones
             sesiones_a_compactar = sesiones[:exceso]
@@ -626,13 +680,15 @@ def rotar_memoria(
                 hito = compactar_sesion_a_hito(s, evento_id=d["evento_id"])
                 if hito not in hitos and not any(f"[{d['evento_id']}]" in h for h in hitos):
                     nuevos_hitos.append(hito)
-            hitos_finales = hitos + nuevos_hitos
+            hitos_finales = _compactar_hitos_en_epocas(hitos + nuevos_hitos)
 
         # Consolidar estado activo y decisiones con el historial completo
         estado_activo = consolidar_estado_activo(
             parsed["estado_activo"], sesiones, pendientes_resueltos=list(resueltos_acumulados)
         )
-        decisiones = consolidar_decisiones(parsed["decisiones"], sesiones)
+        decisiones = consolidar_decisiones(
+            parsed["decisiones"], sesiones, decisiones_sustituidas=list(sustituidas_acumuladas)
+        )
 
         cabecera = parsed["cabecera"]
         if not cabecera:
@@ -752,6 +808,7 @@ def agregar_cloudmem(
     agente: str = "agente",
     evento_id: str = "",
     pendientes_resueltos: list[str] | None = None,
+    decisiones_sustituidas: list[str] | None = None,
 ) -> str:
     """Registra una entrada estructurada en cloudmem.jsonl y timeline.jsonl."""
     rutas = inicializar(proyecto)
@@ -769,6 +826,7 @@ def agregar_cloudmem(
         "decisiones": decisiones,
         "pendientes": pendientes,
         "pendientes_resueltos": pendientes_resueltos or [],
+        "decisiones_sustituidas": decisiones_sustituidas or [],
         "riesgos": riesgos,
     }
     linea = json.dumps(entrada, ensure_ascii=False) + "\n"
@@ -807,6 +865,61 @@ def leer_cloudmem(proyecto: Path, limite: int = 8, filtro: str = "") -> list[dic
     return entradas[-limite:]
 
 
+def _tokenizar_bm25(texto: str) -> list[str]:
+    """Tokeniza texto para búsqueda semántica/léxica eliminando puntuación y stopwords comunes."""
+    texto_split = re.sub(r"([a-z])([A-Z])", r"\1 \2", texto)
+    tokens = re.findall(r"\b[\w\-#]{2,}\b", texto_split.lower())
+    stopwords = {
+        "de", "la", "el", "en", "y", "a", "los", "del", "se", "las", "por", "un", "para", "con", "no", "una",
+        "su", "al", "lo", "como", "mas", "pero", "sus", "le", "ya", "o", "fue", "este", "ha", "si", "porque",
+        "esta", "son", "entre", "esta", "cuando", "muy", "sin", "sobre", "ser", "tiene", "tambien", "me", "hasta",
+        "hay", "donde", "quien", "desde", "todo", "nos", "durante", "todos", "uno", "les", "ni", "contra", "otros",
+        "ese", "eso", "ante", "ellos", "e", "esto", "mi", "antes", "algunos", "que", "the", "and", "is", "in", "to",
+        "of", "for", "with", "on", "at", "by", "from", "an", "be", "as", "it"
+    }
+    return [t for t in tokens if t not in stopwords]
+
+
+def _calcular_bm25(corpus: list[str], consulta: str, k1: float = 1.5, b: float = 0.75) -> list[float]:
+    """Calcula la relevancia probabilística BM25 para cada documento del corpus ante una consulta."""
+    tokens_consulta = _tokenizar_bm25(consulta)
+    if not tokens_consulta:
+        return [0.0] * len(corpus)
+
+    corpus_tokens = [_tokenizar_bm25(doc) for doc in corpus]
+    n_docs = len(corpus_tokens)
+    if n_docs == 0:
+        return []
+
+    doc_lens = [len(doc) for doc in corpus_tokens]
+    avgdl = sum(doc_lens) / n_docs if n_docs > 0 else 1.0
+
+    df = Counter()
+    for doc in corpus_tokens:
+        unique_tokens = set(doc)
+        for t in tokens_consulta:
+            if t in unique_tokens:
+                df[t] += 1
+
+    idf = {}
+    for t in tokens_consulta:
+        n_q = df.get(t, 0)
+        idf[t] = math.log(1.0 + (n_docs - n_q + 0.5) / (n_q + 0.5))
+
+    scores = []
+    for i, doc in enumerate(corpus_tokens):
+        score = 0.0
+        doc_len = doc_lens[i]
+        tf_counter = Counter(doc)
+        for t in tokens_consulta:
+            tf = tf_counter.get(t, 0)
+            if tf > 0:
+                denominador = tf + k1 * (1.0 - b + b * (doc_len / avgdl))
+                score += idf[t] * ((tf * (k1 + 1.0)) / denominador)
+        scores.append(score)
+    return scores
+
+
 def recuperar_historia(
     proyecto: Path,
     query: str = "",
@@ -818,14 +931,14 @@ def recuperar_historia(
 ) -> list[dict]:
     """
     Recupera eventos específicos del historial completo sin cargar la memoria entera.
-    Filtra por ID de evento, palabra clave, archivo o rango de fechas.
+    Filtra por ID de evento, palabra clave (con ranking probabilístico BM25), archivo o rango de fechas.
     """
     rutas = rutas_memoria(proyecto)
     fuente = rutas["timeline"] if rutas["timeline"].exists() and rutas["timeline"].stat().st_size else rutas["cloudmem"]
     if not fuente.exists():
         return []
 
-    resultados: list[dict] = []
+    candidatos: list[dict] = []
     query_lower = query.lower().strip()
     archivo_lower = archivo.lower().strip()
 
@@ -845,19 +958,47 @@ def recuperar_historia(
             if not any(archivo_lower in a for a in archivos_e):
                 continue
 
-        if query_lower:
-            dump_e = json.dumps(e, ensure_ascii=False).lower()
-            if query_lower not in dump_e:
-                continue
-
         if desde and e.get("fecha", "") < desde:
             continue
         if hasta and e.get("fecha", "") > hasta:
             continue
 
-        resultados.append(e)
+        candidatos.append(e)
 
-    return resultados[-limite:]
+    if not candidatos:
+        return []
+
+    # Si hay consulta textual, aplicar ranking BM25 + coincidencia de subcadena exacta
+    if query_lower:
+        exact_matches = [e for e in candidatos if query_lower in json.dumps(e, ensure_ascii=False).lower()]
+        pool = exact_matches if exact_matches else candidatos
+
+        corpus = []
+        for e in pool:
+            archs = " ".join(e.get("archivos", []))
+            doc = f"{e.get('evento_id', '')} {e.get('agente', '')} {e.get('resumen', '')} {e.get('decisiones', '')} {e.get('pendientes', '')} {e.get('riesgos', '')} {archs}"
+            corpus.append(doc)
+
+        scores = _calcular_bm25(corpus, query_lower)
+        parejas = []
+        for idx, e in enumerate(pool):
+            sc = scores[idx] if idx < len(scores) else 0.0
+            dump_e = json.dumps(e, ensure_ascii=False).lower()
+            if query_lower in dump_e:
+                sc += 10.0  # Boost para coincidencia textual exacta
+            if sc > 0 or exact_matches:
+                parejas.append((sc, e))
+
+        parejas.sort(key=lambda x: x[0], reverse=True)
+        res = []
+        for sc, e in parejas[:limite]:
+            e_res = dict(e)
+            e_res["score_relevancia"] = round(sc, 4)
+            res.append(e_res)
+        return res
+
+    return candidatos[-limite:]
+
 
 
 def reconstruir_memoria(proyecto: Path, reparar_archivo: bool = False) -> str:

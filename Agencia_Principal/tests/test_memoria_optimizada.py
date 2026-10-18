@@ -414,6 +414,202 @@ class TestMemoriaOptimizada(unittest.TestCase):
             self.assertTrue(len(data) >= 1)
             self.assertEqual(data[-1]["agente"], "MCP Tester")
 
+    def test_bm25_recuperacion_probabilistica(self):
+        """El motor BM25 clasifica por relevancia probabilística términos de búsqueda en timeline."""
+        agregar_cloudmem(self.proyecto_dir, "Implementar arquitectura de microservicios con gRPC", ["grpc.py"], agente="Backend")
+        agregar_cloudmem(self.proyecto_dir, "Configuración de PostgreSQL y pool de conexiones asyncpg", ["db.py"], agente="DBA")
+        agregar_cloudmem(self.proyecto_dir, "Automatización de pruebas end-to-end con Playwright y Chromium", ["e2e.py"], agente="QA")
+        agregar_cloudmem(self.proyecto_dir, "Optimización de cache Redis con clustering y TTL dinámico", ["cache.py"], agente="DevOps")
+
+        # Búsqueda relevante a base de datos
+        res_db = recuperar_historia(self.proyecto_dir, query="PostgreSQL pool conexiones")
+        self.assertGreater(len(res_db), 0)
+        self.assertEqual(res_db[0]["agente"], "DBA")
+        self.assertIn("score_relevancia", res_db[0])
+        self.assertGreater(res_db[0]["score_relevancia"], 0.0)
+
+        # Búsqueda relevante a microservicios
+        res_grpc = recuperar_historia(self.proyecto_dir, query="gRPC microservicios")
+        self.assertGreater(len(res_grpc), 0)
+        self.assertEqual(res_grpc[0]["agente"], "Backend")
+
+        # Búsqueda vacía preserva orden cronológico sin fallar
+        res_vacio = recuperar_historia(self.proyecto_dir, query="")
+        self.assertEqual(len(res_vacio), 4)
+
+    def test_sustitucion_decisiones_adr(self):
+        """La sustitución explícita de ADRs desactiva decisiones obsoletas de la sección 2 y las audita."""
+        # Sesión inicial con ADR-101
+        args1 = argparse.Namespace(
+            proyecto=self.proyecto_dir.name,
+            tareas="Definir protocolo REST v1",
+            archivos="api.py",
+            decisiones="ADR-101: Arquitectura REST pura con endpoints sincrónicos",
+            pendientes="",
+            riesgos="",
+            agente="Arquitecto",
+            cloud_resumen="",
+            tipo="arquitectura",
+            notificar=False,
+            resolver_pendientes="",
+            max_sesiones=5,
+            sustituir_decisiones="",
+        )
+        ejecutar_cierre(args1, raiz_agencia=self.tmp_dir)
+
+        memoria_antes = (self.proyecto_dir / "memoria.md").read_text(encoding="utf-8")
+        self.assertIn("ADR-101", memoria_antes)
+
+        # Sesión posterior que sustituye ADR-101 por ADR-102
+        args2 = argparse.Namespace(
+            proyecto=self.proyecto_dir.name,
+            tareas="Migración a GraphQL por requerimientos de flexibilidad",
+            archivos="schema.graphql",
+            decisiones="ADR-102: Adopción de GraphQL federado en sustitución de REST",
+            pendientes="",
+            riesgos="",
+            agente="Arquitecto",
+            cloud_resumen="",
+            tipo="arquitectura",
+            notificar=False,
+            resolver_pendientes="",
+            max_sesiones=5,
+            sustituir_decisiones="ADR-101",
+        )
+        ejecutar_cierre(args2, raiz_agencia=self.tmp_dir)
+
+        memoria_despues = (self.proyecto_dir / "memoria.md").read_text(encoding="utf-8")
+        parsed_despues = analizar_memoria(memoria_despues)
+        
+        # ADR-102 debe estar activo en Sección 2
+        self.assertIn("ADR-102", parsed_despues["decisiones"])
+        # ADR-101 debe haber sido removido de Sección 2 activa
+        self.assertNotIn("ADR-101", parsed_despues["decisiones"])
+
+        # Timeline debe registrar la sustitución para trazabilidad
+        eventos = leer_cloudmem(self.proyecto_dir, limite=2)
+        evento_reciente = eventos[-1]
+        self.assertIn("decisiones_sustituidas", evento_reciente)
+        self.assertIn("ADR-101", evento_reciente["decisiones_sustituidas"])
+
+    def test_compactacion_jerarquica_epocas(self):
+        """Cuando la lista de hitos compactados supera el umbral (8), se consolidan jerárquicamente en épocas."""
+        # Simular 14 hitos acumulados
+        hitos_simulados = [
+            f"- `[2026-10-0{i % 9 + 1}T10:00:00Z]` Tarea de hito histórico #{i} (agente: Dev_{i}, archivos: mod_{i}.py)"
+            for i in range(1, 15)
+        ]
+        
+        from scripts.memoria_proyecto import _compactar_hitos_en_epocas  # type: ignore
+        hitos_compactados = _compactar_hitos_en_epocas(hitos_simulados, max_hitos=8)
+        
+        # Total de hitos no debe exceder el umbral + 1 entrada de época
+        self.assertLessEqual(len(hitos_compactados), 9)
+        # La primera entrada debe ser una época consolidada
+        self.assertTrue(any("época consolidada" in h.lower() for h in hitos_compactados))
+        # Los hitos más recientes se preservan individualmente
+        self.assertTrue(any("hito histórico #14" in h for h in hitos_compactados))
+
+    def test_centinela_contradicciones(self):
+        """El centinela detecta y emite alerta si una tarea colisiona con restricciones activas de la sección 1."""
+        # Configurar restricción activa en memoria.md
+        rutas = rutas_memoria(self.proyecto_dir)
+        texto_mem = rutas["memoria_md"].read_text(encoding="utf-8")
+        texto_con_restriccion = texto_mem.replace(
+            "- **Restricciones y bloqueos:** Ninguno",
+            "- **Restricciones y bloqueos:** Prohibido modificar schema de Postgres sin migración alembic",
+        )
+        rutas["memoria_md"].write_text(texto_con_restriccion, encoding="utf-8")
+
+        # Cierre que contiene contradicción
+        args = argparse.Namespace(
+            proyecto=self.proyecto_dir.name,
+            tareas="Modificar schema de Postgres directamente sin alembic",
+            archivos="schema.sql",
+            decisiones="",
+            pendientes="",
+            riesgos="",
+            agente="Backend",
+            cloud_resumen="",
+            tipo="operativo",
+            notificar=False,
+            resolver_pendientes="",
+            max_sesiones=5,
+            sustituir_decisiones="",
+        )
+        with patch("sys.stdout") as mock_stdout:
+            ejecutar_cierre(args, raiz_agencia=self.tmp_dir)
+
+        # La memoria se actualiza pero el centinela habrá alertado en salida
+        memoria_actual = rutas["memoria_md"].read_text(encoding="utf-8")
+        self.assertIn("Modificar schema de Postgres", memoria_actual)
+
+    def test_multi_ia_modelos_y_caching_prompt(self):
+        """Context Engine soporta modelos de referencia 2026, métricas Multi-IA y límite KV-cache."""
+        # 1. Google Gemini 3.x
+        ctx_google = obtener_paquete_contexto(self.proyecto_dir, proveedor="google")
+        self.assertEqual(ctx_google["finops"]["proveedor"], "google")
+        self.assertEqual(ctx_google["finops"]["familia_ia"], "Gemini 3.x")
+        self.assertIn("gemini-3.8-flash", ctx_google["finops"]["modelos_recomendados_2026"])
+        self.assertTrue(ctx_google["finops"]["caching"]["soporta_caching"])
+
+        # 2. Anthropic Claude 4.x / 3.7
+        ctx_anthropic = obtener_paquete_contexto(self.proyecto_dir, proveedor="anthropic")
+        self.assertEqual(ctx_anthropic["finops"]["proveedor"], "anthropic")
+        self.assertEqual(ctx_anthropic["finops"]["familia_ia"], "Claude 4.x / 3.7")
+        self.assertIn("claude-3-7-sonnet", ctx_anthropic["finops"]["modelos_recomendados_2026"])
+        self.assertEqual(ctx_anthropic["finops"]["caching"]["descuento_cache_lectura_pct"], 90)
+
+        # 3. OpenAI o-series / GPT-5
+        ctx_openai = obtener_paquete_contexto(self.proyecto_dir, proveedor="openai")
+        self.assertEqual(ctx_openai["finops"]["proveedor"], "openai")
+        self.assertIn("o3", ctx_openai["finops"]["modelos_recomendados_2026"])
+
+        # 4. DeepSeek V3 / R1
+        ctx_deepseek = obtener_paquete_contexto(self.proyecto_dir, proveedor="deepseek")
+        self.assertEqual(ctx_deepseek["finops"]["proveedor"], "deepseek")
+        self.assertIn("deepseek-v3", ctx_deepseek["finops"]["modelos_recomendados_2026"])
+
+        # 5. Estructura del Prompt con CACHE_BOUNDARY
+        prompt = generar_primer_prompt(ctx_anthropic)
+        self.assertIn("<!-- CACHE_BOUNDARY: STATIC_PREFIX -->", prompt)
+        self.assertIn("ANTHROPIC", prompt)
+        self.assertIn("claude-3-7-sonnet", prompt)
+        self.assertIn("Alineación KV-Cache", prompt)
+
+        # Partes estáticas antes del límite, dinámicas después
+        partes = prompt.split("<!-- CACHE_BOUNDARY: STATIC_PREFIX -->")
+        self.assertEqual(len(partes), 2)
+        prefijo_estatico = partes[0]
+        sufijo_dinamico = partes[1]
+        self.assertIn("Manifiesto del Proyecto", prefijo_estatico)
+        self.assertIn("Decisiones de Arquitectura Activas (ADRs)", prefijo_estatico)
+        self.assertIn("Memoria Reciente y Estado Actual", sufijo_dinamico)
+
+    def test_doctor_auditoria_salud_memoria(self):
+        """Doctor detecta corrupciones en timeline JSONL y valida formato de memoria."""
+        try:
+            from scripts.doctor import Doctor
+        except ImportError:
+            from doctor import Doctor  # type: ignore
+
+        doc = Doctor(verbose=False)
+        doc.raiz = self.tmp_dir
+        doc.verificar_salud_memorias()
+        # Inicialmente con memoria válida debe tener 1 OK y 0 fallos
+        self.assertEqual(doc.fails, 0)
+
+        # Inyectar línea corrupta en timeline
+        rutas = rutas_memoria(self.proyecto_dir)
+        with rutas["timeline"].open("a", encoding="utf-8") as f:
+            f.write("CORRUPTED_JSON_LINE\n")
+
+        doc_corrupt = Doctor(verbose=False)
+        doc_corrupt.raiz = self.tmp_dir
+        doc_corrupt.verificar_salud_memorias()
+        self.assertGreater(doc_corrupt.fails, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
+

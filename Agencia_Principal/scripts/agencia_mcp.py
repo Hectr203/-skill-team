@@ -62,6 +62,12 @@ TOOLS_DEFINITIONS = [
                     "default": 4000,
                     "description": "Presupuesto máximo de tokens para contexto enfocado (default: 4000).",
                 },
+                "proveedor": {
+                    "type": "string",
+                    "enum": ["google", "anthropic", "openai", "deepseek", "estandar"],
+                    "default": "estandar",
+                    "description": "Proveedor de IA para estimación de tokens y optimización de prefijo KV-cache.",
+                },
             },
             "required": ["proyecto"],
         },
@@ -120,6 +126,11 @@ TOOLS_DEFINITIONS = [
                     "type": "integer",
                     "default": 5,
                     "description": "Límite de sesiones detalladas en la ventana deslizante.",
+                },
+                "sustituir_decisiones": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Lista de nombres o IDs de ADRs anteriores sustituidos/obsoletos separados por comas.",
                 },
             },
             "required": ["proyecto", "tareas"],
@@ -279,6 +290,7 @@ def ejecutar_herramienta(name: str, args: dict) -> tuple[str, bool]:
                     formato_prime=(formato == "primer"),
                     modo_completo=args.get("completo", False),
                     presupuesto=args.get("presupuesto", 4000),
+                    proveedor=args.get("proveedor", "estandar"),
                     raiz_agencia=RAIZ,
                 )
 
@@ -298,8 +310,10 @@ def ejecutar_herramienta(name: str, args: dict) -> tuple[str, bool]:
                     notificar=False,
                     resolver_pendientes=args.get("resolver_pendientes", ""),
                     max_sesiones=args.get("max_sesiones", 5),
+                    sustituir_decisiones=args.get("sustituir_decisiones", ""),
                 )
                 ejecutar_cierre(ns, raiz_agencia=RAIZ)
+
 
             elif name == "agencia_historia":
                 from memoria_proyecto import recuperar_historia, resolver_proyecto

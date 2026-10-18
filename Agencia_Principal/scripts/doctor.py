@@ -254,6 +254,75 @@ class Doctor:
         except (OSError, ValueError, subprocess.TimeoutExpired):
             self.fail("No se pudo completar la comprobación operativa local")
 
+    def verificar_salud_memorias(self) -> None:
+        self.seccion("7. Salud e Integridad de Memoria Persistente")
+        projects_dir = self.raiz / "contexts" / "projects"
+        if not projects_dir.exists():
+            self.warn("Directorio contexts/projects/ no existe aún")
+            return
+
+        proyectos = [p for p in projects_dir.iterdir() if p.is_dir() and not p.is_symlink() and not p.name.startswith((".", "_"))]
+        if not proyectos:
+            self.info("Sin proyectos activos en contexts/projects/ para auditar")
+            return
+
+        errores_memoria = 0
+        for p in proyectos:
+            # 1. Timeline JSONL integrity
+            tl_file = p / ".memoria" / "timeline.jsonl"
+            if not tl_file.exists():
+                tl_file = p / "timeline.jsonl"
+            if not tl_file.exists():
+                tl_file = p / "cloudmem.jsonl"
+
+            if tl_file.exists():
+                lineas_invalidas = 0
+                total_lineas = 0
+                try:
+                    with tl_file.open("r", encoding="utf-8") as f:
+                        for idx, l in enumerate(f, 1):
+                            l_strip = l.strip()
+                            if not l_strip:
+                                continue
+                            total_lineas += 1
+                            try:
+                                json.loads(l_strip)
+                            except json.JSONDecodeError:
+                                lineas_invalidas += 1
+                    if lineas_invalidas > 0:
+                        self.fail(f"Proyecto '{p.name}': {lineas_invalidas}/{total_lineas} líneas corruptas en {tl_file.name}", f"Reconstruir con: python3 scripts/agencia.py reconstruir {p.name} --reparar")
+                        errores_memoria += 1
+                    else:
+                        if self.verbose:
+                            self.ok(f"Proyecto '{p.name}': {tl_file.name} íntegro ({total_lineas} eventos)")
+                except Exception as e:
+                    self.fail(f"Proyecto '{p.name}': Error leyendo timeline: {e}")
+                    errores_memoria += 1
+
+            # 2. memoria.md section validation
+            mem_file = p / "memoria.md"
+            if mem_file.exists():
+                try:
+                    contenido = mem_file.read_text(encoding="utf-8")
+                    secciones_canonica = [
+                        "## 1. Estado Activo y Criterios Vigentes",
+                        "## 2. Decisiones Técnicas y ADRs",
+                        "## 3. Historial Reciente",
+                    ]
+                    faltantes = [s for s in secciones_canonica if not any(line.startswith(s) for line in contenido.splitlines())]
+                    if faltantes and "## " in contenido:
+                        self.warn(f"Proyecto '{p.name}': memoria.md no sigue formato de 5 secciones estándar", f"Ejecutar: python3 scripts/agencia.py reconstruir {p.name}")
+                    else:
+                        if self.verbose:
+                            self.ok(f"Proyecto '{p.name}': memoria.md estructurada")
+
+                except Exception as e:
+                    self.fail(f"Proyecto '{p.name}': Error leyendo memoria.md: {e}")
+                    errores_memoria += 1
+
+        if errores_memoria == 0:
+            self.ok(f"Memorias auditadas en {len(proyectos)} proyectos activos (0 corrupciones)")
+
     def ejecutar(self) -> int:
         print(f"\n{BOLD}======================================================={RESET}")
         print(f"{BOLD}🩺 AGENCIA DE PROYECTOS — DIAGNÓSTICO Y PREFLIGHT CHECK{RESET}")
@@ -267,8 +336,10 @@ class Doctor:
         self.verificar_mcps()
         self.verificar_estructura_agencia()
         self.verificar_operacion_local()
+        self.verificar_salud_memorias()
 
         print(f"\n{BOLD}── Resumen del Diagnóstico ────────────────────────────{RESET}")
+
         print(f"  {VERDE}✓ Pruebas superadas (OK): {self.oks}{RESET}")
         if self.warns:
             print(f"  {AMARILLO}⚠ Advertencias (WARN):    {self.warns}{RESET}")
