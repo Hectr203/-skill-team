@@ -199,7 +199,17 @@ def guardar_mem_palace(proyecto: Path, informe_texto: str, acumular: bool = True
     with bloqueo_proyecto(rutas["base"]):
         if rutas["memoria_md"].exists() and acumular:
             previo = rutas["memoria_md"].read_text(encoding="utf-8")
-            nuevo = f"{previo.rstrip()}\n\n---\n\n{informe_texto}\n"
+            parsed = analizar_memoria(previo)
+            if parsed["sesiones_recientes"]:
+                parsed["sesiones_recientes"].append(informe_texto.strip())
+                nuevo = f"{parsed['cabecera']}\n\n---\n\n## 3. Historial Reciente (Últimas sesiones)\n\n"
+                nuevo += "\n\n---\n\n".join(parsed["sesiones_recientes"])
+                if parsed["hitos_anteriores"]:
+                    nuevo += "\n\n---\n\n## 4. Hitos Anteriores (Bitácora compacta)\n"
+                    nuevo += "\n".join(parsed["hitos_anteriores"])
+                nuevo += "\n"
+            else:
+                nuevo = f"{previo.rstrip()}\n\n---\n\n{informe_texto}\n"
         else:
             nuevo = informe_texto
         _escritura_atomica(rutas["memoria_md"], nuevo)
@@ -211,6 +221,115 @@ def guardar_mem_palace(proyecto: Path, informe_texto: str, acumular: bool = True
             rutas["mem_palace"].write_bytes(fernet.encrypt(nuevo.encode("utf-8")))
         except Exception:
             pass
+
+
+def compactar_sesion_a_hito(bloque_sesion: str) -> str:
+    """Convierte un bloque de sesión detallada en un hito sintético de una línea."""
+    m_fecha = re.search(r"###\s+\[([^\]]+)\]", bloque_sesion)
+    fecha = m_fecha.group(1) if m_fecha else ahora_iso()
+
+    m_agente = re.search(r"-\s+\*\*Agente:\*\*\s*(.*)", bloque_sesion)
+    agente = m_agente.group(1).strip() if m_agente else "Agente"
+
+    m_tareas = re.search(r"-\s+\*\*Tareas(?: completadas)?:\*\*\s*(.*)", bloque_sesion)
+    tareas = m_tareas.group(1).strip() if m_tareas else "Tarea realizada"
+    if len(tareas) > 120:
+        tareas = tareas[:117] + "..."
+
+    m_archivos = re.search(r"-\s+\*\*Archivos afectados:\*\*\s*(.*)", bloque_sesion)
+    archivos_str = m_archivos.group(1).strip() if m_archivos else ""
+    if archivos_str and archivos_str.lower() != "ninguno":
+        num_archivos = len([a for a in archivos_str.split(",") if a.strip()])
+        arch_info = f" ({num_archivos} archivo{'s' if num_archivos != 1 else ''})"
+    else:
+        arch_info = ""
+
+    return f"- [{fecha}] ({agente}) {tareas}{arch_info}"
+
+
+def analizar_memoria(contenido: str) -> dict:
+    """Parsea memoria.md separando cabecera, sesiones detalladas e hitos compactados."""
+    if not contenido:
+        return {"cabecera": "", "sesiones_recientes": [], "hitos_anteriores": []}
+
+    partes_hitos = re.split(r"(?m)^## 4\.\s+Hitos Anteriores.*$", contenido, maxsplit=1)
+    cuerpo_principal = partes_hitos[0]
+    bloque_hitos = partes_hitos[1] if len(partes_hitos) > 1 else ""
+
+    hitos = []
+    if bloque_hitos:
+        for linea in bloque_hitos.splitlines():
+            linea_limpia = linea.strip()
+            if linea_limpia.startswith("- ["):
+                hitos.append(linea_limpia)
+
+    # Buscar sesiones detalladas que comienzan con ### [
+    matches = list(re.finditer(r"(?m)^###\s+\[([^\]]+)\].*$", cuerpo_principal))
+    if not matches:
+        return {"cabecera": cuerpo_principal.strip(), "sesiones_recientes": [], "hitos_anteriores": hitos}
+
+    primera_sesion_idx = matches[0].start()
+    cabecera = cuerpo_principal[:primera_sesion_idx].strip()
+    cabecera = re.sub(r"(?m)^---\s*\n*## 3\.\s+Historial.*$", "", cabecera).strip()
+
+    sesiones = []
+    for i, m in enumerate(matches):
+        inicio = m.start()
+        fin = matches[i + 1].start() if i + 1 < len(matches) else len(cuerpo_principal)
+        bloque_sesion = cuerpo_principal[inicio:fin].strip()
+        bloque_sesion = re.sub(r"\n+---\s*$", "", bloque_sesion).strip()
+        sesiones.append(bloque_sesion)
+
+    return {
+        "cabecera": cabecera,
+        "sesiones_recientes": sesiones,
+        "hitos_anteriores": hitos,
+    }
+
+
+def rotar_memoria(proyecto: Path, max_sesiones: int = 5) -> None:
+    """Mantiene la ventana deslizante compactando sesiones excedentes a hitos de 1 línea."""
+    rutas = inicializar(proyecto)
+    with bloqueo_proyecto(rutas["base"]):
+        if not rutas["memoria_md"].exists():
+            return
+        contenido = rutas["memoria_md"].read_text(encoding="utf-8")
+        parsed = analizar_memoria(contenido)
+        sesiones = parsed["sesiones_recientes"]
+        hitos = parsed["hitos_anteriores"]
+
+        if len(sesiones) <= max_sesiones:
+            return
+
+        exceso = len(sesiones) - max_sesiones
+        nuevos_hitos = [compactar_sesion_a_hito(s) for s in sesiones[:exceso]]
+        hitos.extend(nuevos_hitos)
+        sesiones_conservadas = sesiones[exceso:]
+
+        cabecera = parsed["cabecera"]
+        nuevo_texto = f"{cabecera}\n\n---\n\n## 3. Historial Reciente (Últimas sesiones)\n\n"
+        nuevo_texto += "\n\n---\n\n".join(sesiones_conservadas)
+        if hitos:
+            nuevo_texto += "\n\n---\n\n## 4. Hitos Anteriores (Bitácora compacta)\n"
+            nuevo_texto += "\n".join(hitos)
+        nuevo_texto += "\n"
+
+        _escritura_atomica(rutas["memoria_md"], nuevo_texto)
+
+
+def leer_memoria_enfocada(proyecto: Path) -> str:
+    """Devuelve la memoria optimizada para LLM (omitiendo la bitácora histórica extensa)."""
+    rutas = rutas_memoria(proyecto)
+    if not rutas["memoria_md"].exists():
+        return ""
+    contenido = rutas["memoria_md"].read_text(encoding="utf-8")
+    parsed = analizar_memoria(contenido)
+    if not parsed["sesiones_recientes"]:
+        return contenido
+    
+    res = f"{parsed['cabecera']}\n\n---\n\n## 3. Historial Reciente (Últimas sesiones)\n\n"
+    res += "\n\n---\n\n".join(parsed["sesiones_recientes"])
+    return res.strip()
 
 
 def agregar_cloudmem(

@@ -1,0 +1,74 @@
+import json
+import shutil
+import tempfile
+import unittest
+from pathlib import Path
+import sys
+
+# Agregar scripts al path
+AGENCIA_ROOT = Path(__file__).resolve().parents[1]
+SCRIPTS_DIR = AGENCIA_ROOT / "scripts"
+if str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
+
+from memoria_proyecto import (
+    inicializar,
+    guardar_mem_palace,
+    analizar_memoria,
+    rotar_memoria,
+    leer_memoria_enfocada,
+    informe,
+)
+
+class TestMemoriaOptimizada(unittest.TestCase):
+    def setUp(self):
+        self.tmp_dir = Path(tempfile.mkdtemp())
+        self.proyecto_dir = self.tmp_dir / "contexts" / "projects" / "proyecto-test"
+        inicializar(self.proyecto_dir)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp_dir, ignore_errors=True)
+
+    def test_rotacion_ventana_deslizante(self):
+        """Al registrar más de 5 sesiones, las más antiguas deben compactarse en hitos de 1 línea."""
+        for i in range(1, 8):
+            bloque = informe(
+                tareas=f"Tarea completada #{i}",
+                pendientes=f"Pendiente #{i}",
+                decisiones=f"Decision #{i}",
+                riesgos="Ninguno",
+                agente="Backend",
+                archivos=[f"archivo_{i}.py"],
+            )
+            guardar_mem_palace(self.proyecto_dir, bloque, acumular=True)
+            rotar_memoria(self.proyecto_dir, max_sesiones=5)
+
+        contenido = (self.proyecto_dir / "memoria.md").read_text(encoding="utf-8")
+        parsed = analizar_memoria(contenido)
+        
+        # Deben quedar exactamente 5 sesiones detalladas en la ventana
+        self.assertEqual(len(parsed["sesiones_recientes"]), 5)
+        # La última sesión en la ventana debe ser la #7
+        self.assertIn("Tarea completada #7", parsed["sesiones_recientes"][-1])
+        # Deben haber 3 hitos compactados en la bitácora anterior (inicialización + tarea 1 + tarea 2)
+        self.assertEqual(len(parsed["hitos_anteriores"]), 3)
+        self.assertTrue(any("Tarea completada #1" in hito for hito in parsed["hitos_anteriores"]))
+        self.assertTrue(any("Tarea completada #2" in hito for hito in parsed["hitos_anteriores"]))
+
+    def test_lectura_memoria_enfocada(self):
+        """leer_memoria_enfocada solo debe devolver estado activo y sesiones recientes, omitiendo hitos históricos."""
+        for i in range(1, 8):
+            bloque = informe(
+                tareas=f"Tarea #{i}",
+                agente="Backend",
+            )
+            guardar_mem_palace(self.proyecto_dir, bloque, acumular=True)
+            rotar_memoria(self.proyecto_dir, max_sesiones=5)
+
+        enfocada = leer_memoria_enfocada(self.proyecto_dir)
+        self.assertIn("Tarea #7", enfocada)
+        self.assertIn("Tarea #3", enfocada)
+        self.assertNotIn("Hitos Anteriores", enfocada)
+
+if __name__ == "__main__":
+    unittest.main()
