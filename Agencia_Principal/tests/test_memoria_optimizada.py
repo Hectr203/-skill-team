@@ -70,5 +70,28 @@ class TestMemoriaOptimizada(unittest.TestCase):
         self.assertIn("Tarea #3", enfocada)
         self.assertNotIn("Hitos Anteriores", enfocada)
 
+    def test_primer_prompt_ahorro_tokens(self):
+        """El primer prompt debe incluir métrica de tokens y ahorro."""
+        from arranque import obtener_paquete_contexto, generar_primer_prompt
+        for i in range(1, 8):
+            bloque = informe(
+                tareas=f"Implementar funcionalidad grande con mucho texto y detalles de código #{i}",
+                pendientes=f"Control de calidad #{i}",
+                agente="Fullstack",
+            )
+            guardar_mem_palace(self.proyecto_dir, bloque, acumular=True)
+            rotar_memoria(self.proyecto_dir, max_sesiones=3)
+
+        ctx_enfocado = obtener_paquete_contexto(self.proyecto_dir, modo_completo=False)
+        prompt_enfocado = generar_primer_prompt(ctx_enfocado)
+        
+        ctx_completo = obtener_paquete_contexto(self.proyecto_dir, modo_completo=True)
+        prompt_completo = generar_primer_prompt(ctx_completo)
+
+        # El prompt enfocado debe ser notablemente más corto que el completo
+        self.assertLess(len(prompt_enfocado), len(prompt_completo))
+        self.assertIn("Ahorro estimado:", prompt_enfocado)
+        self.assertIn("Hitos Anteriores", prompt_completo)
+
 if __name__ == "__main__":
     unittest.main()

@@ -56,6 +56,7 @@ def cmd_arranque(args: argparse.Namespace) -> int:
         proyecto_arg=args.proyecto or None,
         formato_json=args.json,
         formato_prime=args.prime,
+        modo_completo=getattr(args, "completo", False),
     )
     return 0
 
@@ -215,6 +216,7 @@ def main() -> None:
     p_arranque.add_argument("proyecto", nargs="?", default="", help="ID exacto del proyecto.")
     p_arranque.add_argument("--json", action="store_true", help="Salida en formato JSON estructurado.")
     p_arranque.add_argument("--prime", "--prompt", action="store_true", dest="prime", help="Genera System Primer para LLMs.")
+    p_arranque.add_argument("--completo", action="store_true", help="Carga el historial completo omitiendo la ventana deslizante.")
     p_arranque.set_defaults(func=cmd_arranque)
 
     # 4. Cierre
