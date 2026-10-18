@@ -33,11 +33,12 @@ from memoria_proyecto import (
     inicializar,
     lista_archivos,
     resolver_proyecto,
+    rotar_memoria,
     rutas_memoria,
 )
 
 
-def ejecutar_cierre(args: argparse.Namespace) -> None:
+def ejecutar_cierre(args: argparse.Namespace, raiz_agencia: Path | None = None) -> None:
     print("=== AGENCIA DE PROYECTOS — REGISTRO DE CIERRE ===")
 
     if not args.proyecto:
@@ -45,8 +46,8 @@ def ejecutar_cierre(args: argparse.Namespace) -> None:
         print("    Ejemplo: python3 scripts/cierre.py --proyecto mi-proyecto --tareas '...'")
         sys.exit(1)
 
-    raiz_agencia = Path(__file__).resolve().parents[1]
-    ruta_proyecto = resolver_proyecto(args.proyecto, raiz_agencia)
+    raiz = (raiz_agencia or Path(__file__).resolve().parents[1]).resolve()
+    ruta_proyecto = resolver_proyecto(args.proyecto, raiz)
 
     if not ruta_proyecto.exists():
         print(f"[!] Error: Proyecto no encontrado en: {ruta_proyecto}")
@@ -65,6 +66,7 @@ def ejecutar_cierre(args: argparse.Namespace) -> None:
         archivos=archs,
     )
     guardar_mem_palace(ruta_proyecto, bloque_informe, acumular=True)
+    rotar_memoria(ruta_proyecto, max_sesiones=5)
 
     # 2. Registrar en timeline estructurado
     resumen_linea = args.cloud_resumen or args.tareas

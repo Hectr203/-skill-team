@@ -93,5 +93,30 @@ class TestMemoriaOptimizada(unittest.TestCase):
         self.assertIn("Ahorro estimado:", prompt_enfocado)
         self.assertIn("Hitos Anteriores", prompt_completo)
 
+    def test_cierre_ejecuta_rotacion_automatica(self):
+        """cierre.py debe disparar rotar_memoria automáticamente tras guardar."""
+        from cierre import ejecutar_cierre
+        import argparse
+
+        for i in range(1, 7):
+            args = argparse.Namespace(
+                proyecto=self.proyecto_dir.name,
+                tareas=f"Cierre de tarea #{i}",
+                archivos=f"mod_{i}.py",
+                decisiones="",
+                pendientes="",
+                riesgos="",
+                agente="Backend",
+                cloud_resumen="",
+                tipo="operativo",
+                notificar=False,
+            )
+            ejecutar_cierre(args, raiz_agencia=self.tmp_dir)
+
+        contenido = (self.proyecto_dir / "memoria.md").read_text(encoding="utf-8")
+        parsed = analizar_memoria(contenido)
+        self.assertEqual(len(parsed["sesiones_recientes"]), 5)
+        self.assertEqual(len(parsed["hitos_anteriores"]), 2)
+
 if __name__ == "__main__":
     unittest.main()
